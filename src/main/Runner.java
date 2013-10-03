@@ -17,9 +17,8 @@ import java.util.List;
  */
 public class Runner implements Runnable {
 
-    SpaceshipCombatProblem leftProblem;
+    SpaceshipCombatProblem problem;
     IStrategy leftHandler;
-    SpaceshipCombatProblem rightProblem;
     IStrategy rightHandler;
     boolean runDemo;
     boolean showDemos;
@@ -42,12 +41,9 @@ public class Runner implements Runnable {
     public Runner(int runIndex) {
         this.runIndex = runIndex;
 
-        leftProblem = new SpaceshipCombatProblem();
-        leftProblem.setShipsOnLeft(true);
-        leftHandler = new CMAHandler(leftProblem, runIndex);
-        rightProblem = new SpaceshipCombatProblem();
-        rightProblem.setShipsOnLeft(false);
-        rightHandler = new CMAHandler(rightProblem, runIndex);
+        problem = new SpaceshipCombatProblem();
+        leftHandler = new CMAHandler(problem, runIndex);
+        rightHandler = new CMAHandler(problem, runIndex+1);
 
         showDemos = true;
     }
@@ -57,8 +53,7 @@ public class Runner implements Runnable {
 
 //        if(showDemos) demonstrate();
         while(!leftHandler.hasCompleted() && !rightHandler.hasCompleted()) {
-            leftProblem.constructEnemyShips(rightHandler.getPopulation());
-            rightProblem.constructEnemyShips(leftHandler.getPopulation());
+            problem.runCombat(leftHandler.getPopulation(), rightHandler.getPopulation());
             leftHandler.run();
             rightHandler.run();
             if((rightHandler.getIterations()% demonstrationInterval == 2) && showDemos) {  //% demonstrationInterval
@@ -76,42 +71,21 @@ public class Runner implements Runnable {
     }
 
     public void demonstrate() {
-        // Create some ships from the population
-        List<Spaceship> leftShips = new ArrayList<Spaceship>();
-        List<ShipActionController> leftConts = new ArrayList<ShipActionController>();
-        List<Spaceship> rightShips = new ArrayList<Spaceship>();
-        List<ShipActionController> rightConts = new ArrayList<ShipActionController>();
         double[][] leftPop = leftHandler.getPopulation();
         double[][] rightPop = rightHandler.getPopulation();
 
         // set up graphical elements
-        SpaceshipVisualiser sv = new SpaceshipVisualiser(leftShips, leftProblem);
+        SpaceshipVisualiser sv = new SpaceshipVisualiser(problem);
         JEasyFrame frame = new JEasyFrame(sv, "Demonstration at Iteration " + leftHandler.getIterations());
         frame.addKeyListener(new KeyHandler(this));
 
-        for(int i = 0; i < leftPop.length; i++) {
-            double[] s = leftPop[i];
-            Spaceship ship = new Spaceship(s);
-            leftShips.add(ship);
-
-            ShipActionController sc = new ShipActionController(ship);
-            leftConts.add(sc);
-        }
-        for(int i = 0; i < rightPop.length; i++) {
-            double[] s = rightPop[i];
-            Spaceship ship = new Spaceship(s);
-            rightShips.add(ship);
-
-            ShipActionController sc = new ShipActionController(ship);
-            rightConts.add(sc);
-        }
-        leftProblem.demonstrationInit(leftShips, leftConts, true);
+        problem.demonstrationInit(leftPop, rightPop);
 
         runDemo = true;
         // MAIN DEMONSTRATION LOOP
         try {
             while(runDemo) {
-                leftProblem.demonstrate(leftShips, leftConts);
+                problem.demonstrate();
                 sv.repaint();
                 Thread.sleep(Constants.delay);
             }

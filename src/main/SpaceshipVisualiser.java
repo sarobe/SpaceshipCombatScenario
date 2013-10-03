@@ -15,13 +15,11 @@ import java.util.List;
  */
 public class SpaceshipVisualiser extends JComponent {
 
-    private List<Spaceship> ships;
     private SpaceshipCombatProblem problem;
 
     public static Font statFont = new Font("sans serif", Font.BOLD, 16);
 
-    public SpaceshipVisualiser(List<Spaceship> ships, SpaceshipCombatProblem problem) {
-        this.ships = ships;
+    public SpaceshipVisualiser(SpaceshipCombatProblem problem) {
         this.problem = problem;
     }
 
@@ -36,11 +34,7 @@ public class SpaceshipVisualiser extends JComponent {
                 p.draw(g2d);
             }
 
-            for(Spaceship ship : problem.otherShips) {
-                if(ship.alive) ship.draw(g2d);
-            }
-
-            for(Spaceship ship : ships) {
+            for(Spaceship ship : problem.getShipsToDraw()) {
                 if(ship.alive) ship.draw(g2d);
             }
 

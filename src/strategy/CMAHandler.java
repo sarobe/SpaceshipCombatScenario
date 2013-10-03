@@ -62,6 +62,8 @@ public class CMAHandler implements IStrategy {
             // --- core iteration step ---
             double[][] pop = cma.samplePopulation(); // get a new population of solutions
 
+
+
             // calculate mean for graphing
             double mean = 0;
 
@@ -94,9 +96,6 @@ public class CMAHandler implements IStrategy {
     }
 
     public void finish() {
-        // evaluate mean value as it is the best estimator for the optimum
-        cma.setFitnessOfMeanX(problem.fitness(cma.getMeanX())); // updates the best ever solution
-
         // final output
         cma.writeToDefaultFiles(1);
         cma.println();

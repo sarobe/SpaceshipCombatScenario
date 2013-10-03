@@ -16,14 +16,14 @@ public class ProjectileManager {
         projectileList = new ArrayList<Projectile>();
     }
 
-    public static Projectile getNewProjectile(int team) {
+    public static Projectile getNewProjectile(Spaceship owner) {
         // get first available dead projectile if one exists
         Projectile created = null;
         if(!suppressNew) {
             for(Projectile p : projectileList) {
                 if(!p.alive) {
                     created = p;
-                    created.setTeam(team);
+                    created.setTeam(owner.team);
                     created.alive = true;
                     break;
                 }
@@ -31,8 +31,8 @@ public class ProjectileManager {
 
             // if projectile still new, make a new one
             if(created == null) {
-                created = new Projectile();
-                created.setTeam(team);
+                created = new Projectile(owner);
+                created.setTeam(owner.team);
                 projectileList.add(created);
             }
         }

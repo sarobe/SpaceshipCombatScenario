@@ -11,150 +11,218 @@ import spaceship.SpaceshipComponent;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Samuel Roberts, 2012
  */
 public class SpaceshipCombatProblem {
 
-    public List<Spaceship> otherShips;
-    public List<ShipActionController> otherConts;
-    public boolean shipOnLeft;
-
-
     public double demoScoreLeft = 0;
     public double demoScoreRight = 0;
 
+    public Map<double[], Double> fitnessScores;
+
+    public List<Spaceship> demoShips;
+    public List<ShipActionController> demoConts;
+
     public SpaceshipCombatProblem() {
         ProjectileManager.reset();
+        fitnessScores = new HashMap<double[], Double>();
+        demoShips = new ArrayList<Spaceship>();
+        demoConts = new ArrayList<ShipActionController>();
     }
 
     public int nDim() {
         return 4 * Constants.numComponents;
     }
 
-    public void constructEnemyShips(double[][] otherChromosomes) {
-        otherShips = new ArrayList<Spaceship>();
-        otherConts = new ArrayList<ShipActionController>();
-        for(double[] otherChromosome : otherChromosomes) {
-            Spaceship otherShip = getInstance(otherChromosome);
-            otherShip.setTeam(2);
-            ShipActionController otherCont = new ShipActionController(otherShip);
-            otherShips.add(otherShip);
-            otherConts.add(otherCont);
-        }
-    }
+    public void runCombat(double[][] teamA, double[][] teamB) {
+        ////////////////////////////////////
+        // INITIALISING COMBAT
+        ////////////////////////////////////
 
-    public void setShipsOnLeft(boolean shipOnLeft) {
-        this.shipOnLeft = shipOnLeft;
-    }
-
-    public double fitness(double[] x) {
+        // initialise simulation
         ProjectileManager.reset();
-        Spaceship ship = getInstance(x);
-        ship.setTeam(1);
-        ShipActionController cont = new ShipActionController(ship);
+        List<Spaceship> ships = new ArrayList<Spaceship>();
+        List<ShipActionController> conts = new ArrayList<ShipActionController>();
+        fitnessScores.clear();
 
-        double score = 0;
-
-        // penalise ship for having components further away
-        for(SpaceshipComponent sc : ship.components) {
-            score += 10 * Math.max((sc.attachPos.mag() - 50), 0);
+        // populate simulation
+        for(int i = 0; i < teamA.length; i++) {
+            Spaceship ship = getInstance(teamA[i]);
+            ship.reset();
+            ship.setTeam(Constants.TEAM_LEFT);
+            ship.pos = getRandStartPos(Constants.leftTeamStartRect);
+            ship.rot = 0;
+            ships.add(ship);
+            conts.add(new ShipActionController(ship));
+            fitnessScores.put(ship.chromosome, 0.0);
         }
 
-        ship.rot = 0;
-        if(shipOnLeft) ship.pos.set(Constants.leftStartPos);
-        else ship.pos.set(Constants.rightStartPos);
-
-        // initialise enemy ships
-        for(Spaceship s : otherShips) {
-            s.reset();
-            s.setTeam(2);
-            if(!shipOnLeft) s.pos.set(Constants.leftStartPos);
-            else s.pos.set(Constants.rightStartPos);
+        // set up other side
+        for(int i = 0; i < teamB.length; i++) {
+            Spaceship ship = getInstance(teamB[i]);
+            ship.reset();
+            ship.setTeam(Constants.TEAM_RIGHT);
+            ship.pos = getRandStartPos(Constants.rightTeamStartRect);
+            ship.rot = 0;
+            ships.add(ship);
+            conts.add(new ShipActionController(ship));
+            fitnessScores.put(ship.chromosome, 0.0);
         }
 
-        List<Spaceship> thisShip = new ArrayList<Spaceship>();
-        thisShip.add(ship);
+        // initialise scores and assign any initial penalties for designs
+        for(Spaceship s : ships) {
+            double score = 0;
 
+            // penalise ship for having components further away
+            for(SpaceshipComponent sc : s.components) {
+                score -= 100 * Math.max((sc.attachPos.mag() - 50), 0);
+            }
+
+            // assign initial score
+            fitnessScores.put(s.chromosome, 0.0);
+        }
+
+        // kill ships that are initially overlapping others
+        for(int i = 0; i < ships.size(); i++) {
+            for(int j=i; j < ships.size(); j++) {
+                if(i == j) continue;
+                Spaceship shipA = ships.get(i);
+                Spaceship shipB = ships.get(j);
+                double dist = shipA.pos.dist(shipB.pos);
+                if(dist < shipA.radius + shipB.radius) {
+                    // kill a ship for overlapping
+                    //shipA.alive = false;
+                    //fitnessScores.put(shipA.chromosome, fitnessScores.get(shipA.chromosome) - 999999);
+                }
+            }
+        }
+
+        ////////////////////////////////////
+        // RUNNING COMBAT SIMULATION
+        ////////////////////////////////////
+
+        // simulate ships for the determined duration
         int i = 0;
-        while(i < Constants.timesteps) {
+        double[] teamScores = new double[2];
+        teamScores[0] = 0;
+        teamScores[1] = 0;
+        boolean allShipsDestroyed = false;
+        while((i < Constants.timesteps) && !allShipsDestroyed) {
+            allShipsDestroyed = true;
 
-            // simulate enemy ships
-            for(ShipActionController sc : otherConts) {
-                sc.think(thisShip);
+            // simulate all ships
+            for(ShipActionController c : conts) {
+                c.think(ships);
             }
-            for(Spaceship s : otherShips) {
-                s.update();
+            for(Spaceship s : ships) {
+                if(s.alive) {
+                    s.update();
+                    allShipsDestroyed = false;
+                }
             }
-
-            // simulate this ship
-            cont.think(otherShips);
-            ship.update();
 
             // simulate bullets and resolve collisions
             for(Projectile p : ProjectileManager.getLivingProjectiles()) {
                 p.update();
 
-                for(Spaceship s : otherShips) {
-                    if(s.alive && p.isColliding(s)) {
-                        // for every hit on an enemy ship, reward the ship
+                for(Spaceship s : ships) {
+                    if(s.alive && p.isColliding(s) && s.team != p.team) {
                         p.kill();
                         s.harm(Constants.defaultProjectileHarm);
-                        if(s.team == 2) {
-                            score -= Constants.defaultProjectileHarm;
-                            // bonus if the ship is destroyed
-                            if(!s.alive) score -= Constants.defaultProjectileHarm * 10;
-                        }
+
+                        double hitScore = 0;
+                        if(!s.alive) hitScore = Constants.defaultProjectileHarm * 10;
+                        else hitScore = Constants.defaultProjectileHarm;
+
+                        // award ship
+                        Spaceship attacker = p.owner;
+                        double oldScore = fitnessScores.get(attacker.chromosome);
+                        fitnessScores.put(attacker.chromosome, oldScore + hitScore);
+                        // and team
+                        teamScores[attacker.team] += hitScore;
                     }
                 }
             }
 
-            // if our ship is dead, end run
-            if(!ship.alive) i = Constants.timesteps;
             i++;
         }
 
-        // reward for life left
-        score -= ship.hull * 200;
-        // penalise for too many shots
-        score += ship.bulletsFired;
-        // penalise for death
-        score += (Constants.timesteps - i) * 300;
+        ////////////////////////////////////
+        // ASSIGNING POST SIMULATION SCORES
+        ////////////////////////////////////
 
-        ship.reset();
+        for(Spaceship s : ships) {
+            double score = fitnessScores.get(s.chromosome);
 
+            // reward for life left
+            score += s.hull * 200;
+            // penalise for too many shots
+            score -= s.bulletsFired;
+            // penalise for death
+            if(!s.alive) score -= Constants.defaultProjectileHarm * 100;
+            // grant a bonus based on team score
+            score += teamScores[s.team] * Constants.teamScoreWeight;
 
-        return score;
+            // invert scores to error by negation
+            score *= -1;
+            // and put it back
+            fitnessScores.put(s.chromosome, score);
+        }
+    }
+
+    public double fitness(double[] x) {
+        return fitnessScores.get(x);
     }
 
     public Spaceship getInstance(double[] x) {
         return new Spaceship(x);
     }
 
-    public void demonstrationInit(List<Spaceship> ships, List<ShipActionController> conts, boolean givenShipsOnLeft) {
+    public void demonstrationInit(double[][] teamA, double[][] teamB) {
 
         ProjectileManager.reset();
+        demoShips.clear();
+        demoConts.clear();
 
-        // set up given side
-        for(int i = 0; i < ships.size(); i++) {
-            Spaceship ship = ships.get(i);
+        // set up sides
+        for(int i = 0; i < teamA.length; i++) {
+            Spaceship ship = getInstance(teamA[i]);
             ship.reset();
-            ship.setTeam(1);
-            if(givenShipsOnLeft) ship.pos = Constants.leftStartPos.copy();
-            else ship.pos = Constants.rightStartPos.copy();
+            ship.setTeam(Constants.TEAM_LEFT);
+            ship.pos = getRandStartPos(Constants.leftTeamStartRect);
             ship.rot = 0;
+            demoShips.add(ship);
+            demoConts.add(new ShipActionController(ship));
         }
 
         // set up other side
-        for(int i = 0; i < otherShips.size(); i++) {
-            Spaceship ship = otherShips.get(i);
+        for(int i = 0; i < teamB.length; i++) {
+            Spaceship ship = getInstance(teamB[i]);
             ship.reset();
-            ship.setTeam(2);
-            if(!givenShipsOnLeft) ship.pos = Constants.leftStartPos.copy();
-            else ship.pos = Constants.rightStartPos.copy();
+            ship.setTeam(Constants.TEAM_RIGHT);
+            ship.pos = getRandStartPos(Constants.rightTeamStartRect);
             ship.rot = 0;
+            demoShips.add(ship);
+            demoConts.add(new ShipActionController(ship));
+        }
+
+        // kill ships that are initially overlapping others
+        for(int i = 0; i < demoShips.size(); i++) {
+            for(int j=i; j < demoShips.size(); j++) {
+                if(i == j) continue;
+                Spaceship shipA = demoShips.get(i);
+                Spaceship shipB = demoShips.get(j);
+                double dist = shipA.pos.dist(shipB.pos);
+                if(dist < shipA.radius + shipB.radius) {
+                    // kill a ship for overlapping
+                    //shipA.alive = false;
+                }
+            }
         }
 
         demoScoreLeft = 0;
@@ -162,56 +230,45 @@ public class SpaceshipCombatProblem {
 
     }
 
-    public void demonstrate(List<Spaceship> ships, List<ShipActionController> conts) {
+    public void demonstrate() {
         synchronized (Runner.class) {
-            for(ShipActionController c : conts) {
-                c.think(otherShips);
-            }
-            for(ShipActionController otherC : otherConts) {
-                otherC.think(ships);
+            for(ShipActionController c : demoConts) {
+                c.think(demoShips);
             }
 
-            for(Spaceship s : ships) {
+            for(Spaceship s : demoShips) {
                 s.update();
-            }
-            for(Spaceship otherS : otherShips) {
-                otherS.update();
             }
 
             // move bullets, update collisions
             for(Projectile p : ProjectileManager.getLivingProjectiles()) {
                 p.update();
 
-                for(Spaceship s : ships) {
-                    if(s.alive && p.isColliding(s)) {
+                for(Spaceship s : demoShips) {
+                    if(s.alive && p.isColliding(s) && s.team != p.team) {
                         p.kill();
                         s.harm(Constants.defaultProjectileHarm);
-                        if(shipOnLeft) demoScoreRight += Constants.defaultProjectileHarm;
+                        if(s.team == Constants.TEAM_LEFT) demoScoreRight += Constants.defaultProjectileHarm;
                         else demoScoreLeft += Constants.defaultProjectileHarm;
                         if(!s.alive) {
-                            if(shipOnLeft) demoScoreRight += Constants.defaultProjectileHarm * 10;
+                            if(s.team == Constants.TEAM_LEFT) demoScoreRight += Constants.defaultProjectileHarm * 10;
                             else demoScoreLeft += Constants.defaultProjectileHarm * 10;
-                            System.out.println("Ship on team " + s.team + " destroyed!");
                         }
                     }
                 }
-
-                for(Spaceship s : otherShips) {
-                    if(s.alive && p.isColliding(s)) {
-                        p.kill();
-                        s.harm(Constants.defaultProjectileHarm);
-                        if(!shipOnLeft) demoScoreRight += Constants.defaultProjectileHarm;
-                        else demoScoreLeft += Constants.defaultProjectileHarm;
-                        if(!s.alive) {
-                            if(!shipOnLeft) demoScoreRight += Constants.defaultProjectileHarm;
-                            else demoScoreLeft += Constants.defaultProjectileHarm;
-                            System.out.println("Ship on team " + s.team + " destroyed!");
-                        }
-                    }
-                }
-
             }
         }
     }
 
+    public Vector2d getRandStartPos(Rectangle startRect) {
+        Vector2d startPos = new Vector2d();
+        startPos.set(startRect.getX(), startRect.getY());
+        startPos.x += Math.random() * startRect.getWidth();
+        startPos.y += Math.random() * startRect.getHeight();
+        return startPos;
+    }
+
+    public List<Spaceship> getShipsToDraw() {
+        return demoShips;
+    }
 }

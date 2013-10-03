@@ -2,6 +2,7 @@ package common;
 
 import common.math.Vector2d;
 
+import java.awt.*;
 import java.util.Random;
 
 /**
@@ -9,18 +10,23 @@ import java.util.Random;
  * on 01/02/12
  */
 public class Constants {
-    public static int screenWidth = 800;
-    public static int screenHeight = 600;
+    public static int screenWidth = 1024;
+    public static int screenHeight = 768;
 
     public static int delay = 20;
     public static double dt = delay / 1000.0;
     public static Random rand = new Random();
 
+    public static final int TEAM_LEFT = 0;
+    public static final int TEAM_RIGHT = 1;
+
     public static int numComponents = 5;
     public static double defaultThrust = 200;
-    public static double defaultFireVel = 4000;
+    public static double defaultFireVel = 6000;
     public static double defaultProjectileHarm = 10;
     public static double maximumHull = 200;
+    public static double minimumHull = 10;
+    public static double maximumFuel = 100000;
 
     public static double friction = 1.00;
 
@@ -29,6 +35,9 @@ public class Constants {
     public static double thrusterRadiusLimit = 15;
     public static int timesteps = 300;
 
-    public static Vector2d leftStartPos = new Vector2d(100, 300);
-    public static Vector2d rightStartPos = new Vector2d(700, 300);
+    public static Rectangle leftTeamStartRect = new Rectangle(0, 0, 450, 768);
+    public static Rectangle rightTeamStartRect = new Rectangle(574, 0, 450, 768);
+
+    public static double teamScoreWeight = 0.1;
+    public static double weaponCooldown = 0.4;
 }

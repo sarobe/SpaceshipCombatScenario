@@ -27,24 +27,35 @@ public class Thruster extends SpaceshipComponent {
 
     public void update() {
         if(active) {
-            // calculate appropriate forces
-            Vector2d thrusterOffset = attachPos.copy().subtract(parentShip.COM).rotate(parentShip.rot).normalise();
-            Vector2d thrustDirection = new Vector2d(1, 0);
-            thrustDirection.rotate(parentShip.rot + attachRot);
+            // only actually do something if the fuel is there
+            if(parentShip.fuel > 0) {
+                // determine how much fuel this will cost (one unit per push force)
+                double effectiveForce = force;
+                if(effectiveForce > parentShip.fuel) effectiveForce = parentShip.fuel;
+                // deplete that fuel
+                parentShip.fuel -= effectiveForce;
 
-            // the following value is the Z component of a cross product of the two vectors with a Z value of 0
-            double crossProd = (thrusterOffset.x * thrustDirection.y) - (thrusterOffset.y * thrustDirection.x);
+                // calculate appropriate forces
+                Vector2d thrusterOffset = attachPos.copy().subtract(parentShip.COM).rotate(parentShip.rot).normalise();
+                Vector2d thrustDirection = new Vector2d(1, 0);
+                thrustDirection.rotate(parentShip.rot + attachRot);
 
-            // apply push impulse
-            Vector2d pushForce = thrustDirection.mul(force);
-            pushForce.mul(1 / parentShip.mass);
-            parentShip.vel.add(pushForce);
+                // the following value is the Z component of a cross product of the two vectors with a Z value of 0
+                double crossProd = (thrusterOffset.x * thrustDirection.y) - (thrusterOffset.y * thrustDirection.x);
 
-            // apply spin impulse
-            double spinForce = crossProd * attachPos.mag();
-            spinForce /= parentShip.moment;
+                // apply push impulse
+                Vector2d pushForce = thrustDirection.mul(effectiveForce);
+                pushForce.mul(1 / parentShip.mass);
+                parentShip.vel.add(pushForce);
 
-            parentShip.rotvel += spinForce;
+                // apply spin impulse
+                double spinForce = crossProd * attachPos.mag();
+                spinForce /= parentShip.moment;
+
+                parentShip.rotvel += spinForce;
+            } else {
+                active = false;
+            }
         }
     }
 

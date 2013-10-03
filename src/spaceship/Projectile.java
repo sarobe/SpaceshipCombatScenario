@@ -1,5 +1,6 @@
 package spaceship;
 
+import common.Constants;
 import common.math.Vector2d;
 
 import java.awt.*;
@@ -7,8 +8,10 @@ import java.awt.geom.AffineTransform;
 
 public class Projectile extends SimObject {
 
+    public Spaceship owner;
 
-    public Projectile() {
+    public Projectile(Spaceship owner) {
+        this.owner = owner;
         mass = 20;
         radius = 3;
     }
@@ -18,8 +21,8 @@ public class Projectile extends SimObject {
 
         // set team colours
         Color teamColor = Color.WHITE;
-        if(team == 1) teamColor = Color.RED;
-        if(team == 2) teamColor = Color.BLUE;
+        if(team == Constants.TEAM_LEFT) teamColor = Color.RED;
+        if(team == Constants.TEAM_RIGHT) teamColor = Color.BLUE;
 
         g.translate(pos.x, pos.y);
         g.rotate(rot);

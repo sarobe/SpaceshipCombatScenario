@@ -4,7 +4,6 @@ import common.Constants;
 import common.math.Vector2d;
 import problem.ProjectileManager;
 
-import java.util.List;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 
@@ -21,7 +20,6 @@ public class Turret extends SpaceshipComponent {
     int[] flameY = {-4, -7, 7, 4};
 
     double counter = 0;
-    double weaponCooldown = 0.4;
 
 
     public Turret(Spaceship parentShip, double fireVel) {
@@ -33,7 +31,7 @@ public class Turret extends SpaceshipComponent {
 
     public void update() {
         if(active && counter <= 0) {
-            Projectile p = ProjectileManager.getNewProjectile(parentShip.team);
+            Projectile p = ProjectileManager.getNewProjectile(parentShip);
             if(p != null) {
 
                 // calculate appropriate forces
@@ -52,7 +50,7 @@ public class Turret extends SpaceshipComponent {
                 p.vel.add(parentShip.vel);
 
                 // set turret cooldown
-                counter = weaponCooldown;
+                counter = Constants.weaponCooldown;
 
                 // inform ship we just fired
                 parentShip.fired();

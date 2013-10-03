@@ -15,6 +15,9 @@ import java.util.List;
  */
 public class Spaceship extends SimObject {
 
+    // chromosome
+    public double[] chromosome;
+
     // hull polygon
     public Polygon hullShape;
 
@@ -36,19 +39,25 @@ public class Spaceship extends SimObject {
     // what is the maximum hull the ship can have?
     public double maxHull = 0;
 
+    // how much fuel does the ship have?
+    public double fuel = 0;
+
     public Spaceship() {
         super();
-        mass = 100;
-        hull = 30;
-        maxHull = 30;
+        mass = 30;
+        hull = Constants.maximumHull;
+        maxHull = Constants.maximumHull;
         moment = 1;
+        fuel = Constants.maximumFuel;
         components = new ArrayList<SpaceshipComponent>();
         COM = new Vector2d();
         hullShape = new Polygon();
+        chromosome = null;
     }
 
     public Spaceship(double[] x) {
         this();
+        chromosome = x;
         for(int i=0; i<x.length; i += 4) {
             // for each triple of doubles
             // the first double is the type
@@ -93,6 +102,7 @@ public class Spaceship extends SimObject {
         alive = state.alive;
         justFired = state.justFired;
         bulletsFired = state.bulletsFired;
+        fuel = state.fuel;
     }
 
     public void harm(double harm) {
@@ -136,8 +146,8 @@ public class Spaceship extends SimObject {
 
         // set team colours
         Color shipColor = Color.WHITE;
-        if(team == 1) shipColor = Color.RED;
-        if(team == 2) shipColor = Color.BLUE;
+        if(team == Constants.TEAM_LEFT) shipColor = Color.RED;
+        if(team == Constants.TEAM_RIGHT) shipColor = Color.BLUE;
 
         g.setColor(shipColor);
         g.fillPolygon(hullShape);
@@ -158,14 +168,20 @@ public class Spaceship extends SimObject {
             g.drawOval(-(int)radius, -(int)radius, (int)radius*2, (int)radius*2);
         }
 
-        // draw health bars
+        // draw HEALTH
         g.rotate(-rot);
-        g.setColor(Color.GREEN);
+        g.setColor(Color.CYAN);
         // first off, the tank outline
         g.drawRect((int)(-radius), (int)(-radius*1.5), (int)(radius*2), 6);
         // then, the tank contents
         int hullIntegrity = (int)((radius*2) * (hull/maxHull));
         g.fillRect((int)(-radius), (int)(-radius*1.5), hullIntegrity, 6);
+
+        // draw FUEL
+        g.setColor(Color.GRAY);
+        g.drawRect((int)(-radius), (int)(-radius*1.5 + 12), (int)(radius*2), 3);
+        int fuelContained = (int)((radius*2) * (fuel/Constants.maximumFuel));
+        g.fillRect((int)(-radius), (int)(-radius*1.5 + 12), fuelContained, 3);
 
         g.setTransform(at);
     }
@@ -199,7 +215,7 @@ public class Spaceship extends SimObject {
             massChange += comp.mass;
 
             // add a strut (makes components further away have more effect on mass)
-            double strutMass = comp.attachPos.mag() * 2;
+            double strutMass = comp.attachPos.mag() * 4;
             massChange += strutMass;
 
             // update hull shape

@@ -21,6 +21,7 @@ public class ShipState {
     public boolean alive;
     public boolean justFired;
     public int bulletsFired;
+    public double fuel;
 
 
     public ShipState(Spaceship ship) {
@@ -37,6 +38,7 @@ public class ShipState {
         alive = ship.alive;
         justFired = ship.justFired;
         bulletsFired = ship.bulletsFired;
+        fuel = ship.fuel;
     }
 
     public ShipState(Spaceship ship, Vector2d target) {
@@ -59,5 +61,6 @@ public class ShipState {
         alive = state.alive;
         justFired = state.justFired;
         bulletsFired = state.bulletsFired;
+        fuel = state.fuel;
     }
 }
