@@ -62,6 +62,32 @@ public abstract class SimObject {
 
         vel.mul(Constants.friction);
         rotvel *= Constants.friction;
+
+        // game objects cannot leave the world
+        if(pos.x + radius > Constants.screenWidth) {
+            pos.x = Constants.screenWidth - radius;
+            vel.x *= -Constants.edgeBounceLoss;
+            hitSides();
+        }
+        if(pos.x - radius < 0) {
+            pos.x = radius;
+            vel.x *= -Constants.edgeBounceLoss;
+            hitSides();
+        }
+        if(pos.y + radius > Constants.screenHeight) {
+            pos.y = Constants.screenHeight - radius;
+            vel.y *= -Constants.edgeBounceLoss;
+            hitSides();
+        }
+        if(pos.y - radius < 0) {
+            pos.y = radius;
+            vel.y *= -Constants.edgeBounceLoss;
+            hitSides();
+        }
+    }
+
+    public void hitSides() {
+        // for things that do something significant, do it in an override here
     }
 
     public void kill() {

@@ -21,14 +21,21 @@ public class Constants {
     public static final int TEAM_RIGHT = 1;
 
     public static int numComponents = 5;
-    public static double defaultThrust = 200;
+    public static int numWeights = 4;
+    public static double startingStdDev = 100;
+    public static double componentScale = 0.1;
+    public static double weightScale = 0.01;
+
+    public static double defaultThrust = 400;
     public static double defaultFireVel = 6000;
     public static double defaultProjectileHarm = 10;
+    public static double projectileLifetime = 3.0; // seconds
     public static double maximumHull = 200;
     public static double minimumHull = 10;
-    public static double maximumFuel = 100000;
+    public static double maximumFuel = 200000;
 
     public static double friction = 1.00;
+    public static double edgeBounceLoss = 0.8;
 
     public static int numEvals = 10000;
 

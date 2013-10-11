@@ -32,7 +32,7 @@ public class CMAHandler implements IStrategy {
 
         cma.setDimension(problem.nDim()); // overwrite some loaded properties
         //cma.setInitialX(0.0); // in each dimension, also setTypicalX can be used
-        cma.setInitialStandardDeviation(20.0); // also a mandatory setting
+        cma.setInitialStandardDeviation(Constants.startingStdDev); // also a mandatory setting
         // testing handmade seed!
 //        double[] testShip = {-16.0, -14.0, 0,
 //                              0.0,  0.0, (3*Math.PI)/2,

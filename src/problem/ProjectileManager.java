@@ -1,5 +1,6 @@
 package problem;
 
+import common.Constants;
 import spaceship.Projectile;
 import spaceship.Spaceship;
 
@@ -25,6 +26,7 @@ public class ProjectileManager {
                     created = p;
                     created.setTeam(owner.team);
                     created.alive = true;
+                    created.ttl = Constants.projectileLifetime;
                     break;
                 }
             }

@@ -36,7 +36,7 @@ public class SpaceshipCombatProblem {
     }
 
     public int nDim() {
-        return 4 * Constants.numComponents;
+        return Constants.numWeights + (4 * Constants.numComponents);
     }
 
     public void runCombat(double[][] teamA, double[][] teamB) {
@@ -83,24 +83,30 @@ public class SpaceshipCombatProblem {
                 score -= 100 * Math.max((sc.attachPos.mag() - 50), 0);
             }
 
+            // if ship is too big, destroy it
+            if(s.radius >= Math.min(Constants.screenWidth, Constants.screenHeight)) {
+                s.alive = false;
+                score -= 999999999;
+            }
+
             // assign initial score
             fitnessScores.put(s.chromosome, 0.0);
         }
 
         // kill ships that are initially overlapping others
-        for(int i = 0; i < ships.size(); i++) {
-            for(int j=i; j < ships.size(); j++) {
-                if(i == j) continue;
-                Spaceship shipA = ships.get(i);
-                Spaceship shipB = ships.get(j);
-                double dist = shipA.pos.dist(shipB.pos);
-                if(dist < shipA.radius + shipB.radius) {
-                    // kill a ship for overlapping
-                    //shipA.alive = false;
-                    //fitnessScores.put(shipA.chromosome, fitnessScores.get(shipA.chromosome) - 999999);
-                }
-            }
-        }
+//        for(int i = 0; i < ships.size(); i++) {
+//            for(int j=i; j < ships.size(); j++) {
+//                if(i == j) continue;
+//                Spaceship shipA = ships.get(i);
+//                Spaceship shipB = ships.get(j);
+//                double dist = shipA.pos.dist(shipB.pos);
+//                if(dist < shipA.radius + shipB.radius) {
+//                    // kill a ship for overlapping
+//                    //shipA.alive = false;
+//                    //fitnessScores.put(shipA.chromosome, fitnessScores.get(shipA.chromosome) - 999999);
+//                }
+//            }
+//        }
 
         ////////////////////////////////////
         // RUNNING COMBAT SIMULATION
@@ -211,19 +217,28 @@ public class SpaceshipCombatProblem {
             demoConts.add(new ShipActionController(ship));
         }
 
-        // kill ships that are initially overlapping others
-        for(int i = 0; i < demoShips.size(); i++) {
-            for(int j=i; j < demoShips.size(); j++) {
-                if(i == j) continue;
-                Spaceship shipA = demoShips.get(i);
-                Spaceship shipB = demoShips.get(j);
-                double dist = shipA.pos.dist(shipB.pos);
-                if(dist < shipA.radius + shipB.radius) {
-                    // kill a ship for overlapping
-                    //shipA.alive = false;
-                }
+        // kill ships that are too big
+        for(Spaceship s : demoShips) {
+            // if ship is too big, destroy it
+            if(s.radius >= Math.min(Constants.screenWidth, Constants.screenHeight)) {
+                s.alive = false;
+                System.out.println("Killed ship with radius of " + s.radius);
             }
         }
+
+        // kill ships that are initially overlapping others
+//        for(int i = 0; i < demoShips.size(); i++) {
+//            for(int j=i; j < demoShips.size(); j++) {
+//                if(i == j) continue;
+//                Spaceship shipA = demoShips.get(i);
+//                Spaceship shipB = demoShips.get(j);
+//                double dist = shipA.pos.dist(shipB.pos);
+//                if(dist < shipA.radius + shipB.radius) {
+//                    // kill a ship for overlapping
+//                    //shipA.alive = false;
+//                }
+//            }
+//        }
 
         demoScoreLeft = 0;
         demoScoreRight = 0;

@@ -1,5 +1,9 @@
 package common.math;
 
+import spaceship.SimObject;
+
+import java.util.List;
+
 /**
  * Created by Samuel Roberts, 2013
  */

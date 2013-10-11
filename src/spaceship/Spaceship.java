@@ -58,7 +58,7 @@ public class Spaceship extends SimObject {
     public Spaceship(double[] x) {
         this();
         chromosome = x;
-        for(int i=0; i<x.length; i += 4) {
+        for(int i=Constants.numWeights; i<x.length; i += 4) {
             // for each triple of doubles
             // the first double is the type
             SpaceshipComponent c;
@@ -69,9 +69,9 @@ public class Spaceship extends SimObject {
                 c = new Thruster(this, Constants.defaultThrust);
             }
             // the next two doubles are the position of a thruster
-            c.attachPos = new Vector2d(x[i+1], x[i+2]);
+            c.attachPos = new Vector2d(x[i+1]*Constants.componentScale, x[i+2]*Constants.componentScale);
             // and the fourth double is its rotation
-            c.attachRot = x[i+3];
+            c.attachRot = x[i+3]/10;
 
 
             addComponent(c);
@@ -160,9 +160,11 @@ public class Spaceship extends SimObject {
         }
 
         // draw ship "core"
+
         g.setColor(Color.CYAN);
         if(justHit) {
             g.fillOval(-(int)radius, -(int)radius, (int)radius*2, (int)radius*2);
+//            g.fillPolygon(hullShape);
             justHit = false;
         } else {
             g.drawOval(-(int)radius, -(int)radius, (int)radius*2, (int)radius*2);
@@ -248,6 +250,19 @@ public class Spaceship extends SimObject {
         }
     }
 
+//    public boolean isColliding(SimObject other) {
+//        // use basic detection first to see if fine detection is needed
+//        boolean colliding = super.isColliding(other);
+//        if(colliding) {
+//            // then use polygon detection instead of radius detection
+//            justHit = true;
+//        } else {
+//            // correct result from basic collision
+//            justHit = false;
+//        }
+//        return colliding;
+//    }
+
     // Use after ALL COMPONENTS HAVE BEEN ADDED to adjust all positions such
     // that the geometric centre and centre of mass have been made equal.
     public void rebalance() {
@@ -275,9 +290,9 @@ public class Spaceship extends SimObject {
 
             // update hull integrity based on mass
             mass += massChange;
-            maxHull += massChange/10;
-            maxHull = Math.min(maxHull, Constants.maximumHull);
-            hull = maxHull;
+            //maxHull += massChange/10;
+            //maxHull = Math.min(maxHull, Constants.maximumHull);
+            //hull = maxHull;
 
             // calculate centre of mass
             COM.set(0, 0);

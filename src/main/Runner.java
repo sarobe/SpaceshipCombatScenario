@@ -49,7 +49,7 @@ public class Runner implements Runnable {
     }
 
     public void run() {
-        int demonstrationInterval = 20;//(int)Math.floor(Constants.numEvals / 50);
+        int demonstrationInterval = 50;//(int)Math.floor(Constants.numEvals / 50);
 
 //        if(showDemos) demonstrate();
         while(!leftHandler.hasCompleted() && !rightHandler.hasCompleted()) {

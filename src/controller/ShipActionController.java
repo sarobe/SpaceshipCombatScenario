@@ -19,12 +19,22 @@ public class ShipActionController {
     List<Action> moveActions;
     List<FireAction> fireActions;
 
+    public double chaseTargetWeighting;
+    public double chaseAllWeighting;
+    public double evadeBulletsWeighting;
+    public double approachFriendWeighting;
+
     private final double THRUST_ON_TOLERANCE = Math.PI/32;
     private final double THRUST_OFF_TOLERANCE = Math.PI/8;
     private boolean thrust = false;
 
     public ShipActionController(Spaceship ship) {
         this.ship = ship;
+
+        chaseTargetWeighting = ship.chromosome[0] * Constants.weightScale;
+        chaseAllWeighting = ship.chromosome[1] * Constants.weightScale;
+        evadeBulletsWeighting = ship.chromosome[2] * Constants.weightScale;
+        approachFriendWeighting = ship.chromosome[3] * Constants.weightScale;
 
         // construct lookup table for each possible action
         int numActions = (int)Math.pow(2, Constants.numComponents);
@@ -61,70 +71,91 @@ public class ShipActionController {
         ProjectileManager.suppressNewProjectiles(false);
     }
 
-    public void think(List<Spaceship> otherShips) {
+    public void think(List<Spaceship> ships) {
         if(!ship.alive) return; // no need to think when the ship is dead
         // determine closest spaceship to approach
         Spaceship target = null;
-        double bestDist = Double.MAX_VALUE;
-        for(Spaceship s : otherShips) {
-            if(s.alive && s.team != ship.team) {
+        Spaceship ally = null;
+        double bestEnemyDist = Double.MAX_VALUE;
+        double bestAllyDist = Double.MAX_VALUE;
+        int livingEnemies = 0;
+        Vector2d enemyMeanPos = new Vector2d();
+        for(Spaceship s : ships) {
+            if(s.alive && s != ship) {
                 double dist = ship.pos.dist(s.pos);
-                if(dist < bestDist) {
-                    target = s;
-                    bestDist = dist;
+                if(s.team != ship.team) {
+                    livingEnemies++;
+                    enemyMeanPos.add(s.pos);
+                    if(dist < bestEnemyDist) {
+                        target = s;
+                        bestEnemyDist = dist;
+                    }
+                } else {
+                    if(dist < bestAllyDist) {
+                        ally = s;
+                        bestAllyDist = dist;
+                    }
                 }
             }
+        }
+        if(livingEnemies > 0) {
+            enemyMeanPos.mul(1/livingEnemies);
+        } else {
+            enemyMeanPos.set(ship.pos);
         }
 
         Vector2d bestDirection = new Vector2d();
 
-        // SET DIRECTION TOWARDS TARGET
+        // CHASE TARGET
         // aim to be about 100 units in range, so back away if too close
         if(target == null) target = ship; // a terrible, terrible hack, but okay!
-        Vector2d targetPos = ship.pos.copy().add(  (ship.pos.copy().subtract(target.pos)).normalise().mul(100)  );
-        Vector2d distance = targetPos.subtract(ship.pos);
-        bestDirection.set(distance).normalise();
+        Vector2d chaseDir = ship.pos.copy().add(  (ship.pos.copy().subtract(target.pos)).normalise().mul(100)  );
+        chaseDir.subtract(ship.pos).normalise();
+        bestDirection.add(chaseDir, chaseTargetWeighting);
 
-        // ADJUST DIRECTION BASED ON PROJECTILES
+        // CHASE ALL
+        chaseDir = enemyMeanPos.subtract(ship.pos).normalise();
+        bestDirection.add(chaseDir, chaseAllWeighting);
+
+        // EVADE BULLETS
         Vector2d avoidanceDirection = new Vector2d();
         for(Projectile p : ProjectileManager.getLivingProjectiles()) {
             if(p.team != ship.team) {
                 // this projectile is a threat perhaps
                 // will it collide with the ship?
                 if(willHitMe(p, 1000)) {
-                    // get a normalised vector away from the projectile
-                    avoidanceDirection.set(ship.pos).subtract(p.pos);
-                    avoidanceDirection.normalise();
-                    // add this to the best direction
-                    bestDirection.add(avoidanceDirection, 1.0);
-                    bestDirection.normalise();
+                    // add the direction of the projectile to the avoidance direction, with inverse weighting based on distance
+                    Vector2d dist = new Vector2d(ship.pos);
+                    dist.subtract(p.pos);
+                    avoidanceDirection.add(dist, 1000/dist.mag());
                 }
             }
         }
+        avoidanceDirection.normalise();
+        bestDirection.add(avoidanceDirection, evadeBulletsWeighting);
+
+        // APPROACH NEAREST ALLY
+        if(ally == null) ally = ship;
+        Vector2d approachDir = ally.pos.copy().subtract(ship.pos).normalise();
+        bestDirection.add(approachDir, approachFriendWeighting);
 
 
-        // find the best thrust vector in terms of direction and magnitude
-        // PRIORITISE DIRECTION FIRST, THEN MAGNITUDE
+        // normalise best direction
+        bestDirection.normalise();
+        // find the best thrust vector in terms of direction
         Action bestAction = moveActions.get(0);
         double bestDifference = Double.MAX_VALUE;
-        double bestMagnitude = 0;
 
         for(Action a : moveActions) {
             Vector2d normalisedThrustDirection = a.thrust.copy().normalise();
             double diff = bestDirection.dist(normalisedThrustDirection);
-            double mag = a.thrust.mag();
 
             // aim for the best direction, but if the difference is close enough, prioritise magnitude
-            if((Math.abs(diff) < bestDifference)) { // ||
-                    //( (Math.abs(bestDifference - Math.abs(diff)) < 0.001 )) && (mag > bestMagnitude) ){
+            if((Math.abs(diff) < bestDifference)) {
                 bestAction = a;
                 bestDifference = Math.abs(diff);
-                bestMagnitude = mag;
             }
         }
-
-
-
 
         int moveAction = bestAction.encoded;
 
@@ -132,7 +163,7 @@ public class ShipActionController {
         // and fire them
         int encodedFireActions = 0;
         for(FireAction fa : fireActions) {
-            if(willHitStationary(fa, 1000, otherShips)) {
+            if(willHitStationary(fa, 1000, ships)) {
                 encodedFireActions |= fa.encoded;
             }
         }
