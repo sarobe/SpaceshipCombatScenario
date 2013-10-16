@@ -137,7 +137,7 @@ public class SpaceshipCombatProblem {
                 p.update();
 
                 for(Spaceship s : ships) {
-                    if(s.alive && p.isColliding(s) && s.team != p.team) {
+                    if(s.alive && s.isColliding(p) && s.team != p.team) {
                         p.kill();
                         s.harm(Constants.defaultProjectileHarm);
 
@@ -260,7 +260,7 @@ public class SpaceshipCombatProblem {
                 p.update();
 
                 for(Spaceship s : demoShips) {
-                    if(s.alive && p.isColliding(s) && s.team != p.team) {
+                    if(s.alive && s.isColliding(p) && s.team != p.team) {
                         p.kill();
                         s.harm(Constants.defaultProjectileHarm);
                         if(s.team == Constants.TEAM_LEFT) demoScoreRight += Constants.defaultProjectileHarm;

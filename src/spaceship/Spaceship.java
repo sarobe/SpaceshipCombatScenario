@@ -6,7 +6,10 @@ import controller.ShipState;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,6 +23,7 @@ public class Spaceship extends SimObject {
 
     // hull polygon
     public Polygon hullShape;
+    public Shape hitShape;
 
     // attached components
     public List<SpaceshipComponent> components;
@@ -159,15 +163,10 @@ public class Spaceship extends SimObject {
             sc.draw(g);
         }
 
-        // draw ship "core"
-
-        g.setColor(Color.CYAN);
         if(justHit) {
-            g.fillOval(-(int)radius, -(int)radius, (int)radius*2, (int)radius*2);
-//            g.fillPolygon(hullShape);
+            g.setColor(Color.CYAN);
+            g.fillPolygon(hullShape);
             justHit = false;
-        } else {
-            g.drawOval(-(int)radius, -(int)radius, (int)radius*2, (int)radius*2);
         }
 
         // draw HEALTH
@@ -250,18 +249,22 @@ public class Spaceship extends SimObject {
         }
     }
 
-//    public boolean isColliding(SimObject other) {
-//        // use basic detection first to see if fine detection is needed
-//        boolean colliding = super.isColliding(other);
-//        if(colliding) {
-//            // then use polygon detection instead of radius detection
-//            justHit = true;
-//        } else {
-//            // correct result from basic collision
-//            justHit = false;
-//        }
-//        return colliding;
-//    }
+    public boolean isColliding(SimObject other) {
+        // use basic detection first to see if fine detection is needed
+        boolean colliding = super.isColliding(other);
+        if(colliding) {
+            // then use polygon detection instead of radius detection
+            // treat other object as a point
+            AffineTransform tr = new AffineTransform();
+            tr.translate(pos.x, pos.y);
+            tr.rotate(rot);
+            Path2D path = new GeneralPath(hullShape);
+            hitShape = path.createTransformedShape(tr);
+            colliding = hitShape.contains(other.pos.x, other.pos.y);
+            if(colliding) justHit = true;
+        }
+        return colliding;
+    }
 
     // Use after ALL COMPONENTS HAVE BEEN ADDED to adjust all positions such
     // that the geometric centre and centre of mass have been made equal.
