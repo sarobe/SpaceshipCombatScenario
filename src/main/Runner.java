@@ -18,8 +18,7 @@ import java.util.List;
 public class Runner implements Runnable {
 
     SpaceshipCombatProblem problem;
-    IStrategy leftHandler;
-    IStrategy rightHandler;
+    IStrategy handler;
     boolean runDemo;
     boolean showDemos;
     int runIndex;
@@ -42,8 +41,7 @@ public class Runner implements Runnable {
         this.runIndex = runIndex;
 
         problem = new SpaceshipCombatProblem();
-        leftHandler = new CMAHandler(problem, runIndex);
-        rightHandler = new CMAHandler(problem, runIndex+1);
+        handler = new CMAHandler(problem, runIndex);
 
         showDemos = true;
     }
@@ -52,18 +50,15 @@ public class Runner implements Runnable {
         int demonstrationInterval = 20;//(int)Math.floor(Constants.numEvals / 50);
 
 //        if(showDemos) demonstrate();
-        while(!leftHandler.hasCompleted() && !rightHandler.hasCompleted()) {
-            problem.runCombat(leftHandler.getPopulation(), rightHandler.getPopulation());
-            leftHandler.run();
-            rightHandler.run();
-            if((rightHandler.getIterations()% demonstrationInterval == 2) && showDemos) {  //% demonstrationInterval
+        while(!handler.hasCompleted()) {
+            problem.runCombat(handler.getPopulation());
+            handler.run();
+            if((handler.getIterations()% demonstrationInterval == 2) && showDemos) {  //% demonstrationInterval
                 demonstrate();
             }
         }
-        leftHandler.finish();
-        rightHandler.finish();
-        System.out.println("Lefthand Function evaluations: " + leftHandler.getFuncEvals());
-        System.out.println("Righthand Function evaluations: " + rightHandler.getFuncEvals());
+        handler.finish();
+        System.out.println("Function evaluations: " + handler.getFuncEvals());
         // show a graph after finishing
         //Grapher.drawGraph(runIndex);
 
@@ -71,15 +66,14 @@ public class Runner implements Runnable {
     }
 
     public void demonstrate() {
-        double[][] leftPop = leftHandler.getPopulation();
-        double[][] rightPop = rightHandler.getPopulation();
+        double[][] pop = handler.getPopulation();
 
         // set up graphical elements
         SpaceshipVisualiser sv = new SpaceshipVisualiser(problem);
-        JEasyFrame frame = new JEasyFrame(sv, "Demonstration at Iteration " + leftHandler.getIterations());
+        JEasyFrame frame = new JEasyFrame(sv, "Demonstration at Iteration " + handler.getIterations());
         frame.addKeyListener(new KeyHandler(this));
 
-        problem.demonstrationInit(leftPop, rightPop);
+        problem.demonstrationInit(pop);
 
         runDemo = true;
         // MAIN DEMONSTRATION LOOP

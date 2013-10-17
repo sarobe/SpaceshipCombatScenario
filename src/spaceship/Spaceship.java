@@ -37,6 +37,10 @@ public class Spaceship extends SimObject {
     // just fired a projectile?
     public boolean justFired = false;
 
+    // ship color (random, derived from chromosome)
+    public Color shipColor;
+    public Color shipHighlightColor;
+
     // total bullets fired
     public int bulletsFired = 0;
 
@@ -57,6 +61,8 @@ public class Spaceship extends SimObject {
         COM = new Vector2d();
         hullShape = new Polygon();
         chromosome = null;
+        shipColor = Color.WHITE;
+        shipHighlightColor = Color.WHITE;
     }
 
     public Spaceship(double[] x) {
@@ -81,8 +87,11 @@ public class Spaceship extends SimObject {
             addComponent(c);
         }
         rebalance();
+        shipColor = makeColorFromChromosome(x);
+        shipHighlightColor = shipColor.brighter();
     }
-    
+
+
     public Vector2d getForward() {
         // Calculate the best "forwards" direction of the ship
         // or the direction the ship can move the fastest in a linear direction
@@ -149,9 +158,9 @@ public class Spaceship extends SimObject {
         g.rotate(rot);
 
         // set team colours
-        Color shipColor = Color.WHITE;
-        if(team == Constants.TEAM_LEFT) shipColor = Color.RED;
-        if(team == Constants.TEAM_RIGHT) shipColor = Color.BLUE;
+        // Color shipColor = Color.WHITE;
+        //if(team == Constants.TEAM_LEFT) shipColor = Color.RED;
+        //if(team == Constants.TEAM_RIGHT) shipColor = Color.BLUE;
 
         g.setColor(shipColor);
         g.fillPolygon(hullShape);
@@ -164,14 +173,14 @@ public class Spaceship extends SimObject {
         }
 
         if(justHit) {
-            g.setColor(Color.CYAN);
+            g.setColor(Color.WHITE);
             g.fillPolygon(hullShape);
             justHit = false;
         }
 
         // draw HEALTH
         g.rotate(-rot);
-        g.setColor(Color.CYAN);
+        g.setColor(shipHighlightColor);
         // first off, the tank outline
         g.drawRect((int)(-radius), (int)(-radius*1.5), (int)(radius*2), 6);
         // then, the tank contents
@@ -224,9 +233,9 @@ public class Spaceship extends SimObject {
 
             // update hull integrity based on mass
             mass += massChange;
-            maxHull += massChange/10;
-            maxHull = Math.min(maxHull, Constants.maximumHull);
-            hull = maxHull;
+            //maxHull += massChange/10;
+            //maxHull = Math.min(maxHull, Constants.maximumHull);
+            //hull = maxHull;
 
             // calculate centre of mass
             COM.set(0, 0);
@@ -261,7 +270,6 @@ public class Spaceship extends SimObject {
             Path2D path = new GeneralPath(hullShape);
             hitShape = path.createTransformedShape(tr);
             colliding = hitShape.contains(other.pos.x, other.pos.y);
-            if(colliding) justHit = true;
         }
         return colliding;
     }
@@ -316,6 +324,24 @@ public class Spaceship extends SimObject {
                 radius = comp.attachPos.mag();
             }
         }
+    }
+
+    public Color makeColorFromChromosome(double[] x) {
+        // mess around with chromosome and make it into a colour
+        double r = 0;
+        double g = 0;
+        double b = 0;
+        for(int i=0; i<x.length; i++) {
+            if(i%3 == 0) r += Math.abs(x[i]);
+            if(i%3 == 1) g += Math.abs(x[i]);
+            if(i%3 == 2) b += Math.abs(x[i]);
+        }
+        double tot = r+g+b;
+        r = (r/tot) * 255;
+        g = (g/tot) * 255;
+        b = (b/tot) * 255;
+
+        return new Color((int)r, (int)g, (int)b);
     }
 
     public String toString() {

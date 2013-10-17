@@ -22,11 +22,12 @@ public class ShipActionController {
     public double chaseTargetWeighting;
     public double chaseAllWeighting;
     public double evadeBulletsWeighting;
-    public double approachFriendWeighting;
+    public double moveToPickupWeighting;
+    //public double approachFriendWeighting;
 
-    private final double THRUST_ON_TOLERANCE = Math.PI/32;
-    private final double THRUST_OFF_TOLERANCE = Math.PI/8;
-    private boolean thrust = false;
+    //private final double THRUST_ON_TOLERANCE = Math.PI/32;
+    //private final double THRUST_OFF_TOLERANCE = Math.PI/8;
+    //private boolean thrust = false;
 
     public ShipActionController(Spaceship ship) {
         this.ship = ship;
@@ -34,7 +35,8 @@ public class ShipActionController {
         chaseTargetWeighting = ship.chromosome[0] * Constants.weightScale;
         chaseAllWeighting = ship.chromosome[1] * Constants.weightScale;
         evadeBulletsWeighting = ship.chromosome[2] * Constants.weightScale;
-        approachFriendWeighting = ship.chromosome[3] * Constants.weightScale;
+        moveToPickupWeighting = ship.chromosome[3] * Constants.weightScale;
+        //approachFriendWeighting = ship.chromosome[3] * Constants.weightScale;
 
         // construct lookup table for each possible action
         int numActions = (int)Math.pow(2, Constants.numComponents);
@@ -135,9 +137,11 @@ public class ShipActionController {
         bestDirection.add(avoidanceDirection, evadeBulletsWeighting);
 
         // APPROACH NEAREST ALLY
-        if(ally == null) ally = ship;
-        Vector2d approachDir = ally.pos.copy().subtract(ship.pos).normalise();
-        bestDirection.add(approachDir, approachFriendWeighting);
+//        if(ally == null) ally = ship;
+//        Vector2d approachDir = ally.pos.copy().subtract(ship.pos).normalise();
+//        bestDirection.add(approachDir, approachFriendWeighting);
+
+        // APPROACH NEAREST PICKUP
 
 
         // normalise best direction

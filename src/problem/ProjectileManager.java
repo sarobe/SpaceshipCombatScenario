@@ -14,7 +14,11 @@ public class ProjectileManager {
 
 
     public static void reset() {
-        projectileList = new ArrayList<Projectile>();
+        if(projectileList == null) {
+            projectileList = new ArrayList<Projectile>();
+        } else for(Projectile p : projectileList) {
+            p.kill();
+        }
     }
 
     public static Projectile getNewProjectile(Spaceship owner) {
@@ -24,6 +28,7 @@ public class ProjectileManager {
             for(Projectile p : projectileList) {
                 if(!p.alive) {
                     created = p;
+                    created.owner = owner;
                     created.setTeam(owner.team);
                     created.alive = true;
                     created.ttl = Constants.projectileLifetime;

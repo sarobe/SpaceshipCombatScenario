@@ -38,10 +38,8 @@ public class SpaceshipVisualiser extends JComponent {
                 if(ship.alive) ship.draw(g2d);
             }
 
-            g.setFont(statFont);
-            g.setColor(Color.WHITE);
-            g.drawString("Left Team Score: " + (int)problem.demoScoreLeft, 10, 20);
-            g.drawString("Right Team Score: " + (int)problem.demoScoreRight, 10, 40);
+            //g.setFont(statFont);
+            //g.setColor(Color.WHITE);
         }
     }
 

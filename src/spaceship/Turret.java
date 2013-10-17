@@ -69,7 +69,7 @@ public class Turret extends SpaceshipComponent {
         g.setColor(Color.WHITE);
         g.drawPolygon(turretX, turretY, 4);
         if(active) {
-            g.setColor(Color.GREEN);
+            g.setColor(parentShip.shipHighlightColor);
             g.fillPolygon(flameX, flameY, 4);
         }
         g.setTransform(at);

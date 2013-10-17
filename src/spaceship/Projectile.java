@@ -32,14 +32,9 @@ public class Projectile extends SimObject {
     public void draw(Graphics2D g) {
         AffineTransform at = g.getTransform();
 
-        // set team colours
-        Color teamColor = Color.WHITE;
-        if(team == Constants.TEAM_LEFT) teamColor = Color.RED;
-        if(team == Constants.TEAM_RIGHT) teamColor = Color.BLUE;
-
         g.translate(pos.x, pos.y);
         g.rotate(rot);
-        g.setColor(teamColor);
+        g.setColor(owner.shipColor);
         g.fillOval(-(int)radius, -(int)radius, (int)radius*2, (int)radius*2);
 
         g.setTransform(at);

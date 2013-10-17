@@ -33,7 +33,7 @@ public class Thruster extends SpaceshipComponent {
                 double effectiveForce = force;
                 if(effectiveForce > parentShip.fuel) effectiveForce = parentShip.fuel;
                 // deplete that fuel
-                parentShip.fuel -= effectiveForce;
+                //parentShip.fuel -= effectiveForce;
 
                 // calculate appropriate forces
                 Vector2d thrusterOffset = attachPos.copy().subtract(parentShip.COM).rotate(parentShip.rot).normalise();
@@ -69,7 +69,7 @@ public class Thruster extends SpaceshipComponent {
         g.setColor(Color.WHITE);
         g.drawPolygon(thrusterX, thrusterY, 3);
         if(active) {
-            g.setColor(Color.YELLOW);
+            g.setColor(parentShip.shipHighlightColor);
             g.fillPolygon(flameX, flameY, 3);
         }
         g.setTransform(at);
