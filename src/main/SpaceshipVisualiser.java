@@ -1,8 +1,10 @@
 package main;
 
 import common.Constants;
+import problem.PickupManager;
 import problem.ProjectileManager;
 import problem.SpaceshipCombatProblem;
+import spaceship.Pickup;
 import spaceship.Projectile;
 import spaceship.Spaceship;
 
@@ -31,6 +33,10 @@ public class SpaceshipVisualiser extends JComponent {
         synchronized(Runner.class) {
 
             for(Projectile p : ProjectileManager.getLivingProjectiles()) {
+                p.draw(g2d);
+            }
+
+            for(Pickup p : PickupManager.getLivingPickups()) {
                 p.draw(g2d);
             }
 

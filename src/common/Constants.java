@@ -20,20 +20,30 @@ public class Constants {
     //public static final int TEAM_LEFT = 0;
     //public static final int TEAM_RIGHT = 1;
 
+    public static boolean allowFriendlyFire = false;
+    public static boolean usePickups = true;
 
     public static int numComponents = 5;
     public static int numWeights = 4;
     public static double startingStdDev = 100;
+    public static double positionScale = 1;
     public static double componentScale = 0.1;
     public static double weightScale = 0.01;
 
-    public static double defaultThrust = 400;
-    public static double defaultFireVel = 6000;
+    public static double defaultThrust = 1000;
+    public static double defaultFireVel = 8000;
     public static double defaultProjectileHarm = 5;
     public static double projectileLifetime = 3.0; // seconds
     public static double maximumHull = 200;
     public static double minimumHull = 10;
-    public static double maximumFuel = 200000;
+    public static double maximumFuel = 1000000;
+    public static int maximumBullets = 100;
+
+    public static double numPickups = 10;
+    public static int pickupPlacementSeed = 2158;
+    public static double hullPickupAmount = 30;
+    public static double ammoPickupAmount = 20;
+    public static double fuelPickupAmount = 500;
 
     public static double friction = 1.00;
     public static double edgeBounceLoss = 0.8;

@@ -3,6 +3,7 @@ package controller;
 import common.Constants;
 import common.math.MathUtil;
 import common.math.Vector2d;
+import problem.PickupManager;
 import problem.ProjectileManager;
 import spaceship.*;
 
@@ -18,6 +19,8 @@ public class ShipActionController {
 
     List<Action> moveActions;
     List<FireAction> fireActions;
+
+    Vector2d bestDirectionForFirepower;
 
     public double chaseTargetWeighting;
     public double chaseAllWeighting;
@@ -78,6 +81,7 @@ public class ShipActionController {
         // determine closest spaceship to approach
         Spaceship target = null;
         Spaceship ally = null;
+        boolean targetCanBeHit = false;
         double bestEnemyDist = Double.MAX_VALUE;
         double bestAllyDist = Double.MAX_VALUE;
         int livingEnemies = 0;
@@ -88,9 +92,19 @@ public class ShipActionController {
                 if(s.team != ship.team) {
                     livingEnemies++;
                     enemyMeanPos.add(s.pos);
+
                     if(dist < bestEnemyDist) {
-                        target = s;
-                        bestEnemyDist = dist;
+                        // can we hit this target?
+                        if(canHitTarget(s, 5000)) {
+                            // THIS IS VERY IMPORTANT: DON'T CHOOSE A CLOSER TARGET UNLESS IT CAN ALSO BE HIT
+                            targetCanBeHit = true;
+                            target = s;
+                            bestEnemyDist = dist;
+                        } else if(!targetCanBeHit) {
+                            // begrudingly just accept targets on the basis they're closer by if we haven't found a target we can aim for yet
+                            target = s;
+                            bestEnemyDist = dist;
+                        }
                     }
                 } else {
                     if(dist < bestAllyDist) {
@@ -125,7 +139,7 @@ public class ShipActionController {
             if(p.team != ship.team) {
                 // this projectile is a threat perhaps
                 // will it collide with the ship?
-                if(willHitMe(p, 1000)) {
+                if(willHitMe(p, 1000, ship.radius + 100)) {
                     // add the direction of the projectile to the avoidance direction, with inverse weighting based on distance
                     Vector2d dist = new Vector2d(ship.pos);
                     dist.subtract(p.pos);
@@ -142,7 +156,15 @@ public class ShipActionController {
 //        bestDirection.add(approachDir, approachFriendWeighting);
 
         // APPROACH NEAREST PICKUP
-
+        Vector2d pickupDirection = new Vector2d();
+        for(Pickup p : PickupManager.getLivingPickups()) {
+            Vector2d dist = new Vector2d(ship.pos);
+            dist.subtract(p.pos);
+            dist.mul(-1);
+            pickupDirection.add(dist, 10000/dist.mag());
+        }
+        pickupDirection.normalise();
+        bestDirection.add(pickupDirection, moveToPickupWeighting);
 
         // normalise best direction
         bestDirection.normalise();
@@ -160,6 +182,10 @@ public class ShipActionController {
                 bestDifference = Math.abs(diff);
             }
         }
+
+
+        // once we have determined what we are doing for thrust, also factor in turn to better face target with best direction of firepower
+
 
         int moveAction = bestAction.encoded;
 
@@ -194,6 +220,20 @@ public class ShipActionController {
         }
     }
 
+    protected boolean canHitTarget(Spaceship target, double range) {
+        boolean canHit = false;
+
+        // check every fire action
+        for(FireAction fa : fireActions) {
+            if(willHitStationary(fa, range, target)) {
+                canHit = true;
+                break;
+            }
+        }
+
+        return canHit;
+    }
+
     // given a projectile at starting position start
     // and its predicted movement in direction
     // scanning along range
@@ -213,13 +253,26 @@ public class ShipActionController {
         return hit;
     }
 
+    // as above, overload for single target
+    protected boolean willHitStationary(FireAction fireAction, double range, Spaceship target) {
+        boolean hit = false;
+        Vector2d start = fireAction.getFireOrigin(ship).add(ship.pos);
+        Vector2d direction = fireAction.getFireDir(ship);
+        Vector2d end = start.copy().add(direction, range);
+        Vector2d closestLinePoint = MathUtil.closestPointLineSegment(target.pos, start, end);
+        if(target.pos.dist(closestLinePoint) < target.radius && target.alive && target.team != ship.team) {
+            hit = true;
+        }
+        return hit;
+    }
+
     // given a projectile will it hit me?
-    protected boolean willHitMe(Projectile p, double range) {
+    protected boolean willHitMe(Projectile p, double range, double radius) {
         boolean hit = false;
         Vector2d start = p.pos.copy();
         Vector2d end = p.pos.copy().add(p.vel.copy().normalise().mul(range));
         Vector2d closestLinePoint = MathUtil.closestPointLineSegment(ship.pos, start, end);
-        if(ship.pos.dist(closestLinePoint) <= ship.radius) hit = true;
+        if(ship.pos.dist(closestLinePoint) <= radius) hit = true;
         return hit;
     }
 

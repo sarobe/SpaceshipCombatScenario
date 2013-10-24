@@ -1,5 +1,6 @@
 package spaceship;
 
+import common.Constants;
 import common.math.Vector2d;
 
 import java.awt.*;
@@ -33,7 +34,7 @@ public class Thruster extends SpaceshipComponent {
                 double effectiveForce = force;
                 if(effectiveForce > parentShip.fuel) effectiveForce = parentShip.fuel;
                 // deplete that fuel
-                //parentShip.fuel -= effectiveForce;
+                if( Constants.usePickups) parentShip.fuel -= effectiveForce;
 
                 // calculate appropriate forces
                 Vector2d thrusterOffset = attachPos.copy().subtract(parentShip.COM).rotate(parentShip.rot).normalise();

@@ -30,7 +30,7 @@ public class Turret extends SpaceshipComponent {
     }
 
     public void update() {
-        if(active && counter <= 0) {
+        if(active && counter <= 0 && parentShip.bullets > 0) {
             Projectile p = ProjectileManager.getNewProjectile(parentShip);
             if(p != null) {
 
@@ -47,13 +47,14 @@ public class Turret extends SpaceshipComponent {
 
                 p.pos = parentShip.pos.copy().add(fireOffset);
                 p.vel = fireForce.mul(1/p.mass);
-                p.vel.add(parentShip.vel);
+                //p.vel.add(parentShip.vel);
 
                 // set turret cooldown
                 counter = Constants.weaponCooldown;
 
                 // inform ship we just fired
                 parentShip.fired();
+                if(Constants.usePickups) parentShip.bullets--;
             }
         }
 

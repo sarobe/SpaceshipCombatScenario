@@ -50,6 +50,9 @@ public class Spaceship extends SimObject {
     // how much fuel does the ship have?
     public double fuel = 0;
 
+    // how many bullets does the ship have left?
+    public int bullets = 0;
+
     public Spaceship() {
         super();
         mass = 30;
@@ -57,6 +60,7 @@ public class Spaceship extends SimObject {
         maxHull = Constants.maximumHull;
         moment = 1;
         fuel = Constants.maximumFuel;
+        bullets = Constants.maximumBullets;
         components = new ArrayList<SpaceshipComponent>();
         COM = new Vector2d();
         hullShape = new Polygon();
@@ -68,7 +72,8 @@ public class Spaceship extends SimObject {
     public Spaceship(double[] x) {
         this();
         chromosome = x;
-        for(int i=Constants.numWeights; i<x.length; i += 4) {
+        // the arbitrary +3 is for the first three parameters of the chromosome being for position and rotation
+        for(int i=Constants.numWeights + 3; i<x.length; i += 4) {
             // for each triple of doubles
             // the first double is the type
             SpaceshipComponent c;
@@ -87,6 +92,7 @@ public class Spaceship extends SimObject {
             addComponent(c);
         }
         rebalance();
+        setInitialPlacement();
         shipColor = makeColorFromChromosome(x);
         shipHighlightColor = shipColor.brighter();
     }
@@ -115,6 +121,7 @@ public class Spaceship extends SimObject {
         alive = state.alive;
         justFired = state.justFired;
         bulletsFired = state.bulletsFired;
+        bullets = state.bullets;
         fuel = state.fuel;
     }
 
@@ -127,18 +134,30 @@ public class Spaceship extends SimObject {
     }
 
     public void reset() {
-        pos.x = 0;
-        pos.y = 0;
+        if(chromosome == null) {
+            pos.x = 0;
+            pos.y = 0;
+            rot = 0;
+        }
+        else {
+            setInitialPlacement();
+        }
         vel.x = 0;
         vel.y = 0;
-        rot = 0;
         for(SpaceshipComponent sc : components) {
             sc.active = false;
         }
         hull = maxHull;
-        bulletsFired = 0;
+        bullets = Constants.maximumBullets;
+        fuel = Constants.maximumFuel;
         justFired = false;
         alive = true;
+    }
+
+    private void setInitialPlacement() {
+        pos.x = Constants.screenWidth/2 + chromosome[0];
+        pos.y = Constants.screenHeight/2 + chromosome[1];
+        rot = chromosome[2];
     }
 
     public void update() {
@@ -192,6 +211,13 @@ public class Spaceship extends SimObject {
         g.drawRect((int)(-radius), (int)(-radius*1.5 + 12), (int)(radius*2), 3);
         int fuelContained = (int)((radius*2) * (fuel/Constants.maximumFuel));
         g.fillRect((int)(-radius), (int)(-radius*1.5 + 12), fuelContained, 3);
+
+        // draw BULLETS
+        g.setColor(Color.WHITE);
+        g.drawRect((int)(-radius), (int)(-radius*1.5 + 17), (int)(radius*2), 2);
+        int bulletsHeld = (int)((radius*2) * (bullets/(float)Constants.maximumBullets));
+        g.fillRect((int)(-radius), (int)(-radius*1.5 + 17), bulletsHeld, 2);
+
 
         g.setTransform(at);
     }

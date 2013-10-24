@@ -20,8 +20,9 @@ public class ShipState {
     public double hull;
     public boolean alive;
     public boolean justFired;
-    public int bulletsFired;
+    public int bullets;
     public double fuel;
+    public int bulletsFired;
 
 
     public ShipState(Spaceship ship) {
@@ -37,6 +38,7 @@ public class ShipState {
         hull = ship.hull;
         alive = ship.alive;
         justFired = ship.justFired;
+        bullets = ship.bullets;
         bulletsFired = ship.bulletsFired;
         fuel = ship.fuel;
     }
@@ -60,6 +62,7 @@ public class ShipState {
         hull = state.hull;
         alive = state.alive;
         justFired = state.justFired;
+        bullets = state.bullets;
         bulletsFired = state.bulletsFired;
         fuel = state.fuel;
     }
