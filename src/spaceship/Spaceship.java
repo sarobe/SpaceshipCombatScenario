@@ -55,7 +55,7 @@ public class Spaceship extends SimObject {
 
     public Spaceship() {
         super();
-        mass = 30;
+        mass = 10;
         hull = Constants.maximumHull;
         maxHull = Constants.maximumHull;
         moment = 1;
@@ -251,7 +251,7 @@ public class Spaceship extends SimObject {
             massChange += comp.mass;
 
             // add a strut (makes components further away have more effect on mass)
-            double strutMass = comp.attachPos.mag() * 4;
+            double strutMass = comp.attachPos.mag() * 2;
             massChange += strutMass;
 
             // update hull shape
@@ -275,7 +275,7 @@ public class Spaceship extends SimObject {
             moment += comp.moment * Math.pow(comp.attachPos.dist(COM), 2);
             // strut
             Vector2d strutPos = comp.attachPos.copy().mul(0.5);
-            moment += strutMass * 0.1 * Math.pow(strutPos.dist(COM), 2);
+            moment += strutMass * 0.005  * Math.pow(strutPos.dist(COM), 2);
 
             // increase size of bounding radius
             if(comp.attachPos.mag()/2 > radius) {
@@ -343,7 +343,7 @@ public class Spaceship extends SimObject {
             moment += comp.moment * Math.pow(comp.attachPos.dist(COM), 2);
             // strut
             Vector2d strutPos = comp.attachPos.copy().mul(0.5);
-            moment += strutMass * 0.1 * Math.pow(strutPos.dist(COM), 2);
+            moment += strutMass * 0.005 * Math.pow(strutPos.dist(COM), 2);
 
             // increase size of bounding radius
             if(comp.attachPos.mag() > radius) {

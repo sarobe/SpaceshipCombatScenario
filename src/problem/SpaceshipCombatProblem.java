@@ -4,8 +4,6 @@ import common.Constants;
 import common.math.Vector2d;
 import controller.ShipActionController;
 import main.Runner;
-import main.SpaceshipVisualiser;
-import spaceship.Pickup;
 import spaceship.Projectile;
 import spaceship.Spaceship;
 import spaceship.SpaceshipComponent;
@@ -59,7 +57,7 @@ public class SpaceshipCombatProblem {
             fitnessScores.put(ship.chromosome, 0.0);
         }
 
-        // initialise scores and assign any initial penalties for designs
+        // initialise scores
         for(Spaceship s : ships) {
             fitnessScores.put(s.chromosome, 0.0);
         }

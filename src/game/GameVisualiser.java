@@ -1,9 +1,9 @@
-package main;
+package game;
 
 import common.Constants;
+import main.Runner;
 import problem.PickupManager;
 import problem.ProjectileManager;
-import problem.SpaceshipCombatProblem;
 import problem.Pickup;
 import spaceship.Projectile;
 import spaceship.Spaceship;
@@ -14,14 +14,14 @@ import java.awt.*;
 /**
  * Created by Samuel Roberts, 2012
  */
-public class SpaceshipVisualiser extends JComponent {
+public class GameVisualiser extends JComponent {
 
-    private SpaceshipCombatProblem problem;
+    private Game game;
 
     public static Font statFont = new Font("sans serif", Font.BOLD, 16);
 
-    public SpaceshipVisualiser(SpaceshipCombatProblem problem) {
-        this.problem = problem;
+    public GameVisualiser(Game game) {
+        this.game = game;
     }
 
     public void paintComponent(Graphics g) {
@@ -39,7 +39,7 @@ public class SpaceshipVisualiser extends JComponent {
                 p.draw(g2d);
             }
 
-            for(Spaceship ship : problem.getShipsToDraw()) {
+            for(Spaceship ship : game.getShipsToDraw()) {
                 if(ship.alive) ship.draw(g2d);
             }
 

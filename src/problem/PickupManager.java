@@ -2,10 +2,6 @@ package problem;
 
 import common.Constants;
 import common.math.Vector2d;
-import spaceship.Pickup;
-import spaceship.PickupType;
-import spaceship.Projectile;
-import spaceship.Spaceship;
 
 import java.util.ArrayList;
 import java.util.List;

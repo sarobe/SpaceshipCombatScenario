@@ -1,4 +1,4 @@
-package spaceship;
+package problem;
 
 import java.awt.*;
 

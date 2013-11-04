@@ -1,7 +1,9 @@
-package spaceship;
+package problem;
 
 import common.Constants;
 import common.math.Vector2d;
+import spaceship.SimObject;
+import spaceship.Spaceship;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -23,13 +25,13 @@ public class Pickup extends SimObject {
     public void dispenseReward(Spaceship ship) {
         switch(type) {
             case AMMO:
-                ship.bullets = (int)Math.min(Constants.maximumBullets, ship.hull + Constants.ammoPickupAmount);
+                ship.bullets = (int)Math.min(Constants.maximumBullets, ship.bullets + Constants.ammoPickupAmount);
                 break;
             case HULL:
                 ship.hull = Math.min(ship.maxHull, ship.hull + Constants.hullPickupAmount);
                 break;
             case FUEL:
-                ship.fuel = Math.min(Constants.maximumFuel, ship.hull + Constants.fuelPickupAmount);
+                ship.fuel = Math.min(Constants.maximumFuel, ship.fuel + Constants.fuelPickupAmount);
                 break;
 
         }

@@ -3,6 +3,7 @@ package controller;
 import common.Constants;
 import common.math.MathUtil;
 import common.math.Vector2d;
+import problem.Pickup;
 import problem.PickupManager;
 import problem.ProjectileManager;
 import spaceship.*;
@@ -13,9 +14,7 @@ import java.util.List;
 /**
  * Created by Samuel Roberts, 2012
  */
-public class ShipActionController {
-
-    public Spaceship ship; // the ship this controller controls
+public class ShipActionController extends Controller {
 
     List<Action> moveActions;
     List<FireAction> fireActions;
@@ -33,12 +32,12 @@ public class ShipActionController {
     //private boolean thrust = false;
 
     public ShipActionController(Spaceship ship) {
-        this.ship = ship;
+        super(ship);
 
-        chaseTargetWeighting = ship.chromosome[0] * Constants.weightScale;
-        chaseAllWeighting = ship.chromosome[1] * Constants.weightScale;
-        evadeBulletsWeighting = ship.chromosome[2] * Constants.weightScale;
-        moveToPickupWeighting = ship.chromosome[3] * Constants.weightScale;
+        chaseTargetWeighting = ship.chromosome[3] * Constants.weightScale;
+        chaseAllWeighting = ship.chromosome[4] * Constants.weightScale;
+        evadeBulletsWeighting = ship.chromosome[5] * Constants.weightScale;
+        moveToPickupWeighting = ship.chromosome[6] * Constants.weightScale;
         //approachFriendWeighting = ship.chromosome[3] * Constants.weightScale;
 
         // construct lookup table for each possible action
@@ -185,9 +184,34 @@ public class ShipActionController {
 
 
         // once we have determined what we are doing for thrust, also factor in turn to better face target with best direction of firepower
+        // find shortest distance to turn to get turret in range
+        Action bestTurnAction = bestAction;
+        if(target != null) {
+            double smallestTurnDiff = Double.MAX_VALUE;
+            for(SpaceshipComponent sc : ship.components) {
+                if(sc instanceof Turret) {
+                    Vector2d fireDir = sc.attachPos.copy().rotate(ship.rot);
+                    fireDir.add(new Vector2d(1,0).rotate(ship.rot + sc.attachRot));
+                    fireDir.normalise();
+                    double turnDiff = chaseDir.angBetween(fireDir);
+                    if(Math.abs(turnDiff) < Math.abs(smallestTurnDiff)) {
+                        smallestTurnDiff = turnDiff;
+                    }
+                }
+            }
+
+            // now that we have a direction to turn, find what will turn that way
+            double actionTurnDiff = Double.MAX_VALUE;
+            for(Action a : moveActions) {
+                if(Math.abs(a.torque - smallestTurnDiff) < actionTurnDiff) {
+                    actionTurnDiff = Math.abs(a.torque - smallestTurnDiff);
+                    bestTurnAction = a;
+                }
+            }
+        }
 
 
-        int moveAction = bestAction.encoded;
+        int moveAction = bestAction.encoded | bestTurnAction.encoded;
 
         // determine which guns will hit a still target
         // and fire them
@@ -203,21 +227,6 @@ public class ShipActionController {
 
         // use suitable action
         binaryToActions(ship, moveAction);
-    }
-
-    protected void binaryToActions(Spaceship target, int encodedActions) {
-        int j = 1;
-        int actionNum = 0;
-        int totalPossibleActions = target.components.size();
-        while(actionNum < totalPossibleActions) {
-            if((encodedActions & j) != 0) {
-                target.components.get(actionNum).active = true;
-            } else {
-                target.components.get(actionNum).active = false;
-            }
-            actionNum++;
-            j *= 2;
-        }
     }
 
     protected boolean canHitTarget(Spaceship target, double range) {
@@ -275,46 +284,7 @@ public class ShipActionController {
         if(ship.pos.dist(closestLinePoint) <= radius) hit = true;
         return hit;
     }
-
-    public Spaceship getShip() {
-        return ship;
-    }
 }
-
-class Action {
-    int encoded;
-    Vector2d thrust;
-    double torque;
-
-    public Action(int encoded, Vector2d thrust, double torque) {
-        this.encoded = encoded;
-        this.thrust = thrust;
-        this.torque = torque;
-    }
-}
-
-class FireAction {
-    int encoded;
-    Vector2d fireOrigin;
-    Vector2d fireDir;
-
-    public FireAction(int encoded, Vector2d fireOrigin, Vector2d fireDir) {
-        this.encoded = encoded;
-        this.fireOrigin = fireOrigin;
-        this.fireDir = fireDir;
-    }
-
-    public Vector2d getFireOrigin(Spaceship ship) {
-        return fireOrigin.copy().rotate(ship.rot);
-    }
-
-    public Vector2d getFireDir(Spaceship ship) {
-        return fireDir.copy().rotate(ship.rot);
-    }
-}
-
-
-
 
 
 // OLD STYLE OF ALIGNING THRUST VECTOR AND TURNING
