@@ -181,11 +181,15 @@ public class ShipActionController extends Controller {
 
         // APPROACH NEAREST PICKUP
         pickupDir.zero();
+        double closestDist = Double.MAX_VALUE;
         for(Pickup p : PickupManager.getLivingPickups()) {
             if(p.type != PickupType.MINE) {
-                Vector2d dist = new Vector2d(p.pos);
-                dist.subtract(ship.pos);
-                pickupDir.add(dist, 10000/dist.mag());
+                Vector2d dist = new Vector2d(p.pos).subtract(ship.pos);
+                if(dist.mag() < closestDist) {
+                    closestDist = dist.mag();
+                    pickupDir.set(dist);
+                }
+                //pickupDir.add(dist, 1000/dist.mag());
             }
         }
         pickupDir.normalise();
@@ -198,8 +202,7 @@ public class ShipActionController extends Controller {
         double bestDifference = Double.MAX_VALUE;
 
         for(Action a : moveActions) {
-            Vector2d normalisedThrustDirection = a.thrust.copy().normalise();
-            double diff = bestDirection.dist(normalisedThrustDirection);
+            double diff = bestDirection.angBetween(a.thrust);
 
             // aim for the best direction, but if the difference is close enough, prioritise magnitude
             if((Math.abs(diff) < bestDifference)) {
@@ -237,8 +240,19 @@ public class ShipActionController extends Controller {
             }
         }
 
+        Action backupTurnAction = bestAction;
+        double bestTorque = 0;
+        for(Action a : moveActions) {
+            if(Math.abs(a.torque) > bestTorque) {
+                backupTurnAction = a;
+                bestTorque = Math.abs(a.torque);
+            }
+        }
+
         int moveAction = bestTurnAction.encoded;
         if(moveAction == 0) moveAction = bestTurnAction.encoded;
+        // desperation measures
+        //if(moveAction == 0) moveAction = backupTurnAction.encoded;
 
         // determine which guns will hit a still target
         // and fire them
