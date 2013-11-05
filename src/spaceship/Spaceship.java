@@ -309,8 +309,8 @@ public class Spaceship extends SimObject {
         }
 
         hullShape = new Polygon();
-        mass = 100;
-        maxHull = 30;
+        mass = 10;
+        maxHull = Constants.maximumHull;
         moment = 1;
 
         // recalculate everything

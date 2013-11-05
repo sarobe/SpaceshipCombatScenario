@@ -14,6 +14,9 @@ public abstract class SimObject {
     public double mass = 1;
     public double moment = 1;
 
+    // some objects defy physics
+    public boolean useFriction = true;
+
     // position, velocity, angle and angular velocity
     public Vector2d pos;
     public Vector2d vel;
@@ -26,6 +29,8 @@ public abstract class SimObject {
     public double hull = 100;
 
     public int team = -1;
+
+    public boolean bounced = false;
 
     public SimObject() {
         this(new Vector2d(), 0);
@@ -60,9 +65,12 @@ public abstract class SimObject {
         pos.add(vel, Constants.dt);
         rot += rotvel * Constants.dt;
 
-        vel.mul(Constants.friction);
-        rotvel *= Constants.friction;
+        if(useFriction) {
+            vel.mul(Constants.friction);
+            rotvel *= Constants.angleFriction;
+        }
 
+        if(bounced) bounced = false;
         // game objects cannot leave the world
         if(pos.x + radius > Constants.screenWidth) {
             pos.x = Constants.screenWidth - radius;
@@ -87,7 +95,7 @@ public abstract class SimObject {
     }
 
     public void hitSides() {
-        // for things that do something significant, do it in an override here
+        bounced = true;
     }
 
     public void kill() {

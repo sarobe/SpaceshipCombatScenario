@@ -24,7 +24,7 @@ public class PickupManager {
 
             Vector2d placement = new Vector2d(rand.nextDouble() * Constants.screenWidth, rand.nextDouble() * Constants.screenHeight);
 
-            int typeSelection = (int)(Math.random() * 3);
+            int typeSelection = (int)(rand.nextDouble() * PickupType.values().length);
             PickupType type = PickupType.values()[typeSelection];
 
             Pickup pickup = new Pickup(placement, type);
@@ -42,4 +42,14 @@ public class PickupManager {
         return livingPickups;
     }
 
+    public static List<Pickup> getLivingMines() {
+        List<Pickup> livingMines = new ArrayList<Pickup>();
+        for(Pickup p : pickupList) {
+            if(p.type == PickupType.MINE && p.alive) {
+                livingMines.add(p);
+            }
+        }
+        return livingMines;
+
+    }
 }

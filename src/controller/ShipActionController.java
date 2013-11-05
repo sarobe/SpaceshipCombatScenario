@@ -5,9 +5,12 @@ import common.math.MathUtil;
 import common.math.Vector2d;
 import problem.Pickup;
 import problem.PickupManager;
+import problem.PickupType;
 import problem.ProjectileManager;
 import spaceship.*;
 
+import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +22,13 @@ public class ShipActionController extends Controller {
     List<Action> moveActions;
     List<FireAction> fireActions;
 
-    Vector2d bestDirectionForFirepower;
+    Vector2d chaseDir;
+    Vector2d chaseAllDir;
+    Vector2d avoidDir;
+    Vector2d pickupDir;
+    Vector2d bestDirection;
+
+    Vector2d enemyMeanPos;
 
     public double chaseTargetWeighting;
     public double chaseAllWeighting;
@@ -30,6 +39,8 @@ public class ShipActionController extends Controller {
     //private final double THRUST_ON_TOLERANCE = Math.PI/32;
     //private final double THRUST_OFF_TOLERANCE = Math.PI/8;
     //private boolean thrust = false;
+
+    public static double VISUALISER_SCALING = 30;
 
     public ShipActionController(Spaceship ship) {
         super(ship);
@@ -55,7 +66,7 @@ public class ShipActionController extends Controller {
 
             // ignore any actions that turn on a turret
             if(!ship.justFired) {
-                Action action = new Action(i, ship.vel.copy(), ship.rotvel);
+                Action action = new Action(i, ship.vel.copy(), ship.rot);
                 moveActions.add(action);
             }
 
@@ -73,18 +84,27 @@ public class ShipActionController extends Controller {
 
 
         ProjectileManager.suppressNewProjectiles(false);
+
+        chaseDir = new Vector2d();
+        chaseAllDir = new Vector2d();
+        avoidDir = new Vector2d();
+        pickupDir = new Vector2d();
+        bestDirection = new Vector2d();
+        enemyMeanPos = new Vector2d();
     }
 
     public void think(List<Spaceship> ships) {
         if(!ship.alive) return; // no need to think when the ship is dead
+
+        bestDirection.zero();
         // determine closest spaceship to approach
         Spaceship target = null;
         Spaceship ally = null;
         boolean targetCanBeHit = false;
         double bestEnemyDist = Double.MAX_VALUE;
         double bestAllyDist = Double.MAX_VALUE;
-        int livingEnemies = 0;
-        Vector2d enemyMeanPos = new Vector2d();
+        double livingEnemies = 0;
+        enemyMeanPos.zero();
         for(Spaceship s : ships) {
             if(s.alive && s != ship) {
                 double dist = ship.pos.dist(s.pos);
@@ -119,21 +139,21 @@ public class ShipActionController extends Controller {
             enemyMeanPos.set(ship.pos);
         }
 
-        Vector2d bestDirection = new Vector2d();
+
 
         // CHASE TARGET
-        // aim to be about 100 units in range, so back away if too close
+        chaseDir.zero();
         if(target == null) target = ship; // a terrible, terrible hack, but okay!
-        Vector2d chaseDir = ship.pos.copy().add(  (ship.pos.copy().subtract(target.pos)).normalise().mul(100)  );
-        chaseDir.subtract(ship.pos).normalise();
+        chaseDir = target.pos.copy().subtract(ship.pos);
+        chaseDir.normalise();
         bestDirection.add(chaseDir, chaseTargetWeighting);
 
         // CHASE ALL
-        chaseDir = enemyMeanPos.subtract(ship.pos).normalise();
-        bestDirection.add(chaseDir, chaseAllWeighting);
+        chaseAllDir = enemyMeanPos.copy().subtract(ship.pos).normalise();
+        bestDirection.add(chaseAllDir, chaseAllWeighting);
 
-        // EVADE BULLETS
-        Vector2d avoidanceDirection = new Vector2d();
+        // EVADE BULLETS AND MINES
+        avoidDir.zero();
         for(Projectile p : ProjectileManager.getLivingProjectiles()) {
             if(p.team != ship.team) {
                 // this projectile is a threat perhaps
@@ -142,12 +162,17 @@ public class ShipActionController extends Controller {
                     // add the direction of the projectile to the avoidance direction, with inverse weighting based on distance
                     Vector2d dist = new Vector2d(ship.pos);
                     dist.subtract(p.pos);
-                    avoidanceDirection.add(dist, 1000/dist.mag());
+                    avoidDir.add(dist, 1000/dist.mag());
                 }
             }
         }
-        avoidanceDirection.normalise();
-        bestDirection.add(avoidanceDirection, evadeBulletsWeighting);
+        for(Pickup p : PickupManager.getLivingMines()) {
+            Vector2d dist = new Vector2d(ship.pos);
+            dist.subtract(p.pos);
+            avoidDir.add(dist, 1000/dist.mag());
+        }
+        avoidDir.normalise();
+        bestDirection.add(avoidDir, evadeBulletsWeighting);
 
         // APPROACH NEAREST ALLY
 //        if(ally == null) ally = ship;
@@ -155,15 +180,16 @@ public class ShipActionController extends Controller {
 //        bestDirection.add(approachDir, approachFriendWeighting);
 
         // APPROACH NEAREST PICKUP
-        Vector2d pickupDirection = new Vector2d();
+        pickupDir.zero();
         for(Pickup p : PickupManager.getLivingPickups()) {
-            Vector2d dist = new Vector2d(ship.pos);
-            dist.subtract(p.pos);
-            dist.mul(-1);
-            pickupDirection.add(dist, 10000/dist.mag());
+            if(p.type != PickupType.MINE) {
+                Vector2d dist = new Vector2d(p.pos);
+                dist.subtract(ship.pos);
+                pickupDir.add(dist, 10000/dist.mag());
+            }
         }
-        pickupDirection.normalise();
-        bestDirection.add(pickupDirection, moveToPickupWeighting);
+        pickupDir.normalise();
+        bestDirection.add(pickupDir, moveToPickupWeighting);
 
         // normalise best direction
         bestDirection.normalise();
@@ -185,6 +211,7 @@ public class ShipActionController extends Controller {
 
         // once we have determined what we are doing for thrust, also factor in turn to better face target with best direction of firepower
         // find shortest distance to turn to get turret in range
+
         Action bestTurnAction = bestAction;
         if(target != null) {
             double smallestTurnDiff = Double.MAX_VALUE;
@@ -210,8 +237,8 @@ public class ShipActionController extends Controller {
             }
         }
 
-
-        int moveAction = bestAction.encoded | bestTurnAction.encoded;
+        int moveAction = bestTurnAction.encoded;
+        if(moveAction == 0) moveAction = bestTurnAction.encoded;
 
         // determine which guns will hit a still target
         // and fire them
@@ -228,6 +255,43 @@ public class ShipActionController extends Controller {
         // use suitable action
         binaryToActions(ship, moveAction);
     }
+
+    public void draw(Graphics2D g) {
+        AffineTransform at = g.getTransform();
+        g.translate(ship.pos.x, ship.pos.y);
+
+        // DRAW CHASE DIR
+        g.setColor(Color.RED);
+        g.drawLine(0, 0, (int)(chaseDir.x * chaseTargetWeighting * VISUALISER_SCALING), (int)(chaseDir.y * chaseTargetWeighting * VISUALISER_SCALING));
+
+        // DRAW CHASE ALL DIR
+        g.setColor(Color.ORANGE);
+        g.drawLine(0, 0, (int)(chaseAllDir.x * chaseAllWeighting * VISUALISER_SCALING), (int)(chaseAllDir.y * chaseAllWeighting * VISUALISER_SCALING));
+
+
+        // DRAW AVOID DIR
+        g.setColor(Color.BLUE);
+        g.drawLine(0, 0, (int)(avoidDir.x * evadeBulletsWeighting * VISUALISER_SCALING), (int)(avoidDir.y * evadeBulletsWeighting * VISUALISER_SCALING));
+
+        // DRAW PICKUP DIR
+        g.setColor(Color.GREEN);
+        g.drawLine(0, 0, (int)(pickupDir.x * moveToPickupWeighting * VISUALISER_SCALING), (int)(pickupDir.y * moveToPickupWeighting * VISUALISER_SCALING));
+
+        // DRAW BEST DIR
+        g.setColor(Color.WHITE);
+        g.drawLine(0, 0, (int)(bestDirection.x * VISUALISER_SCALING), (int)(bestDirection.y* VISUALISER_SCALING));
+
+        g.setTransform(at);
+
+        // DRAW CHASE ALL TARGET
+        g.translate(enemyMeanPos.x, enemyMeanPos.y);
+        g.setColor(Color.ORANGE);
+        g.drawOval((int)(-VISUALISER_SCALING/2.0), (int)(-VISUALISER_SCALING/2.0), (int)VISUALISER_SCALING, (int)VISUALISER_SCALING);
+
+        g.setTransform(at);
+    }
+
+
 
     protected boolean canHitTarget(Spaceship target, double range) {
         boolean canHit = false;

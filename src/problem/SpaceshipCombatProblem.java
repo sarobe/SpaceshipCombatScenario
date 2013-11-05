@@ -101,6 +101,18 @@ public class SpaceshipCombatProblem {
                     if(s.alive) {
                         s.update();
                         allShipsDestroyed = false;
+
+                        // penalise bounce
+                        double bouncePenalty = 0;
+                        if(s.bounced) {
+                            bouncePenalty = 5;
+                        }
+
+                        // reward travel
+                        double travelReward = s.vel.mag() * 0.1;
+
+                        double oldScore = fitnessScores.get(s.chromosome);
+                        fitnessScores.put(s.chromosome, oldScore + travelReward - bouncePenalty);
                     }
                 }
 
@@ -114,8 +126,8 @@ public class SpaceshipCombatProblem {
                             s.harm(Constants.defaultProjectileHarm);
 
                             double hitScore = 0;
-                            if(!s.alive) hitScore = Constants.defaultProjectileHarm * 10;
-                            else hitScore = Constants.defaultProjectileHarm;
+                            if(!s.alive) hitScore = 100;
+                            else hitScore = 20;
 
                             // award ship
                             Spaceship attacker = p.owner;
@@ -132,6 +144,12 @@ public class SpaceshipCombatProblem {
                     for(Spaceship s : ships) {
                         if(s.alive && p.alive && s.isColliding(p)) {
                             p.dispenseReward(s);
+                            // award ship for collecting non-mine pickup
+                            if(p.type != PickupType.MINE) {
+                                double pickupScore = 50;
+                                double oldScore = fitnessScores.get(s.chromosome);
+                                fitnessScores.put(s.chromosome, oldScore + pickupScore);
+                            }
                         }
                     }
                 }
@@ -147,11 +165,11 @@ public class SpaceshipCombatProblem {
                 double score = fitnessScores.get(s.chromosome);
 
                 // reward for life left
-                score += s.hull * 200;
+                score += s.hull * 100;
                 // penalise for too many shots
                 score -= s.bulletsFired;
                 // penalise for death
-                if(!s.alive) score -= Constants.defaultProjectileHarm * 100;
+                if(!s.alive) score -= 500;
 
                 // and put it back
                 fitnessScores.put(s.chromosome, score);
@@ -168,7 +186,7 @@ public class SpaceshipCombatProblem {
 
             // penalise ship for having components further away
             for(SpaceshipComponent sc : s.components) {
-                score -= 100 * Math.max((sc.attachPos.mag() - 50), 0);
+                score -= 100 * Math.max((sc.attachPos.mag() - 20), 0);
             }
 
             // if ship is too big, penalise it heavily
@@ -291,5 +309,9 @@ public class SpaceshipCombatProblem {
             if(d < best) best = d;
         }
         System.out.println("Best score (negative is better): " + best);
+    }
+
+    public List<ShipActionController> getControllersToDraw() {
+        return demoConts;
     }
 }

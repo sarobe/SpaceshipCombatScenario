@@ -24,10 +24,19 @@ public class TestDesigns {
                         1, 80.0,  120.0, 10*(Math.PI)/2, // turret (components scale down by 10)
                         1, -80.0,  120.0, 10*(Math.PI)/2, // turret (components scale down by 10)
                         0, -200.0, 0.0, 10*(1*Math.PI)/4};  // thruster (components scale down by 10)
+        double[] shipDesignB =
+                {0, 0, 0, // position and rotation (totally irrelevant here)
+                        000, 0, 200, 300, // weights (totally irrelevant here)
+                        1, 0.0, -200.0, 10*(3*Math.PI/2),
+                        0, 200.0, 0.0, 10*(5*Math.PI/4),
+                        0, 100.0,  100.0, 10*(3*Math.PI/2),
+                        0, -100.0,  100.0, 10*(3*Math.PI/2),
+                        0, -200.0, 0.0, 10*(7*Math.PI/4)};
+
         double[][] pop = new double[duplicates][];
 
         for(int i=0; i<duplicates; i++) {
-            pop[i] = Arrays.copyOf(shipDesignA, shipDesignA.length);
+            pop[i] = Arrays.copyOf(shipDesignB, shipDesignB.length);
             // scatter ships
             pop[i][0] += (i - duplicates/2) * 50;
             pop[i][1] += (i - duplicates/2) * 50;

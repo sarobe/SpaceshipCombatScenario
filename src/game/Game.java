@@ -27,11 +27,11 @@ public class Game {
     double[] tempShipDesign =
             {0, 0, 0, // position and rotation (totally irrelevant here)
                     100, 100, 100, 100, // weights (totally irrelevant here)
-                    0, 0.0, -200.0, 10* Math.PI/2,	// thruster (components scale down by 10)
-                    0, 200.0, 0.0, 10*Math.PI, // thruster (components scale down by 10)
-                    1, 80.0,  120.0, 10*(Math.PI)/2, // turret (components scale down by 10)
-                    0, -80.0,  120.0, 10*(Math.PI)/2, // turret (components scale down by 10)
-                    0, -200.0, 0.0, 10*0};  // thruster (components scale down by 10)
+                    1, 0.0, -200.0, 10*(3*Math.PI/2),
+                    0, 200.0, 0.0, 10*(3*Math.PI/2),
+                    0, 100.0,  100.0, 10*(3*Math.PI/2),
+                    0, -100.0,  100.0, 10*(3*Math.PI/2),
+                    0, -200.0, 0.0, 10*(3*Math.PI/2)};
 
     public Game() {
         init();
@@ -47,6 +47,9 @@ public class Game {
         playerOneShip.pos.x = Constants.screenWidth/2 - Constants.screenWidth/3;
         playerOneShip.pos.y = Constants.screenHeight/2;
         playerOneShip.rot = 0;
+        playerOneShip.team = 0;
+        System.out.println(playerOneShip.hull);
+        System.out.println(playerOneShip.maxHull);
         ships.add(playerOneShip);
         playerControllerOne = new PlayerController(playerOneShip);
 
@@ -56,6 +59,7 @@ public class Game {
         playerTwoShip.pos.x = Constants.screenWidth/2 + Constants.screenWidth/3;
         playerTwoShip.pos.y = Constants.screenHeight/2;
         playerTwoShip.rot = 0;
+        playerTwoShip.team = 1;
         ships.add(playerTwoShip);
         playerControllerTwo = new PlayerController(playerTwoShip);
     }

@@ -34,7 +34,7 @@ public class Thruster extends SpaceshipComponent {
                 double effectiveForce = force;
                 if(effectiveForce > parentShip.fuel) effectiveForce = parentShip.fuel;
                 // deplete that fuel
-                if( Constants.usePickups) parentShip.fuel -= effectiveForce;
+                if( Constants.usePickups) parentShip.fuel -= (effectiveForce/Constants.forceProducedPerFuelUnit);
 
                 // calculate appropriate forces
                 Vector2d thrusterOffset = attachPos.copy().subtract(parentShip.COM).rotate(parentShip.rot).normalise();
@@ -53,7 +53,8 @@ public class Thruster extends SpaceshipComponent {
                 double spinForce = crossProd * attachPos.mag();
                 spinForce /= parentShip.moment;
 
-                parentShip.rotvel += spinForce;
+                //parentShip.rotvel += spinForce;
+                parentShip.rot += spinForce;
             } else {
                 active = false;
             }

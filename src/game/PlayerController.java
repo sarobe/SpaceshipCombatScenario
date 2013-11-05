@@ -52,13 +52,13 @@ public class PlayerController extends Controller {
                     highestThrust = ship.vel.mag();
                 }
                 // if it produces the most CW torque, use it as CW turn
-                if(ship.rotvel > highestCCWTorque) {
+                if(ship.rot > highestCCWTorque) {
                     turnCCW = i;
-                    highestCCWTorque = ship.rotvel;
+                    highestCCWTorque = ship.rot;
                 }
-                if(ship.rotvel < highestCWTorque) {
+                if(ship.rot < highestCWTorque) {
                     turnCW = i;
-                    highestCWTorque = ship.rotvel;
+                    highestCWTorque = ship.rot;
                 }
             }
 

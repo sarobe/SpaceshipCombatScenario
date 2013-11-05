@@ -1,6 +1,7 @@
 package main;
 
 import common.Constants;
+import controller.ShipActionController;
 import problem.PickupManager;
 import problem.ProjectileManager;
 import problem.SpaceshipCombatProblem;
@@ -41,6 +42,10 @@ public class SpaceshipVisualiser extends JComponent {
 
             for(Spaceship ship : problem.getShipsToDraw()) {
                 if(ship.alive) ship.draw(g2d);
+            }
+
+            for(ShipActionController cont : problem.getControllersToDraw()) {
+                if(cont.ship.alive) cont.draw(g2d);
             }
 
             //g.setFont(statFont);

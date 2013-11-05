@@ -33,7 +33,9 @@ public class Pickup extends SimObject {
             case FUEL:
                 ship.fuel = Math.min(Constants.maximumFuel, ship.fuel + Constants.fuelPickupAmount);
                 break;
-
+            case MINE:
+                ship.harm(Constants.mineDamageAmount);
+                break;
         }
         alive = false;
     }

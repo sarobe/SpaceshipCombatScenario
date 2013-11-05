@@ -16,6 +16,7 @@ public class Projectile extends SimObject {
         mass = 20;
         radius = 3;
         ttl = Constants.projectileLifetime;
+        useFriction = false;
     }
 
     public void update() {

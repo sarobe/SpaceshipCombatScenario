@@ -8,6 +8,7 @@ import common.utilities.JEasyFrame;
 import problem.*;
 import spaceship.Spaceship;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class Runner implements Runnable {
     public static void main(String[] args) {
 
 //        final int repeats = 1;
-        final int startingIndex = 0;
+        final int startingIndex = getNextRunIndex();
 
 //        for(int i=0; i<repeats; ++i) {
             Runner r = new Runner(startingIndex); //+ i
@@ -89,5 +90,25 @@ public class Runner implements Runnable {
         }
 
         frame.dispose();
+    }
+
+
+
+    public static int getNextRunIndex() {
+        File dataDirectory = new File("data/");
+        File directories[] = dataDirectory.listFiles();
+        int highestRunNum = 0;
+        for(File dir : directories) {
+            String dirNumPart = dir.getName().substring(4);
+            int dirNum = 0;
+            try {
+                dirNum = Integer.parseInt(dirNumPart);
+                if(dirNum > highestRunNum) highestRunNum = dirNum;
+            } catch(NumberFormatException e) {
+                // do nothing, just skip
+            }
+        }
+        int startingIndex = highestRunNum + 1;
+        return startingIndex;
     }
 }

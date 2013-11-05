@@ -31,27 +31,29 @@ public class Constants {
     public static double weightScale = 0.01;
 
     public static double defaultThrust = 1000;
-    public static double defaultFireVel = 8000;
+    public static double defaultFireVel = 20000;
     public static double defaultProjectileHarm = 5;
     public static double projectileLifetime = 3.0; // seconds
     public static double maximumHull = 200;
     public static double minimumHull = 10;
-    public static double maximumFuel = 1000000;
+    public static double maximumFuel = 10000;
+    public static double forceProducedPerFuelUnit = 1000;
     public static int maximumBullets = 100;
 
-    public static double numPickups = 10;
-    public static int pickupPlacementSeed = 2158;
+    public static double numPickups = 20;
+    public static int pickupPlacementSeed = 2156;
     public static double hullPickupAmount = 30;
     public static double ammoPickupAmount = 20;
     public static double fuelPickupAmount = 500;
 
-    public static double friction = 1.00;
+    public static double friction = 0.99;
+    public static double angleFriction = 0.00;
     public static double edgeBounceLoss = 0.8;
 
     public static int numEvals = 10000;
     public static int combatRepeats = 5;
 
-    public static double thrusterRadiusLimit = 15;
+    public static double thrusterRadiusLimit = 0;
     public static int timesteps = 300;
 
     //public static Rectangle leftTeamStartRect = new Rectangle(0, 0, 450, 768);
@@ -60,4 +62,5 @@ public class Constants {
 
     //public static double teamScoreWeight = 0.1;
     public static double weaponCooldown = 0.4;
+    public static double mineDamageAmount = 60;
 }
