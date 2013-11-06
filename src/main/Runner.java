@@ -24,8 +24,6 @@ public class Runner implements Runnable {
     boolean showDemos;
     int runIndex;
 
-    boolean shipsOnLeft = true;
-
     public static void main(String[] args) {
 
 //        final int repeats = 1;

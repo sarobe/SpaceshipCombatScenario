@@ -202,7 +202,9 @@ public class SpaceshipCombatProblem {
     }
 
     public double fitness(double[] x) {
-        return fitnessScores.get(x);
+        double score = 0;
+        score = fitnessScores.get(x);
+        return score;
     }
 
     public Spaceship getInstance(double[] x) {
