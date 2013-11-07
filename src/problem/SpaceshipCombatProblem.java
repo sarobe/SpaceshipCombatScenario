@@ -105,14 +105,11 @@ public class SpaceshipCombatProblem {
                         // penalise bounce
                         double bouncePenalty = 0;
                         if(s.bounced) {
-                            bouncePenalty = 5;
+                            bouncePenalty = 20;
                         }
 
-                        // reward travel
-                        double travelReward = s.vel.mag() * 0.1;
-
                         double oldScore = fitnessScores.get(s.chromosome);
-                        fitnessScores.put(s.chromosome, oldScore + travelReward - bouncePenalty);
+                        fitnessScores.put(s.chromosome, oldScore - bouncePenalty);
                     }
                 }
 
@@ -126,8 +123,8 @@ public class SpaceshipCombatProblem {
                             s.harm(Constants.defaultProjectileHarm);
 
                             double hitScore = 0;
-                            if(!s.alive) hitScore = 100;
-                            else hitScore = 20;
+                            if(!s.alive) hitScore = Constants.killReward;
+                            else hitScore = Constants.hitReward;
 
                             // award ship
                             Spaceship attacker = p.owner;
@@ -145,10 +142,11 @@ public class SpaceshipCombatProblem {
                         if(s.alive && p.alive && s.isColliding(p)) {
                             p.dispenseReward(s);
                             // award ship for collecting non-mine pickup
+                            double oldScore = fitnessScores.get(s.chromosome);
                             if(p.type != PickupType.MINE) {
-                                double pickupScore = 50;
-                                double oldScore = fitnessScores.get(s.chromosome);
-                                fitnessScores.put(s.chromosome, oldScore + pickupScore);
+                                fitnessScores.put(s.chromosome, oldScore + Constants.pickupReward);
+                            } else {
+                                fitnessScores.put(s.chromosome, oldScore - Constants.minePenalty);
                             }
                         }
                     }
@@ -164,12 +162,11 @@ public class SpaceshipCombatProblem {
             for(Spaceship s : ships) {
                 double score = fitnessScores.get(s.chromosome);
 
-                // reward for life left
-                score += s.hull * 100;
+                // reward hull integrity
+                score += s.hull * Constants.hullRewardMul;
                 // penalise for too many shots
-                score -= s.bulletsFired;
-                // penalise for death
-                if(!s.alive) score -= 500;
+                score -= s.bulletsFired * Constants.bulletPenaltyMul;
+
 
                 // and put it back
                 fitnessScores.put(s.chromosome, score);
@@ -185,19 +182,19 @@ public class SpaceshipCombatProblem {
             score /= Constants.combatRepeats;
 
             // penalise ship for having components further away
-            for(SpaceshipComponent sc : s.components) {
-                score -= 100 * Math.max((sc.attachPos.mag() - 20), 0);
-            }
+//            for(SpaceshipComponent sc : s.components) {
+//                score -= 100 * Math.max((sc.attachPos.mag() - 50), 0);
+//            }
 
             // if ship is too big, penalise it heavily
             if(s.radius >= Math.min(Constants.screenWidth, Constants.screenHeight)) {
-                score -= 999999999;
+                score = -Double.MAX_VALUE;
             }
 
             // flip score to error
             score *= -1;
             // and put it back
-            fitnessScores.put(s.chromosome, score/Constants.combatRepeats);
+            fitnessScores.put(s.chromosome, score);
         }
     }
 

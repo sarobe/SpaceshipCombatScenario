@@ -29,7 +29,6 @@ public class HillHandler implements IStrategy {
 
     public void init() {
         hillClimber = new RandomMutationHillClimber(problem.nDim(), RandomMutationHillClimber.MIN_BEST);
-        hillClimber.sDev = Constants.startingStdDev;
         funcEvals = 0;
         mostRecent = new double[problem.nDim()];
     }

@@ -46,8 +46,10 @@ public class CMAHandler implements IStrategy {
 //                            -10.0, 0.0, (7*Math.PI)/4};
         cma.setInitialX(0.0);
 
+        cma.parameters.setPopulationSize(Constants.numShips);
+
         cma.options.stopMaxFunEvals = Constants.numEvals;
-        cma.options.stopFitness = -100000;
+        cma.options.stopFitness = -1E20;
 
         // initialize cma and get fitness array to fill in later
         fitness = cma.init();  // new double[cma.parameters.getPopulationSize()];

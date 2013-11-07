@@ -16,7 +16,7 @@ public class Grapher {
 
     public static void main(String[] args) throws Exception {
 
-        final int startingIndex = 1;
+        final int startingIndex = 28;
         final int graphs = 1;
 
         for(int i=startingIndex; i<startingIndex + graphs; i++) {
@@ -31,7 +31,7 @@ public class Grapher {
             GnuPlot gp = new GnuPlot();
             gp.setAxes();
             gp.plot(dataDirectory + "run-" + runIndex + "/gnuplot-best.txt", "Best of Generation");
-            gp.replot(dataDirectory + "run-" + runIndex + "/gnuplot-mean.txt", "Mean of Generation");
+            //gp.replot(dataDirectory + "run-" + runIndex + "/gnuplot-mean.txt", "Mean of Generation");
         } catch (Exception e) {
             e.printStackTrace();
         }

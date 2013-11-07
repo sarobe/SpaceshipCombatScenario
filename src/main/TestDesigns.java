@@ -11,7 +11,7 @@ import java.util.Arrays;
  */
 public class TestDesigns {
 
-    static int duplicates = 1;
+    static int duplicates = 4;
 
     public static void main(String[] args) {
         SpaceshipCombatProblem problem = new SpaceshipCombatProblem();
@@ -26,7 +26,7 @@ public class TestDesigns {
                         0, -200.0, 0.0, 10*(1*Math.PI)/4};  // thruster (components scale down by 10)
         double[] shipDesignB =
                 {0, 0, 0, // position and rotation (totally irrelevant here)
-                        0, 0, 0, 100, // weights (totally irrelevant here)
+                        100, 100, 100, 100, // weights (totally irrelevant here)
                         1, 0.0, -200.0, 10*(3*Math.PI/2),
                         0, 200.0, 0.0, 10*(5*Math.PI/4),
                         0, 100.0,  100.0, 10*(3*Math.PI/2),
@@ -36,7 +36,7 @@ public class TestDesigns {
         double[][] pop = new double[duplicates][];
 
         for(int i=0; i<duplicates; i++) {
-            pop[i] = Arrays.copyOf(shipDesignB, shipDesignB.length);
+            pop[i] = Arrays.copyOf(shipDesignB, problem.nDim());
             // scatter ships
             pop[i][0] += (i - duplicates/2) * 50;
             pop[i][1] += (i - duplicates/2) * 50;

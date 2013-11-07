@@ -27,6 +27,7 @@ public class ShipActionController extends Controller {
     Vector2d avoidDir;
     Vector2d pickupDir;
     Vector2d bestDirection;
+    Vector2d velDirection;
 
     Vector2d enemyMeanPos;
 
@@ -90,6 +91,7 @@ public class ShipActionController extends Controller {
         avoidDir = new Vector2d();
         pickupDir = new Vector2d();
         bestDirection = new Vector2d();
+        velDirection = new Vector2d();
         enemyMeanPos = new Vector2d();
     }
 
@@ -198,16 +200,25 @@ public class ShipActionController extends Controller {
         // normalise best direction
         bestDirection.normalise();
         // find the best thrust vector in terms of direction
+        // ALSO FACTOR IN VELOCITY
+        velDirection = ship.vel.copy();
+        velDirection.normalise();
         Action bestAction = moveActions.get(0);
         double bestDifference = Double.MAX_VALUE;
+        double bestThrust = 0;
 
         for(Action a : moveActions) {
-            double diff = bestDirection.angBetween(a.thrust);
+            Vector2d newVelDirection = a.thrust.copy().rotate(ship.rot);
+            newVelDirection.add(velDirection);
+            double diff = bestDirection.angBetween(newVelDirection);
 
             // aim for the best direction, but if the difference is close enough, prioritise magnitude
             if((Math.abs(diff) < bestDifference)) {
-                bestAction = a;
-                bestDifference = Math.abs(diff);
+                if(a.thrust.mag() > bestThrust) {
+                    bestAction = a;
+                    bestDifference = Math.abs(diff);
+                    bestThrust = a.thrust.mag();
+                }
             }
         }
 
@@ -294,6 +305,10 @@ public class ShipActionController extends Controller {
         // DRAW BEST DIR
         g.setColor(Color.WHITE);
         g.drawLine(0, 0, (int)(bestDirection.x * VISUALISER_SCALING), (int)(bestDirection.y* VISUALISER_SCALING));
+
+        // DRAW COMPENSATING DIR
+        g.setColor(Color.GRAY);
+        g.drawLine(0, 0, (int)(velDirection.x * VISUALISER_SCALING), (int)(velDirection.y* VISUALISER_SCALING));
 
         g.setTransform(at);
 

@@ -1,12 +1,14 @@
 package ea;
 
+import common.Constants;
+
 import java.util.Random;
 
 public class RandomMutationHillClimber implements FitVectorSource {
 
     static Random rand = new Random();
 
-    public double sDev = 1;
+    public double sDev = Constants.startingStdDev;
     double noiseDev = 0.1;
     static double noiseFac = 1.02;
     int nDim;
