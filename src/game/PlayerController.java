@@ -7,10 +7,12 @@ import controller.Controller;
 import controller.FireAction;
 import controller.ShipState;
 import problem.ProjectileManager;
+import spaceship.SimObject;
 import spaceship.Spaceship;
 import spaceship.SpaceshipComponent;
 import spaceship.Turret;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,6 +78,21 @@ public class PlayerController extends Controller {
 
 
         ProjectileManager.suppressNewProjectiles(false);
+    }
+
+    @Override
+    public void draw(Graphics2D g) {
+        // nothing
+    }
+
+    @Override
+    public void think(List<SimObject> ships) {
+        // should never be called, do nothing
+    }
+
+    @Override
+    public void think() {
+       // this needs a massive overhaul
     }
 
     public void think(PlayerAction action) {

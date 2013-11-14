@@ -42,6 +42,17 @@ public class PickupManager {
         return livingPickups;
     }
 
+    public static int getTotalPickups() {
+        int totalNum = 0;
+        List<Pickup> livingPickups = new ArrayList<Pickup>();
+        for(Pickup p : pickupList) {
+            if(p.type != PickupType.MINE) {
+                totalNum++;
+            }
+        }
+        return totalNum;
+    }
+
     public static List<Pickup> getLivingMines() {
         List<Pickup> livingMines = new ArrayList<Pickup>();
         for(Pickup p : pickupList) {
@@ -51,5 +62,15 @@ public class PickupManager {
         }
         return livingMines;
 
+    }
+
+    public static int pickupsRemaining() {
+        int numRemaining = 0;
+        for(Pickup p : pickupList) {
+            if(p.alive) {
+                numRemaining++;
+            }
+        }
+        return numRemaining;
     }
 }

@@ -4,6 +4,7 @@ import common.Constants;
 import fr.inria.optimization.cmaes.CMAEvolutionStrategy;
 import gnuplot.Grapher;
 import problem.SpaceshipCombatProblem;
+import problem.SpaceshipIndividualCombatProblem;
 
 import java.util.Arrays;
 
@@ -13,7 +14,7 @@ import java.util.Arrays;
  */
 public class CMAHandler implements IStrategy {
 
-    public SpaceshipCombatProblem problem;
+    public SpaceshipIndividualCombatProblem problem;
     public CMAEvolutionStrategy cma;
     private int funcEvals;
     private int runIndex;
@@ -21,7 +22,7 @@ public class CMAHandler implements IStrategy {
     private double[] fitness;
 
 
-    public CMAHandler(SpaceshipCombatProblem problem, int runIndex) {
+    public CMAHandler(SpaceshipIndividualCombatProblem problem, int runIndex) {
         this.problem = problem;
         this.runIndex = runIndex;
         init();

@@ -95,19 +95,19 @@ public class ShipActionController extends Controller {
         enemyMeanPos = new Vector2d();
     }
 
-    public void think(List<Spaceship> ships) {
+    public void think(List<SimObject> ships) {
         if(!ship.alive) return; // no need to think when the ship is dead
 
         bestDirection.zero();
         // determine closest spaceship to approach
-        Spaceship target = null;
-        Spaceship ally = null;
+        SimObject target = null;
+        SimObject ally = null;
         boolean targetCanBeHit = false;
         double bestEnemyDist = Double.MAX_VALUE;
         double bestAllyDist = Double.MAX_VALUE;
         double livingEnemies = 0;
         enemyMeanPos.zero();
-        for(Spaceship s : ships) {
+        for(SimObject s : ships) {
             if(s.alive && s != ship) {
                 double dist = ship.pos.dist(s.pos);
                 if(s.team != ship.team) {
@@ -213,12 +213,12 @@ public class ShipActionController extends Controller {
             double diff = bestDirection.angBetween(newVelDirection);
 
             // aim for the best direction, but if the difference is close enough, prioritise magnitude
-            if((Math.abs(diff) < bestDifference)) {
-                if(a.thrust.mag() > bestThrust) {
+            if((Math.abs(diff) < bestDifference) && a.thrust.mag() > 0) {
+                //if(a.thrust.mag() > bestThrust) {
                     bestAction = a;
                     bestDifference = Math.abs(diff);
                     bestThrust = a.thrust.mag();
-                }
+                //}
             }
         }
 
@@ -281,6 +281,12 @@ public class ShipActionController extends Controller {
         binaryToActions(ship, moveAction);
     }
 
+    public void think() {
+        List<SimObject> ships = new ArrayList<SimObject>();
+        ships.add(ship);
+        think(ships);
+    }
+
     public void draw(Graphics2D g) {
         AffineTransform at = g.getTransform();
         g.translate(ship.pos.x, ship.pos.y);
@@ -322,7 +328,7 @@ public class ShipActionController extends Controller {
 
 
 
-    protected boolean canHitTarget(Spaceship target, double range) {
+    protected boolean canHitTarget(SimObject target, double range) {
         boolean canHit = false;
 
         // check every fire action
@@ -340,12 +346,12 @@ public class ShipActionController extends Controller {
     // and its predicted movement in direction
     // scanning along range
     // will the projectile hit a stationary target?
-    protected boolean willHitStationary(FireAction fireAction, double range, List<Spaceship> targets) {
+    protected boolean willHitStationary(FireAction fireAction, double range, List<SimObject> targets) {
         boolean hit = false;
         Vector2d start = fireAction.getFireOrigin(ship).add(ship.pos);
         Vector2d direction = fireAction.getFireDir(ship);
         Vector2d end = start.copy().add(direction, range);
-        for(Spaceship t : targets) {
+        for(SimObject t : targets) {
             Vector2d closestLinePoint = MathUtil.closestPointLineSegment(t.pos, start, end);
             if(t.pos.dist(closestLinePoint) < t.radius && t.alive && t.team != ship.team) {
                 hit = true;
@@ -356,7 +362,7 @@ public class ShipActionController extends Controller {
     }
 
     // as above, overload for single target
-    protected boolean willHitStationary(FireAction fireAction, double range, Spaceship target) {
+    protected boolean willHitStationary(FireAction fireAction, double range, SimObject target) {
         boolean hit = false;
         Vector2d start = fireAction.getFireOrigin(ship).add(ship.pos);
         Vector2d direction = fireAction.getFireDir(ship);
@@ -377,6 +383,8 @@ public class ShipActionController extends Controller {
         if(ship.pos.dist(closestLinePoint) <= radius) hit = true;
         return hit;
     }
+
+
 }
 
 

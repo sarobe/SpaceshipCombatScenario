@@ -1,11 +1,9 @@
 package main;
 
 import common.Constants;
+import controller.Controller;
 import controller.ShipActionController;
-import problem.PickupManager;
-import problem.ProjectileManager;
-import problem.SpaceshipCombatProblem;
-import problem.Pickup;
+import problem.*;
 import spaceship.Projectile;
 import spaceship.Spaceship;
 
@@ -17,11 +15,11 @@ import java.awt.*;
  */
 public class SpaceshipVisualiser extends JComponent {
 
-    private SpaceshipCombatProblem problem;
+    private SpaceshipIndividualCombatProblem problem;
 
     public static Font statFont = new Font("sans serif", Font.BOLD, 16);
 
-    public SpaceshipVisualiser(SpaceshipCombatProblem problem) {
+    public SpaceshipVisualiser(SpaceshipIndividualCombatProblem problem) {
         this.problem = problem;
     }
 
@@ -44,7 +42,7 @@ public class SpaceshipVisualiser extends JComponent {
                 if(ship.alive) ship.draw(g2d);
             }
 
-            for(ShipActionController cont : problem.getControllersToDraw()) {
+            for(Controller cont : problem.getControllersToDraw()) {
                 if(cont.ship.alive) cont.draw(g2d);
             }
 

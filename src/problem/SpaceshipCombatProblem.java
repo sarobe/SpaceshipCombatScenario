@@ -5,6 +5,7 @@ import common.math.Vector2d;
 import controller.ShipActionController;
 import main.Runner;
 import spaceship.Projectile;
+import spaceship.SimObject;
 import spaceship.Spaceship;
 import spaceship.SpaceshipComponent;
 
@@ -95,7 +96,7 @@ public class SpaceshipCombatProblem {
 
                 // simulate all ships
                 for(ShipActionController c : conts) {
-                    c.think(ships);
+                    //c.think(ships);
                 }
                 for(Spaceship s : ships) {
                     if(s.alive) {
@@ -198,9 +199,19 @@ public class SpaceshipCombatProblem {
         }
     }
 
-    public double fitness(double[] x) {
+    public double testSingleShip(double[] x) {
         double score = 0;
+        double[][] substitutePopulation = new double[1][];
+        substitutePopulation[0] = x;
+        runCombat(substitutePopulation);
         score = fitnessScores.get(x);
+        return score;
+    }
+
+    public double fitness(double[] x) {
+        //double score = 0;
+        //score = fitnessScores.get(x);
+        double score = testSingleShip(x);
         return score;
     }
 
@@ -253,7 +264,8 @@ public class SpaceshipCombatProblem {
     public void demonstrate() {
         synchronized (Runner.class) {
             for(ShipActionController c : demoConts) {
-                c.think(demoShips);
+                //c.think(demoShips);
+                c.think();
             }
 
             for(Spaceship s : demoShips) {

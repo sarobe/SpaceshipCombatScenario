@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class Runner implements Runnable {
 
-    SpaceshipCombatProblem problem;
+    SpaceshipIndividualCombatProblem problem;
     IStrategy handler;
     boolean runDemo;
     boolean showDemos;
@@ -39,7 +39,8 @@ public class Runner implements Runnable {
     public Runner(int runIndex) {
         this.runIndex = runIndex;
 
-        problem = new SpaceshipCombatProblem();
+        //problem = new SpaceshipCombatProblem();
+        problem = new SpaceshipIndividualCombatProblem();
         handler = new CMAHandler(problem, runIndex);
 
         showDemos = true;
@@ -50,7 +51,7 @@ public class Runner implements Runnable {
 
 //        if(showDemos) demonstrate();
         while(!handler.hasCompleted()) {
-            problem.runCombat(handler.getPopulation());
+            //problem.runCombat(handler.getPopulation());
             handler.run();
             if((handler.getIterations()% demonstrationInterval == 2) && showDemos) {  //% demonstrationInterval
                 demonstrate();

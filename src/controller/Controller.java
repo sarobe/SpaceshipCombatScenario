@@ -1,6 +1,10 @@
 package controller;
 
+import spaceship.SimObject;
 import spaceship.Spaceship;
+
+import java.awt.*;
+import java.util.List;
 
 /**
  * Created by Samuel Roberts, 2013
@@ -27,6 +31,10 @@ public abstract class Controller {
             j *= 2;
         }
     }
+
+    abstract public void draw(Graphics2D g);
+    abstract public void think(List<SimObject> ships);
+    abstract public void think();
 
     public Spaceship getShip() {
         return ship;

@@ -3,6 +3,7 @@ package main;
 import common.Constants;
 import common.utilities.JEasyFrame;
 import problem.SpaceshipCombatProblem;
+import problem.SpaceshipIndividualCombatProblem;
 
 import java.util.Arrays;
 
@@ -11,10 +12,10 @@ import java.util.Arrays;
  */
 public class TestDesigns {
 
-    static int duplicates = 4;
+    static int duplicates = 1;
 
     public static void main(String[] args) {
-        SpaceshipCombatProblem problem = new SpaceshipCombatProblem();
+        SpaceshipIndividualCombatProblem problem = new SpaceshipIndividualCombatProblem();
 
         double[] shipDesignA =
                 {0, 0, 0, // position and rotation
@@ -26,7 +27,7 @@ public class TestDesigns {
                         0, -200.0, 0.0, 10*(1*Math.PI)/4};  // thruster (components scale down by 10)
         double[] shipDesignB =
                 {0, 0, 0, // position and rotation (totally irrelevant here)
-                        100, 100, 100, 100, // weights (totally irrelevant here)
+                        100, 100, 100, 300, // weights (totally irrelevant here)
                         1, 0.0, -200.0, 10*(3*Math.PI/2),
                         0, 200.0, 0.0, 10*(5*Math.PI/4),
                         0, 100.0,  100.0, 10*(3*Math.PI/2),
@@ -46,8 +47,15 @@ public class TestDesigns {
         JEasyFrame frame = new JEasyFrame(sv, "Demonstration of Handmade Ships");
 
         // print out the best fitness
-        problem.runCombat(pop);
-        problem.printBestScoreOfRecentSim();
+        //problem.runCombat(pop);
+        //problem.printBestScoreOfRecentSim();
+        double bestFitness = Double.MAX_VALUE;
+        for(int i=0; i<duplicates; i++) {
+            double fitness = problem.fitness(pop[i]);
+            System.out.println("Fitness: " + fitness);
+            if(fitness < bestFitness) bestFitness = fitness;
+        }
+        System.out.println("Best Fitness: " + bestFitness);
 
         problem.demonstrationInit(pop);
 

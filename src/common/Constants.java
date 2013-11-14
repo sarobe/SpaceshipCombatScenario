@@ -41,7 +41,7 @@ public class Constants {
     public static int maximumBullets = 100;
 
     public static double numPickups = 20;
-    public static int pickupPlacementSeed = 2156;
+    public static int pickupPlacementSeed = 2196;
     public static double hullPickupAmount = 30;
     public static double ammoPickupAmount = 20;
     public static double fuelPickupAmount = 500;
@@ -51,11 +51,11 @@ public class Constants {
     public static double edgeBounceLoss = 0.8;
 
     public static int numEvals = 10000;
-    public static int numShips = 2;
-    public static int combatRepeats = 10;
+    public static int numShips = 10;
+    public static int combatRepeats = 1;
 
     public static double thrusterRadiusLimit = 0;
-    public static int timesteps = 400;
+    public static int timesteps = 800;
 
     //public static Rectangle leftTeamStartRect = new Rectangle(0, 0, 450, 768);
     //public static Rectangle rightTeamStartRect = new Rectangle(574, 0, 450, 768);
@@ -71,4 +71,5 @@ public class Constants {
     public static double minePenalty = 500;
     public static double bulletPenaltyMul = 1;
     public static double hullRewardMul = 10;
+
 }
