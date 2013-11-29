@@ -17,7 +17,7 @@ public abstract class Controller {
         this.ship = ship;
     }
 
-    protected void binaryToActions(Spaceship target, int encodedActions) {
+    public static void binaryToActions(Spaceship target, int encodedActions) {
         int j = 1;
         int actionNum = 0;
         int totalPossibleActions = target.components.size();

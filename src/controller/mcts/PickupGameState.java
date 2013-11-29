@@ -1,6 +1,7 @@
 package controller.mcts;
 
 import common.Constants;
+import common.math.Vector2d;
 import controller.ShipState;
 import problem.Pickup;
 import problem.PickupManager;
@@ -17,7 +18,7 @@ import java.util.Map;
 /**
  * Created by Samuel Roberts, 2013
  */
-public class PickupGameState  implements IGameState {
+public class PickupGameState implements IGameState {
 
     // a map of pickup states
     // true if the pickup has been collected
@@ -75,7 +76,7 @@ public class PickupGameState  implements IGameState {
 
     @Override
     public int nActions() {
-        return (int)Math.pow(2, Constants.numComponents);
+        return ShipBiasedMCTSController.actions.length;    // Constants.numComponents;
     }
 
     @Override
@@ -83,7 +84,12 @@ public class PickupGameState  implements IGameState {
         ShipState initialState = new ShipState(ship);
         ship.setState(shipState);
         ProjectileManager.suppressNewProjectiles(true);
-        binaryToActions(ship, action);
+        //binaryToActions(ship, action);
+//        for(int i=0; i<ship.components.size(); i++) {
+//            if(i == action) ship.components.get(i).active = true;
+//            else ship.components.get(i).active = false;
+//        }
+        ShipBiasedMCTSController.useSimpleAction(ship, action);
         for(int i =0; i < ShipMCTSController.macroActionStep; i++) {
             ship.update();
         }
@@ -103,18 +109,54 @@ public class PickupGameState  implements IGameState {
         return 0;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    protected void binaryToActions(Spaceship target, int encodedActions) {
-        int j = 1;
-        int actionNum = 0;
-        int totalPossibleActions = target.components.size();
-        while(actionNum < totalPossibleActions) {
-            if((encodedActions & j) != 0) {
-                target.components.get(actionNum).active = true;
-            } else {
-                target.components.get(actionNum).active = false;
+    @Override
+    public double[] getFeatures() {
+        // get closest living pickup
+        double closestDist = Double.MAX_VALUE;
+        Pickup chosen = null;
+        for(Pickup p : pickupStates.keySet()) {
+            if(p.type != PickupType.MINE && pickupStates.get(p)) {
+                double dist = p.pos.dist(shipState.pos);
+                if(dist < closestDist) {
+                    closestDist = dist;
+                    chosen = p;
+                }
             }
-            actionNum++;
-            j *= 2;
+            if(chosen == null) chosen = p;
         }
+
+        // use dot product features
+        Vector2d s = chosen.pos.copy().subtract(shipState.pos);
+        Vector2d forward = ship.forwardDir;
+        Vector2d left = forward.copy();
+        left.rotate(Math.PI/2);
+        Vector2d right = forward.copy();
+        right.rotate(-Math.PI/2);
+
+        // calculate the features
+        double f = forward.scalarProduct(s);
+        double l = left.scalarProduct(s);
+        double r = right.scalarProduct(s);
+
+        // feature four: velocity divided by distance (becomes larger as velocity increases and distance decreases)
+        // negated because the larger this number is, the worse scenario it is
+        //double vs = -(ship.v.mag()/s.mag());
+
+        return new double[]{f,l,r};
     }
+
+//    protected void binaryToActions(Spaceship target, int encodedActions) {
+//        int j = 1;
+//        int actionNum = 0;
+//        int totalPossibleActions = target.components.size();
+//        while(actionNum < totalPossibleActions) {
+//            if((encodedActions & j) != 0) {
+//                target.components.get(actionNum).active = true;
+//            } else {
+//                target.components.get(actionNum).active = false;
+//            }
+//            actionNum++;
+//            j *= 2;
+//        }
+//    }
 }

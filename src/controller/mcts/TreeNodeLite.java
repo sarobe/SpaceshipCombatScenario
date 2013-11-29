@@ -20,6 +20,14 @@ public class TreeNodeLite {
     static int nExpansions = 0;
     static int nInstances = 0;
 
+    static double biasInfluence = 0.0;
+    static double meanInfluence = 1.0;
+
+    // create some pickers just once to save the effort of creating each time
+    private static Picker<Integer> picker = new Picker<Integer>();
+    // private static Picker<Integer> rootPicker = new Picker<Integer>();
+
+    // next thing to work out: when to expand the state...
 
     public TreeNodeLite[] children;
     public int nVisits;
@@ -66,6 +74,38 @@ public class TreeNodeLite {
         }
     }
 
+    public void mctsSearch(IGameState root,
+                           int its,
+                           ITunableRoller roller,
+                           FitVectorSource source) {
+        for (int i = 0; i < its; i++) {
+            IGameState state = root.copy();
+            roller.setParams(source.getNext());
+
+            TreeNodeLite selected = treePolicy(state);
+            TreeNodeLite expanded = selected.expand(state);
+
+            double value = selected.rollOut(state);
+            source.returnFitness(value);
+            expanded.backUp(value);
+        }
+    }
+
+    public int mctsFastEvoSearch(IGameState root,
+                                 int its,
+                                 ITunableRoller roller,
+                                 FitVectorSource source) {
+        for (int i = 0; i < its; i++) {
+            IGameState state = root.copy();
+            roller.setParams(source.getNext());
+            TreeNodeLite selected = treePolicy(state);
+            TreeNodeLite expanded = selected.expand(state);
+            double value = selected.rollOut(state);
+            source.returnFitness(value);
+            expanded.backUp(value);
+        }
+        return bestRootAction(root, roller);
+    }
 
     public void backUp(double result) {
         nVisits++;
@@ -137,17 +177,15 @@ public class TreeNodeLite {
         if (children == null) children = new TreeNodeLite[state.nActions()];
 
         // choose a random unused action and add a new node for that
-        int bestAction = 0;
-        double bestValue = 0;
+        picker.reset();
         for (int i = 0; i < children.length; i++) {
             if (children[i] == null) {
                 double x = r.nextDouble();
-                if(x > bestValue) {
-                    bestAction = i;
-                    bestValue = x;
-                }
+                picker.add(x, i);
             }
         }
+        // if (unused == 0) throw new RuntimeException("Should not have zero null children; state terminal? " + state.isTerminal());
+        int bestAction = picker.getBest();
         TreeNodeLite tn = new TreeNodeLite(this, bestAction, this.roller);
         nExpansions++;
         children[bestAction] = tn;
@@ -156,20 +194,28 @@ public class TreeNodeLite {
     }
 
     public int bestRootAction(IGameState state, IRoller roller) {
+        if (roller instanceof FeatureWeightedRoller)
+            return biasedRootAction(state, (FeatureWeightedRoller) roller);
+        Picker<Integer> p = new Picker<Integer>();
 
-        int bestAction = 0;
-        double bestValue = 0;
         for (int i=0; i<children.length; i++) {
             if (children[i] != null) {
-                double score = children[i].meanValue() + r.nextDouble() * epsilon;
-                if(score > bestValue) {
-                    bestAction = i;
-                    bestValue = score;
-                }
+                p.add(children[i].meanValue() + r.nextDouble() * epsilon, i);
             }
         }
-        System.out.println("Action " + bestAction + " chosen with score " + bestValue);
-        return bestAction;
+        return p.getBest();
+    }
+
+    public int biasedRootAction(IGameState state, FeatureWeightedRoller roller) {
+        Picker<Integer> p = new Picker<Integer>();
+        double[] biases = roller.getBiases(state);
+        // System.out.println(Arrays.toString(biases));
+        for (int i=0; i<children.length; i++) {
+            if (children[i] != null) {
+                p.add(children[i].meanValue() * meanInfluence + biases[i] * biasInfluence + r.nextDouble() * epsilon, i);
+            }
+        }
+        return p.getBest();
     }
 
     public boolean isLeaf() {
@@ -192,47 +238,42 @@ public class TreeNodeLite {
     }
 
 
-//    @Override
-//    public TreeNodeInterface[] getChildren() {
-//        return children;
-//    }
-//
-//    @Override
+    public TreeNodeLite[] getChildren() {
+        return children;
+    }
+
     public double meanValue() {
         return totValue / nVisits + epsilon;
     }
-//
-//    public int arity() {
-//        return children == null ? 0 : children.length;
-//    }
-//
-//    @Override
-//    public double totValue() {
-//        return totValue;
-//    }
-//
-//    @Override
-//    public int nVisits() {
-//        return nVisits;
-//    }
-//
-//    @Override
-//    public List<Integer> lastRollOut() {
-//        return null;  //To change body of implemented methods use File | Settings | File Templates.
-//    }
-//
+
+    public int arity() {
+        return children == null ? 0 : children.length;
+    }
+
+    public double totValue() {
+        return totValue;
+    }
+
+    public int nVisits() {
+        return nVisits;
+    }
+
+    public List<Integer> lastRollOut() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     public static Random r = new Random();
-//
-//    public int treeSize() {
-//        if (children == null) return 1;
-//        int tot = 1; // count this node
-//        for (TreeNodeLite child : children) {
-//            // count child nodes
-//            if (child != null) {
-//                tot += child.treeSize();
-//                // tot += 1;
-//            }
-//        }
-//        return tot;
-//    }
+
+    public int treeSize() {
+        if (children == null) return 1;
+        int tot = 1; // count this node
+        for (TreeNodeLite child : children) {
+            // count child nodes
+            if (child != null) {
+                tot += child.treeSize();
+                // tot += 1;
+            }
+        }
+        return tot;
+    }
 }

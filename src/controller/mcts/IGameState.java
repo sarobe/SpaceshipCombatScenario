@@ -11,4 +11,6 @@ public interface IGameState {
     public IGameState next(int action);
     public IGameState copy();
     public double heuristicValue();
+
+    double[] getFeatures();
 }

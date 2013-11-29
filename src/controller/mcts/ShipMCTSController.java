@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class ShipMCTSController extends Controller {
 
-    static int nIts = 100;
+    static int nIts = 200;
     public static int macroActionStep = 20;
     int timesteps;
     int currentAction;
@@ -59,7 +59,10 @@ public class ShipMCTSController extends Controller {
 
 
         // use action
-        binaryToActions(ship, currentAction);
+        for(int i=0; i<ship.components.size(); i++) {
+            if(i == currentAction) ship.components.get(i).active = true;
+            else ship.components.get(i).active = false;
+        }
     }
 
     public int getAction(IGameState state) {

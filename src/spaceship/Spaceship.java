@@ -2,7 +2,9 @@ package spaceship;
 
 import common.Constants;
 import common.math.Vector2d;
+import controller.Controller;
 import controller.ShipState;
+import problem.ProjectileManager;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -53,6 +55,12 @@ public class Spaceship extends SimObject {
     // how many bullets does the ship have left?
     public int bullets = 0;
 
+    // some encoded action integers relating to basic ship actions
+    public int forward = 0;
+    public Vector2d forwardDir;
+    public int turnCW = 0;
+    public int turnCCW = 0;
+
     public Spaceship() {
         super();
         mass = 10;
@@ -77,8 +85,7 @@ public class Spaceship extends SimObject {
             // for each triple of doubles
             // the first double is the type
             SpaceshipComponent c;
-            int type = (int)Math.abs((x[i])) % 2;
-            if(type == 1) {
+            if(x[i] < 0) {
                 c = new Turret(this, Constants.defaultFireVel);
             } else {
                 c = new Thruster(this, Constants.defaultThrust);
@@ -93,6 +100,7 @@ public class Spaceship extends SimObject {
         }
         rebalance();
         setInitialPlacement();
+        calculateActions();
         shipColor = makeColorFromChromosome(x);
         shipHighlightColor = shipColor.brighter();
     }
@@ -232,6 +240,8 @@ public class Spaceship extends SimObject {
             SpaceshipComponent copiedComponent = sc.copy(copy);
             copy.addComponent(copiedComponent);
         }
+        copy.rebalance();
+        copy.calculateActions();
         return copy;
     }
 
@@ -350,6 +360,45 @@ public class Spaceship extends SimObject {
                 radius = comp.attachPos.mag();
             }
         }
+    }
+
+    public void calculateActions() {
+        int numActions = (int)Math.pow(2, Constants.numComponents);
+        ShipState initialState = new ShipState(this);
+        ProjectileManager.suppressNewProjectiles(true);
+
+        double highestThrust = 0;
+        double highestCCWTorque = 0;
+        double highestCWTorque = Double.MAX_VALUE;
+
+        for(int i = 0; i < numActions; i++) {
+            rot = 0;
+            Controller.binaryToActions(this, i);
+            update();
+
+            // ignore any actions that turn on a turret
+            if(!justFired) {
+
+                // if it produces the most thrust, use it as forwards
+                if(vel.mag() > highestThrust) {
+                    forward = i;
+                    forwardDir = vel.copy().normalise();
+                    highestThrust = vel.mag();
+                }
+                // if it produces the most CW torque, use it as CW turn
+                if(rot > highestCCWTorque) {
+                    turnCCW = i;
+                    highestCCWTorque = rot;
+                }
+                if(rot < highestCWTorque) {
+                    turnCW = i;
+                    highestCWTorque = rot;
+                }
+            }
+
+            setState(initialState);
+        }
+        ProjectileManager.suppressNewProjectiles(false);
     }
 
     public Color makeColorFromChromosome(double[] x) {

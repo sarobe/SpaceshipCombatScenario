@@ -11,6 +11,7 @@ public class ShipState {
     public Spaceship ship;
     public double px;
     public double py;
+    public Vector2d pos;
     public double vx;
     public double vy;
     public double rot;
@@ -29,6 +30,7 @@ public class ShipState {
         this.ship = ship;
         px = ship.pos.x;
         py = ship.pos.y;
+        pos = ship.pos.copy();
         vx = ship.vel.x;
         vy = ship.vel.y;
         rot = ship.rot;
@@ -53,6 +55,7 @@ public class ShipState {
         ship = state.ship;
         px = state.px;
         py = state.py;
+        pos = state.pos.copy();
         vx = state.vx;
         vy = state.vy;
         rot = state.rot;

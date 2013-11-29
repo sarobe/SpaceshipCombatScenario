@@ -4,6 +4,7 @@ import common.Constants;
 import common.math.Vector2d;
 import controller.Controller;
 import controller.ShipActionController;
+import controller.mcts.ShipBiasedMCTSController;
 import controller.mcts.ShipMCTSController;
 import main.Runner;
 import spaceship.Projectile;
@@ -43,7 +44,7 @@ public class SpaceshipIndividualCombatProblem {
         PickupManager.reset();
 
         Spaceship ship = getInstance(x);
-        Controller cont = new ShipMCTSController(ship);
+        Controller cont = new ShipBiasedMCTSController(ship);
         ship.setTeam(1);
 
         for(int i = 0; i<Constants.combatRepeats; i++) {
@@ -144,37 +145,37 @@ public class SpaceshipIndividualCombatProblem {
         demoConts.clear();
 
         // determine the best ship to show
-        double bestFitness = Double.MAX_VALUE;
-        double[] bestShip = null;
-        for(double[] individual : shipData) {
-            double fitness = fitness(individual);
-            if(fitness < bestFitness) {
-                bestFitness = fitness;
-                bestShip = individual;
-            }
-        }
+//        double bestFitness = Double.MAX_VALUE;
+//        double[] bestShip = null;
+//        for(double[] individual : shipData) {
+//            double fitness = fitness(individual);
+//            if(fitness < bestFitness) {
+//                bestFitness = fitness;
+//                bestShip = individual;
+//            }
+//        }
 
         // set up sides
-        //int numShips = shipData.length;
+        int numShips = shipData.length;
 
-        //for(int i = 0; i < numShips; i++) {
-            Spaceship ship = getInstance(bestShip);
+        for(int i = 0; i < numShips; i++) {
+            Spaceship ship = getInstance(shipData[i]);
             ship.reset();
             ship.setTeam(1);
             //ship.pos = getRandStartPos(Constants.startRect);
             //ship.rot = 0;
             demoShips.add(ship);
-            demoConts.add(new ShipMCTSController(ship));
-        //}
+            demoConts.add(new ShipBiasedMCTSController(ship));
+        }
 
         // kill ships that are too big
-        //for(Spaceship s : demoShips) {
+        for(Spaceship ship : demoShips) {
             // if ship is too big, destroy it
             if(ship.radius >= Math.min(Constants.screenWidth, Constants.screenHeight)) {
                 ship.alive = false;
                 System.out.println("Killed ship with radius of " + ship.radius);
             }
-        //}
+        }
 
         // kill ships that are initially overlapping others
 //        for(int i = 0; i < demoShips.size(); i++) {
