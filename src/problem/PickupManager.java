@@ -3,9 +3,7 @@ package problem;
 import common.Constants;
 import common.math.Vector2d;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class PickupManager {
 
@@ -72,5 +70,13 @@ public class PickupManager {
             }
         }
         return numRemaining;
+    }
+
+    public static Map<Pickup, Boolean> getPickupStates() {
+        Map<Pickup, Boolean> pickupStates = new HashMap<Pickup, Boolean>();
+        for(Pickup p : PickupManager.pickupList) {
+            pickupStates.put(p, !p.alive);
+        }
+        return pickupStates;
     }
 }

@@ -232,11 +232,11 @@ public class SpaceshipIndividualCombatProblem {
         }
     }
 
-    public List<Spaceship> getShipsToDraw() {
+    public List<Spaceship> getShips() {
         return demoShips;
     }
 
-    public List<Controller> getControllersToDraw() {
+    public List<Controller> getControllers() {
         return demoConts;
     }
 }

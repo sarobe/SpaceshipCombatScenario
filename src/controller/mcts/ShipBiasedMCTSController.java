@@ -12,6 +12,7 @@ import spaceship.Spaceship;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,12 +23,14 @@ import java.util.Map;
  */
 public class ShipBiasedMCTSController extends Controller {
 
-    static int nIts = 200;
+    static int nIts = 400;
     public static int macroActionStep = 50;
     int timesteps;
     int currentAction;
     ITunableRoller roller;
     FitVectorSource source;
+
+    public double bestPredictedScore = 0;
 
     public static SimpleAction[] actions;
     static {
@@ -72,15 +75,24 @@ public class ShipBiasedMCTSController extends Controller {
     public int getAction(IGameState state) {
         TreeNodeLite tn = new TreeNodeLite(roller);
         tn.mctsSearch(state, nIts, roller, source);
+        for(TreeNodeLite child : tn.children) {
+            System.out.println(child.action + ": " + child.meanValue());
+            if(child.meanValue() > bestPredictedScore) bestPredictedScore = child.meanValue();
+        }
+        System.out.println();
         return tn.bestRootAction(state, roller);
     }
 
     @Override
     public void draw(Graphics2D g) {
         AffineTransform at = g.getTransform();
+
         g.translate(ship.pos.x, ship.pos.y);
         g.setColor(Color.YELLOW);
         g.fillOval(-5, -5, 10, 10);
+
+
+
         g.setTransform(at);
     }
 
@@ -90,12 +102,7 @@ public class ShipBiasedMCTSController extends Controller {
 
         ShipState initialState = new ShipState(ship);
 
-        Map<Pickup, Boolean> pickupStates = new HashMap<Pickup, Boolean>();
-        for(Pickup p : PickupManager.pickupList) {
-            pickupStates.put(p, !p.alive);
-        }
-
-        currentState = new PickupGameState(ship, new ShipState(ship), timesteps, pickupStates);
+        currentState = new PickupGameState(ship, new ShipState(ship), timesteps, PickupManager.getPickupStates());
 
         // reset ship
         ship.setState(initialState);

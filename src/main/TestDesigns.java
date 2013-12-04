@@ -2,8 +2,12 @@ package main;
 
 import common.Constants;
 import common.utilities.JEasyFrame;
+import controller.mcts.IGameState;
+import controller.mcts.PickupGameState;
+import controller.mcts.ShipBiasedMCTSController;
 import problem.SpaceshipCombatProblem;
 import problem.SpaceshipIndividualCombatProblem;
+import spaceship.Spaceship;
 
 import java.util.Arrays;
 
@@ -51,7 +55,8 @@ public class TestDesigns {
         }
 
         SpaceshipVisualiser sv = new SpaceshipVisualiser(problem);
-        JEasyFrame frame = new JEasyFrame(sv, "Demonstration of Handmade Ships");
+        JEasyFrame frame = new JEasyFrame(sv, "Pickup Problem - 0");
+
 
         // print out the best fitness
         //problem.runCombat(pop);
@@ -64,13 +69,17 @@ public class TestDesigns {
 //        }
 //        System.out.println("Best Fitness: " + bestFitness);
 
+
         problem.demonstrationInit(pop);
+        ShipBiasedMCTSController cont = (ShipBiasedMCTSController)problem.getControllers().get(0);
+
 
         // MAIN DEMONSTRATION LOOP
         try {
             while(true) {
                 problem.demonstrate();
                 sv.repaint();
+                frame.setTitle("Pickup Problem - " + cont.bestPredictedScore);
                 Thread.sleep(Constants.delay);
             }
         } catch (Exception e) {

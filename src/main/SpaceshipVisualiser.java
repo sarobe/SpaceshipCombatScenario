@@ -2,7 +2,6 @@ package main;
 
 import common.Constants;
 import controller.Controller;
-import controller.ShipActionController;
 import problem.*;
 import spaceship.Projectile;
 import spaceship.Spaceship;
@@ -38,11 +37,11 @@ public class SpaceshipVisualiser extends JComponent {
                 p.draw(g2d);
             }
 
-            for(Spaceship ship : problem.getShipsToDraw()) {
+            for(Spaceship ship : problem.getShips()) {
                 if(ship.alive) ship.draw(g2d);
             }
 
-            for(Controller cont : problem.getControllersToDraw()) {
+            for(Controller cont : problem.getControllers()) {
                 if(cont.ship.alive) cont.draw(g2d);
             }
 
@@ -50,7 +49,6 @@ public class SpaceshipVisualiser extends JComponent {
             //g.setColor(Color.WHITE);
         }
     }
-
     public Dimension getPreferredSize() {
         return new Dimension(Constants.screenWidth, Constants.screenHeight);
     }

@@ -68,9 +68,14 @@ public class PickupGameState implements IGameState {
             return badStateValue;
         }
         else if(getCollectedPickups() < PickupManager.getTotalPickups()) {
-            return getCollectedPickups() * 10 - getCollectedMines() * 10;
+            // return the proximity to closest pickup (10/distance) as well as a fixed bonus for each collected pickup.
+            Pickup chosen = getClosestPickup();
+            double proximityScore = 100 / chosen.pos.dist(shipState.pos);
+            double collectionScore =  getCollectedPickups() * 100;
+            double minePenalty = getCollectedMines() * 100;
+            return proximityScore + collectionScore - minePenalty;
         } else {
-            return (Constants.timesteps - timestepsElapsed) * 10 - getCollectedMines() * 10;
+            return (Constants.timesteps - timestepsElapsed) * 100 - getCollectedMines() * 100;
         }
     }
 
@@ -112,18 +117,7 @@ public class PickupGameState implements IGameState {
     @Override
     public double[] getFeatures() {
         // get closest living pickup
-        double closestDist = Double.MAX_VALUE;
-        Pickup chosen = null;
-        for(Pickup p : pickupStates.keySet()) {
-            if(p.type != PickupType.MINE && pickupStates.get(p)) {
-                double dist = p.pos.dist(shipState.pos);
-                if(dist < closestDist) {
-                    closestDist = dist;
-                    chosen = p;
-                }
-            }
-            if(chosen == null) chosen = p;
-        }
+        Pickup chosen = getClosestPickup();
 
         // use dot product features
         Vector2d s = chosen.pos.copy().subtract(shipState.pos);
@@ -143,6 +137,22 @@ public class PickupGameState implements IGameState {
         //double vs = -(ship.v.mag()/s.mag());
 
         return new double[]{f,l,r};
+    }
+
+    public Pickup getClosestPickup() {
+        double closestDist = Double.MAX_VALUE;
+        Pickup chosen = null;
+        for(Pickup p : pickupStates.keySet()) {
+            if(p.type != PickupType.MINE && pickupStates.get(p)) {
+                double dist = p.pos.dist(shipState.pos);
+                if(dist < closestDist) {
+                    closestDist = dist;
+                    chosen = p;
+                }
+            }
+            if(chosen == null) chosen = p;
+        }
+        return chosen;
     }
 
 //    protected void binaryToActions(Spaceship target, int encodedActions) {
