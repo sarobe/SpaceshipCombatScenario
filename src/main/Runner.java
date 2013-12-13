@@ -1,16 +1,11 @@
 package main;
 
-import gnuplot.Grapher;
-import controller.*;
 import strategy.*;
 import common.Constants;
 import common.utilities.JEasyFrame;
 import problem.*;
-import spaceship.Spaceship;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Samuel Roberts

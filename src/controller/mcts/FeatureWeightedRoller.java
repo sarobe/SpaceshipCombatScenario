@@ -5,7 +5,7 @@ import java.util.Random;
 // Taken from Simon Lucas' GGFVL project, 11/13
 public class FeatureWeightedRoller implements ITunableRoller {
 
-    public boolean uniform  = false;
+    public boolean uniform  = true;
 
     public double[] params;
     double[] bias;

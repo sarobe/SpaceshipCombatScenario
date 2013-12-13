@@ -7,12 +7,10 @@ import problem.Pickup;
 import problem.PickupManager;
 import problem.PickupType;
 import problem.ProjectileManager;
-import spaceship.SimObject;
+import spaceship.ComplexSpaceship;
 import spaceship.Spaceship;
 
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,11 +26,14 @@ public class PickupGameState implements IGameState {
     Spaceship ship;
     ShipState shipState;
 
+
+
     public PickupGameState(Spaceship ship, ShipState shipState, int timestepsElapsed, Map<Pickup, Boolean> pickupStates) {
         this.ship = ship;
         this.shipState = shipState;
         this.pickupStates = new HashMap<Pickup, Boolean>(pickupStates);
         this.timestepsElapsed = timestepsElapsed;
+        if(InfluenceMap.getMap() == null) InfluenceMap.createInfluenceMap(pickupStates);
     }
 
     private int getCollectedPickups() {
@@ -69,11 +70,11 @@ public class PickupGameState implements IGameState {
         }
         else if(getCollectedPickups() < PickupManager.getTotalPickups()) {
             // return the proximity to closest pickup (10/distance) as well as a fixed bonus for each collected pickup.
-            Pickup chosen = getClosestPickup();
-            double proximityScore = 100 / chosen.pos.dist(shipState.pos);
+            //Pickup chosen = getClosestPickup();
+            //double proximityScore = 1000 / chosen.pos.dist(shipState.pos);
             double collectionScore =  getCollectedPickups() * 100;
             double minePenalty = getCollectedMines() * 100;
-            return proximityScore + collectionScore - minePenalty;
+            return collectionScore - minePenalty;
         } else {
             return (Constants.timesteps - timestepsElapsed) * 100 - getCollectedMines() * 100;
         }
@@ -81,7 +82,7 @@ public class PickupGameState implements IGameState {
 
     @Override
     public int nActions() {
-        return ShipBiasedMCTSController.actions.length;    // Constants.numComponents;
+        return Constants.actions.length;    // Constants.numComponents;
     }
 
     @Override
@@ -111,7 +112,11 @@ public class PickupGameState implements IGameState {
 
     @Override
     public double heuristicValue() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return InfluenceMap.getValue(shipState.pos.x, shipState.pos.y);
+    }
+
+    public ShipState getShipState() {
+        return shipState;
     }
 
     @Override
@@ -121,7 +126,7 @@ public class PickupGameState implements IGameState {
 
         // use dot product features
         Vector2d s = chosen.pos.copy().subtract(shipState.pos);
-        Vector2d forward = ship.forwardDir;
+        Vector2d forward = ship.getForward();
         Vector2d left = forward.copy();
         left.rotate(Math.PI/2);
         Vector2d right = forward.copy();
@@ -154,6 +159,7 @@ public class PickupGameState implements IGameState {
         }
         return chosen;
     }
+
 
 //    protected void binaryToActions(Spaceship target, int encodedActions) {
 //        int j = 1;

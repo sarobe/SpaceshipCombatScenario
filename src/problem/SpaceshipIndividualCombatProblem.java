@@ -1,20 +1,16 @@
 package problem;
 
 import common.Constants;
-import common.math.Vector2d;
 import controller.Controller;
-import controller.ShipActionController;
 import controller.mcts.ShipBiasedMCTSController;
-import controller.mcts.ShipMCTSController;
 import main.Runner;
+import spaceship.BasicSpaceship;
+import spaceship.ComplexSpaceship;
 import spaceship.Projectile;
 import spaceship.Spaceship;
 
-import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Samuel Roberts, 2012
@@ -43,7 +39,7 @@ public class SpaceshipIndividualCombatProblem {
         ProjectileManager.reset();
         PickupManager.reset();
 
-        Spaceship ship = getInstance(x);
+        ComplexSpaceship ship = getInstance(x);
         Controller cont = new ShipBiasedMCTSController(ship);
         ship.setTeam(1);
 
@@ -133,8 +129,8 @@ public class SpaceshipIndividualCombatProblem {
         return score;
     }
 
-    public Spaceship getInstance(double[] x) {
-        return new Spaceship(x);
+    public ComplexSpaceship getInstance(double[] x) {
+        return new ComplexSpaceship(x);
     }
 
     public void demonstrationInit(double[][] shipData) {
@@ -159,7 +155,7 @@ public class SpaceshipIndividualCombatProblem {
         int numShips = shipData.length;
 
         for(int i = 0; i < numShips; i++) {
-            Spaceship ship = getInstance(shipData[i]);
+            ComplexSpaceship ship = getInstance(shipData[i]);
             ship.reset();
             ship.setTeam(1);
             //ship.pos = getRandStartPos(Constants.startRect);
@@ -190,6 +186,18 @@ public class SpaceshipIndividualCombatProblem {
 //                }
 //            }
 //        }
+    }
+
+    public void demonstrationInit() {
+        // use the basic ship
+        ProjectileManager.reset();
+        PickupManager.placePickups(Constants.pickupPlacementSeed);
+        demoShips.clear();
+        demoConts.clear();
+
+        Spaceship ship = new BasicSpaceship();
+        demoShips.add(ship);
+        demoConts.add(new ShipBiasedMCTSController(ship));
     }
 
     public void demonstrate() {

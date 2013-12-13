@@ -19,7 +19,7 @@ public class Thruster extends SpaceshipComponent {
     int[] flameY = {-2, 0, 2};
 
 
-    public Thruster(Spaceship parentShip, double force) {
+    public Thruster(ComplexSpaceship parentShip, double force) {
         super(parentShip);
         this.force = force;
         mass = 12;
@@ -77,7 +77,7 @@ public class Thruster extends SpaceshipComponent {
         g.setTransform(at);
     }
 
-    public SpaceshipComponent copy(Spaceship newParent) {
+    public SpaceshipComponent copy(ComplexSpaceship newParent) {
         Thruster copy = new Thruster(newParent, force);
         copy.attachPos = attachPos.copy();
         copy.attachRot = attachRot;

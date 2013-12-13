@@ -2,6 +2,7 @@ package problem;
 
 import common.Constants;
 import common.math.Vector2d;
+import spaceship.ComplexSpaceship;
 import spaceship.SimObject;
 import spaceship.Spaceship;
 

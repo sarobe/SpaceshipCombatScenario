@@ -4,10 +4,8 @@ import common.Constants;
 import common.math.Vector2d;
 import controller.ShipActionController;
 import main.Runner;
+import spaceship.ComplexSpaceship;
 import spaceship.Projectile;
-import spaceship.SimObject;
-import spaceship.Spaceship;
-import spaceship.SpaceshipComponent;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -22,14 +20,14 @@ public class SpaceshipCombatProblem {
 
     public Map<double[], Double> fitnessScores;
 
-    public List<Spaceship> demoShips;
+    public List<ComplexSpaceship> demoShips;
     public List<ShipActionController> demoConts;
 
     public SpaceshipCombatProblem() {
         ProjectileManager.reset();
         PickupManager.reset();
         fitnessScores = new HashMap<double[], Double>();
-        demoShips = new ArrayList<Spaceship>();
+        demoShips = new ArrayList<ComplexSpaceship>();
         demoConts = new ArrayList<ShipActionController>();
     }
 
@@ -45,13 +43,13 @@ public class SpaceshipCombatProblem {
         // initialise simulation
         ProjectileManager.reset();
         PickupManager.reset();
-        List<Spaceship> ships = new ArrayList<Spaceship>();
+        List<ComplexSpaceship> ships = new ArrayList<ComplexSpaceship>();
         List<ShipActionController> conts = new ArrayList<ShipActionController>();
         fitnessScores.clear();
 
         // populate simulation
         for(int i = 0; i < shipData.length; i++) {
-            Spaceship ship = getInstance(shipData[i]);
+            ComplexSpaceship ship = getInstance(shipData[i]);
             ship.setTeam(i);
             ships.add(ship);
             conts.add(new ShipActionController(ship));
@@ -59,7 +57,7 @@ public class SpaceshipCombatProblem {
         }
 
         // initialise scores
-        for(Spaceship s : ships) {
+        for(ComplexSpaceship s : ships) {
             fitnessScores.put(s.chromosome, 0.0);
         }
 
@@ -70,7 +68,7 @@ public class SpaceshipCombatProblem {
             ////////////////////////////////////
             ProjectileManager.reset();
             PickupManager.placePickups(Constants.pickupPlacementSeed);
-            for(Spaceship s : ships) {
+            for(ComplexSpaceship s : ships) {
                 // initialise properties
                 s.reset();
                 //s.pos = getRandStartPos(Constants.startRect);
@@ -98,7 +96,7 @@ public class SpaceshipCombatProblem {
                 for(ShipActionController c : conts) {
                     //c.think(ships);
                 }
-                for(Spaceship s : ships) {
+                for(ComplexSpaceship s : ships) {
                     if(s.alive) {
                         s.update();
                         allShipsDestroyed = false;
@@ -118,7 +116,7 @@ public class SpaceshipCombatProblem {
                 for(Projectile p : ProjectileManager.getLivingProjectiles()) {
                     p.update();
 
-                    for(Spaceship s : ships) {
+                    for(ComplexSpaceship s : ships) {
                         if(s.alive && p.owner != s && s.isColliding(p) && (Constants.allowFriendlyFire || s.team != p.team) && p.alive) {
                             p.kill();
                             s.harm(Constants.defaultProjectileHarm);
@@ -128,7 +126,7 @@ public class SpaceshipCombatProblem {
                             else hitScore = Constants.hitReward;
 
                             // award ship
-                            Spaceship attacker = p.owner;
+                            ComplexSpaceship attacker = p.owner;
                             double oldScore = fitnessScores.get(attacker.chromosome);
                             fitnessScores.put(attacker.chromosome, oldScore + hitScore);
                             // and team
@@ -139,7 +137,7 @@ public class SpaceshipCombatProblem {
 
                 // check for pickup collisions
                 for(Pickup p : PickupManager.getLivingPickups()) {
-                    for(Spaceship s : ships) {
+                    for(ComplexSpaceship s : ships) {
                         if(s.alive && p.alive && s.isColliding(p)) {
                             p.dispenseReward(s);
                             // award ship for collecting non-mine pickup
@@ -160,7 +158,7 @@ public class SpaceshipCombatProblem {
             // ASSIGNING END OF ROUND SCORES
             ////////////////////////////////////
 
-            for(Spaceship s : ships) {
+            for(ComplexSpaceship s : ships) {
                 double score = fitnessScores.get(s.chromosome);
 
                 // reward hull integrity
@@ -177,7 +175,7 @@ public class SpaceshipCombatProblem {
         ////////////////////////////////////
         // DETERMINING FINAL SCORES
         ////////////////////////////////////
-        for(Spaceship s : ships) {
+        for(ComplexSpaceship s : ships) {
             double score = fitnessScores.get(s.chromosome);
             // get average performance
             score /= Constants.combatRepeats;
@@ -215,8 +213,8 @@ public class SpaceshipCombatProblem {
         return score;
     }
 
-    public Spaceship getInstance(double[] x) {
-        return new Spaceship(x);
+    public ComplexSpaceship getInstance(double[] x) {
+        return new ComplexSpaceship(x);
     }
 
     public void demonstrationInit(double[][] shipData) {
@@ -228,7 +226,7 @@ public class SpaceshipCombatProblem {
 
         // set up sides
         for(int i = 0; i < shipData.length; i++) {
-            Spaceship ship = getInstance(shipData[i]);
+            ComplexSpaceship ship = getInstance(shipData[i]);
             ship.reset();
             ship.setTeam(i);
             //ship.pos = getRandStartPos(Constants.startRect);
@@ -238,7 +236,7 @@ public class SpaceshipCombatProblem {
         }
 
         // kill ships that are too big
-        for(Spaceship s : demoShips) {
+        for(ComplexSpaceship s : demoShips) {
             // if ship is too big, destroy it
             if(s.radius >= Math.min(Constants.screenWidth, Constants.screenHeight)) {
                 s.alive = false;
@@ -268,7 +266,7 @@ public class SpaceshipCombatProblem {
                 c.think();
             }
 
-            for(Spaceship s : demoShips) {
+            for(ComplexSpaceship s : demoShips) {
                 s.update();
             }
 
@@ -276,7 +274,7 @@ public class SpaceshipCombatProblem {
             for(Projectile p : ProjectileManager.getLivingProjectiles()) {
                 p.update();
 
-                for(Spaceship s : demoShips) {
+                for(ComplexSpaceship s : demoShips) {
                     if(s.alive && p.owner != s && s.isColliding(p) && (Constants.allowFriendlyFire || s.team != p.team) && p.alive) {
                         p.kill();
                         s.harm(Constants.defaultProjectileHarm);
@@ -292,7 +290,7 @@ public class SpaceshipCombatProblem {
 
             // check for pickup collisions
             for(Pickup p : PickupManager.getLivingPickups()) {
-                for(Spaceship s : demoShips) {
+                for(ComplexSpaceship s : demoShips) {
                     if(s.alive && p.alive && s.isColliding(p)) {
                         p.dispenseReward(s);
                     }
@@ -309,7 +307,7 @@ public class SpaceshipCombatProblem {
         return startPos;
     }
 
-    public List<Spaceship> getShipsToDraw() {
+    public List<ComplexSpaceship> getShipsToDraw() {
         return demoShips;
     }
 

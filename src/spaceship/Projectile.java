@@ -1,17 +1,16 @@
 package spaceship;
 
 import common.Constants;
-import common.math.Vector2d;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 
 public class Projectile extends SimObject {
 
-    public Spaceship owner;
+    public ComplexSpaceship owner;
     public double ttl;
 
-    public Projectile(Spaceship owner) {
+    public Projectile(ComplexSpaceship owner) {
         this.owner = owner;
         mass = 20;
         radius = 3;

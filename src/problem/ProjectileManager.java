@@ -2,7 +2,7 @@ package problem;
 
 import common.Constants;
 import spaceship.Projectile;
-import spaceship.Spaceship;
+import spaceship.ComplexSpaceship;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,7 @@ public class ProjectileManager {
         }
     }
 
-    public static Projectile getNewProjectile(Spaceship owner) {
+    public static Projectile getNewProjectile(ComplexSpaceship owner) {
         // get first available dead projectile if one exists
         Projectile created = null;
         if(!suppressNew) {

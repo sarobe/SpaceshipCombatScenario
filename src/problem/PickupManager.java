@@ -18,12 +18,18 @@ public class PickupManager {
         reset();
         Random rand = new Random(seed);
 
-        for(int i = 0; i < Constants.numPickups; i++) {
+        for(int i = 0; i < Constants.numPickups + Constants.numMines; i++) {
 
             Vector2d placement = new Vector2d(rand.nextDouble() * Constants.screenWidth, rand.nextDouble() * Constants.screenHeight);
 
-            int typeSelection = (int)(rand.nextDouble() * PickupType.values().length);
-            PickupType type = PickupType.values()[typeSelection];
+            PickupType type;
+            if(i >= Constants.numPickups) {
+                type = PickupType.MINE;
+            } else {
+                int typeSelection = (int)(rand.nextDouble() * PickupType.values().length - 1);
+                type = PickupType.values()[typeSelection];
+            }
+
 
             Pickup pickup = new Pickup(placement, type);
             pickupList.add(pickup);

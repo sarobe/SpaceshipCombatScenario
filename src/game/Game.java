@@ -4,8 +4,8 @@ import common.Constants;
 import problem.PickupManager;
 import problem.ProjectileManager;
 import problem.Pickup;
+import spaceship.ComplexSpaceship;
 import spaceship.Projectile;
-import spaceship.Spaceship;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class Game {
 
-    public List<Spaceship> ships;
+    public List<ComplexSpaceship> ships;
 
     public PlayerAction playerActionOne;
     public PlayerAction playerActionTwo;
@@ -38,12 +38,12 @@ public class Game {
     }
 
     public void init() {
-        ships = new ArrayList<Spaceship>();
+        ships = new ArrayList<ComplexSpaceship>();
         PickupManager.placePickups(Constants.pickupPlacementSeed);
         ProjectileManager.reset();
         // create player one stuff
         playerActionOne = new PlayerAction(0, 0, false);
-        Spaceship playerOneShip = new Spaceship(tempShipDesign);
+        ComplexSpaceship playerOneShip = new ComplexSpaceship(tempShipDesign);
         playerOneShip.pos.x = Constants.screenWidth/2 - Constants.screenWidth/3;
         playerOneShip.pos.y = Constants.screenHeight/2;
         playerOneShip.rot = 0;
@@ -55,7 +55,7 @@ public class Game {
 
         // create player two stuff
         playerActionTwo = new PlayerAction(0, 0, false);
-        Spaceship playerTwoShip = new Spaceship(tempShipDesign);
+        ComplexSpaceship playerTwoShip = new ComplexSpaceship(tempShipDesign);
         playerTwoShip.pos.x = Constants.screenWidth/2 + Constants.screenWidth/3;
         playerTwoShip.pos.y = Constants.screenHeight/2;
         playerTwoShip.rot = 0;
@@ -68,7 +68,7 @@ public class Game {
         playerControllerOne.think(playerActionOne);
         playerControllerTwo.think(playerActionTwo);
 
-        for(Spaceship s : ships) {
+        for(ComplexSpaceship s : ships) {
             s.update();
         }
 
@@ -76,7 +76,7 @@ public class Game {
         for(Projectile p : ProjectileManager.getLivingProjectiles()) {
             p.update();
 
-            for(Spaceship s : ships) {
+            for(ComplexSpaceship s : ships) {
                 if(s.alive && p.owner != s && s.isColliding(p) && (Constants.allowFriendlyFire || s.team != p.team) && p.alive) {
                     p.kill();
                     s.harm(Constants.defaultProjectileHarm);
@@ -86,7 +86,7 @@ public class Game {
 
         // check for pickup collisions
         for(Pickup p : PickupManager.getLivingPickups()) {
-            for(Spaceship s : ships) {
+            for(ComplexSpaceship s : ships) {
                 if(s.alive && p.alive && s.isColliding(p)) {
                     p.dispenseReward(s);
                 }
@@ -95,7 +95,7 @@ public class Game {
     }
 
 
-    public List<Spaceship> getShipsToDraw() {
+    public List<ComplexSpaceship> getShipsToDraw() {
         return ships;
     }
 }

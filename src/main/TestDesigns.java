@@ -2,12 +2,8 @@ package main;
 
 import common.Constants;
 import common.utilities.JEasyFrame;
-import controller.mcts.IGameState;
-import controller.mcts.PickupGameState;
 import controller.mcts.ShipBiasedMCTSController;
-import problem.SpaceshipCombatProblem;
 import problem.SpaceshipIndividualCombatProblem;
-import spaceship.Spaceship;
 
 import java.util.Arrays;
 
@@ -21,38 +17,38 @@ public class TestDesigns {
     public static void main(String[] args) {
         SpaceshipIndividualCombatProblem problem = new SpaceshipIndividualCombatProblem();
 
-        double[] shipDesignA =
-                {0, 0, 0, // position and rotation
-                        100, 100, 100, 100, // weights, default (weights scale down by 100)
-                        1, 0.0, -200.0, 10* Math.PI/2,	// thruster (components scale down by 10)
-                        1, 200.0, 0.0, 10*(3*Math.PI)/4, // thruster (components scale down by 10)
-                        -1, 80.0,  120.0, 10*(Math.PI)/2, // turret (components scale down by 10)
-                        -1, -80.0,  120.0, 10*(Math.PI)/2, // turret (components scale down by 10)
-                        1, -200.0, 0.0, 10*(1*Math.PI)/4};  // thruster (components scale down by 10)
-        double[] shipDesignB =
-                {0, 0, 0, // position and rotation (totally irrelevant here)
-                        100, 100, 100, 300, // weights (totally irrelevant here)
-                        -1, 0.0, -200.0, 10*(3*Math.PI/2),
-                        1, 200.0, 0.0, 10*(5*Math.PI/4),
-                        1, 100.0,  100.0, 10*(3*Math.PI/2),
-                        1, -100.0,  100.0, 10*(3*Math.PI/2),
-                        1, -200.0, 0.0, 10*(7*Math.PI/4)};
-        double[] shipDesignC =
-                {0, 0, 0, // position and rotation (totally irrelevant here)
-                        100, 100, 100, 300, // weights (totally irrelevant here)
-                        1, -200.0, 0.0, 0,
-                        1, 0.0,  -200.0, 10*(Math.PI/2),
-                        1, 200.0,  0.0, 10*(Math.PI),
-                        1, 0.0, 200.0, 10*(3*Math.PI/2)};
-
-        double[][] pop = new double[duplicates][];
-
-        for(int i=0; i<duplicates; i++) {
-            pop[i] = Arrays.copyOf(shipDesignB, problem.nDim());
-            // scatter ships
-            pop[i][0] += (i - duplicates/2) * 50;
-            pop[i][1] += (i - duplicates/2) * 50;
-        }
+//        double[] shipDesignA =
+//                {0, 0, 0, // position and rotation
+//                        100, 100, 100, 100, // weights, default (weights scale down by 100)
+//                        1, 0.0, -200.0, 10* Math.PI/2,	// thruster (components scale down by 10)
+//                        1, 200.0, 0.0, 10*(3*Math.PI)/4, // thruster (components scale down by 10)
+//                        1, 80.0,  120.0, 10*(3*Math.PI)/2, // turret (components scale down by 10)
+//                        1, -80.0,  120.0, 10*(3*Math.PI)/2, // turret (components scale down by 10)
+//                        1, -200.0, 0.0, 10*(1*Math.PI)/4};  // thruster (components scale down by 10)
+//        double[] shipDesignB =
+//                {0, 0, 0, // position and rotation (totally irrelevant here)
+//                        100, 100, 100, 300, // weights (totally irrelevant here)
+//                        -1, 0.0, -200.0, 10*(3*Math.PI/2),
+//                        1, 200.0, 0.0, 10*(5*Math.PI/4),
+//                        1, 100.0,  100.0, 10*(3*Math.PI/2),
+//                        1, -100.0,  100.0, 10*(3*Math.PI/2),
+//                        1, -200.0, 0.0, 10*(7*Math.PI/4)};
+//        double[] shipDesignC =
+//                {0, 0, 0, // position and rotation (totally irrelevant here)
+//                        100, 100, 100, 300, // weights (totally irrelevant here)
+//                        1, -200.0, 0.0, 0,
+//                        1, 0.0,  -200.0, 10*(Math.PI/2),
+//                        1, 200.0,  0.0, 10*(Math.PI),
+//                        1, 0.0, 200.0, 10*(3*Math.PI/2)};
+//
+//        double[][] pop = new double[duplicates][];
+//
+//        for(int i=0; i<duplicates; i++) {
+//            pop[i] = Arrays.copyOf(shipDesignA, problem.nDim());
+//            // scatter ships
+//            pop[i][0] += (i - duplicates/2) * 50;
+//            pop[i][1] += (i - duplicates/2) * 50;
+//        }
 
         SpaceshipVisualiser sv = new SpaceshipVisualiser(problem);
         JEasyFrame frame = new JEasyFrame(sv, "Pickup Problem - 0");
@@ -70,7 +66,9 @@ public class TestDesigns {
 //        System.out.println("Best Fitness: " + bestFitness);
 
 
-        problem.demonstrationInit(pop);
+        //problem.demonstrationInit(pop);
+        // parameterless version just creates a basic lunar lander style ship
+        problem.demonstrationInit();
         ShipBiasedMCTSController cont = (ShipBiasedMCTSController)problem.getControllers().get(0);
 
 

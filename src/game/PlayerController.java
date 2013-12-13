@@ -1,19 +1,15 @@
 package game;
 
 import common.Constants;
-import common.math.Vector2d;
-import controller.Action;
 import controller.Controller;
-import controller.FireAction;
 import controller.ShipState;
 import problem.ProjectileManager;
 import spaceship.SimObject;
-import spaceship.Spaceship;
+import spaceship.ComplexSpaceship;
 import spaceship.SpaceshipComponent;
 import spaceship.Turret;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,7 +22,7 @@ public class PlayerController extends Controller {
     int turnCCW = 0;
     int fire = 0;
 
-    public PlayerController(Spaceship ship) {
+    public PlayerController(ComplexSpaceship ship) {
         super(ship);
 
         // construct lookup table for each possible action
@@ -42,7 +38,7 @@ public class PlayerController extends Controller {
 
         for(int i = 0; i < numActions; i++) {
             ship.rot = 0;
-            binaryToActions(ship, i);
+            ship.useAction(i);
             ship.update();
 
             // ignore any actions that turn on a turret
@@ -116,7 +112,7 @@ public class PlayerController extends Controller {
         }
 
         // tell ship to carry out specified action
-        binaryToActions(ship, actionToExecute);
+        ship.useAction(actionToExecute);
     }
 
 

@@ -2,6 +2,7 @@ package controller.mcts;
 
 import ea.FitVectorSource;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -13,7 +14,7 @@ public class TreeNodeLite {
     // 0.5 works ok for Othello
     static double k = 0.3;
     static double epsilon = 1e-6;
-    // IGameState state;
+    IGameState myState;
     TreeNodeLite parent;
     // that action taken to lead to this node
     Integer action;
@@ -33,28 +34,39 @@ public class TreeNodeLite {
     public int nVisits;
     public double totValue;
     // need this to draw the roll-out
-    public List<Integer> lastRollOut;
+    public List<RollOut> rollOuts;
+    public double bestRolloutValue = 0;
 
     // need this to draw the roll-out
     public List<Integer> lastRollOutMax;
 
     public IRoller roller;
 
-    public TreeNodeLite(TreeNodeLite parent, IRoller roller) {
-        this.parent = parent;
-        this.roller = roller;
-        nInstances++;
-    }
+//    public TreeNodeLite(TreeNodeLite parent, IRoller roller) {
+//        this.parent = parent;
+//        this.roller = roller;
+//        nInstances++;
+//    }
 
     public TreeNodeLite(IRoller roller) {
         this.roller = roller;
+        rollOuts = new ArrayList<RollOut>();
         nInstances++;
     }
 
-    public TreeNodeLite(TreeNodeLite parent, Integer action, IRoller roller) {
+//    public TreeNodeLite(TreeNodeLite parent, Integer action, IRoller roller) {
+//        this.parent = parent;
+//        this.action = action;
+//        this.roller = roller;
+//        nInstances++;
+//    }
+
+    public TreeNodeLite(TreeNodeLite parent, Integer action, IRoller roller, IGameState state) {
         this.parent = parent;
         this.action = action;
         this.roller = roller;
+        this.myState = state;
+        rollOuts = new ArrayList<RollOut>();
         nInstances++;
     }
 
@@ -79,13 +91,13 @@ public class TreeNodeLite {
                            ITunableRoller roller,
                            FitVectorSource source) {
         for (int i = 0; i < its; i++) {
-            IGameState state = root.copy();
             roller.setParams(source.getNext());
+            myState = root;
 
-            TreeNodeLite selected = treePolicy(state);
-            TreeNodeLite expanded = selected.expand(state);
+            TreeNodeLite selected = treePolicy(myState);
+            TreeNodeLite expanded = selected.expand(myState);
 
-            double value = selected.rollOut(state);
+            double value = selected.rollOut(myState);
             source.returnFitness(value);
             expanded.backUp(value);
         }
@@ -186,10 +198,10 @@ public class TreeNodeLite {
         }
         // if (unused == 0) throw new RuntimeException("Should not have zero null children; state terminal? " + state.isTerminal());
         int bestAction = picker.getBest();
-        TreeNodeLite tn = new TreeNodeLite(this, bestAction, this.roller);
+        TreeNodeLite tn = new TreeNodeLite(this, bestAction, this.roller, state.next(bestAction));
         nExpansions++;
         children[bestAction] = tn;
-        state.next(bestAction);
+        state = state.next(bestAction);
         return tn;
     }
 
@@ -225,6 +237,8 @@ public class TreeNodeLite {
 
     public double rollOut(IGameState state) {
         // System.out.println(state + " : " + action);
+        List<Integer> lastRollOut = new ArrayList<Integer>();
+        RollOut rollOutData = new RollOut();
         while (!state.isTerminal()) {
             int numActions = state.nActions();
             int action = r.nextInt(numActions);
@@ -233,7 +247,11 @@ public class TreeNodeLite {
             {
                 state = state.next(action);
             }
+            rollOutData.addAction(action);
         }
+        rollOutData.setScore(state.value());
+        rollOuts.add(rollOutData);
+        if(state.value() > bestRolloutValue) bestRolloutValue = state.value();
         return state.value();
     }
 
@@ -256,10 +274,6 @@ public class TreeNodeLite {
 
     public int nVisits() {
         return nVisits;
-    }
-
-    public List<Integer> lastRollOut() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public static Random r = new Random();

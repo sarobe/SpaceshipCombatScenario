@@ -1,6 +1,7 @@
 package common;
 
 import common.math.Vector2d;
+import controller.mcts.SimpleAction;
 
 import java.awt.*;
 import java.util.Random;
@@ -40,8 +41,9 @@ public class Constants {
     public static double forceProducedPerFuelUnit = 1000;
     public static int maximumBullets = 100;
 
-    public static double numPickups = 20;
-    public static int pickupPlacementSeed = 2196;
+    public static int numPickups = 1;
+    public static int numMines = 1;
+    public static int pickupPlacementSeed = 3405;
     public static double hullPickupAmount = 30;
     public static double ammoPickupAmount = 20;
     public static double fuelPickupAmount = 500;
@@ -55,7 +57,7 @@ public class Constants {
     public static int combatRepeats = 1;
 
     public static double thrusterRadiusLimit = 0;
-    public static int timesteps = 800;
+    public static int timesteps = 10000;
 
     //public static Rectangle leftTeamStartRect = new Rectangle(0, 0, 450, 768);
     //public static Rectangle rightTeamStartRect = new Rectangle(574, 0, 450, 768);
@@ -72,4 +74,17 @@ public class Constants {
     public static double bulletPenaltyMul = 1;
     public static double hullRewardMul = 10;
 
+
+
+    public static SimpleAction[] actions;
+    static {
+        actions = new SimpleAction[]{
+                new SimpleAction(0, -1),
+                new SimpleAction(0, 0),
+                new SimpleAction(0, 1),
+                new SimpleAction(1, -1),
+                new SimpleAction(1, 0),
+                new SimpleAction(1, 1),
+        };
+    }
 }

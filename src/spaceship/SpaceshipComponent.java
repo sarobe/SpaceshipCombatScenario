@@ -10,7 +10,7 @@ import java.awt.*;
  */
 public abstract class SpaceshipComponent {
 
-    public Spaceship parentShip;
+    public ComplexSpaceship parentShip;
     public Vector2d attachPos;
     public double attachRot;
     public boolean active;
@@ -18,13 +18,13 @@ public abstract class SpaceshipComponent {
     public double mass;
     public double moment;
 
-    public SpaceshipComponent(Spaceship parentShip) {
+    public SpaceshipComponent(ComplexSpaceship parentShip) {
         this.parentShip = parentShip;
     }
 
     public abstract void draw(Graphics2D g);
     public abstract void update();
-    public abstract SpaceshipComponent copy(Spaceship newParent);
+    public abstract SpaceshipComponent copy(ComplexSpaceship newParent);
 
     public void setActive(boolean active) {
         this.active = active;

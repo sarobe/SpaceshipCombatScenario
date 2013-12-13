@@ -1,6 +1,7 @@
 package controller;
 
 import common.math.Vector2d;
+import spaceship.ComplexSpaceship;
 import spaceship.Spaceship;
 
 public class FireAction {

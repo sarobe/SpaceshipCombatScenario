@@ -5,7 +5,7 @@ import controller.ShipState;
 import problem.Pickup;
 import problem.PickupManager;
 import spaceship.SimObject;
-import spaceship.Spaceship;
+import spaceship.ComplexSpaceship;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -25,7 +25,7 @@ public class ShipMCTSController extends Controller {
     IRoller roller;
 
 
-    public ShipMCTSController(Spaceship ship) {
+    public ShipMCTSController(ComplexSpaceship ship) {
         super(ship);
         roller = new BasicRoller();
         think(); // get the starting action to use
@@ -59,10 +59,10 @@ public class ShipMCTSController extends Controller {
 
 
         // use action
-        for(int i=0; i<ship.components.size(); i++) {
-            if(i == currentAction) ship.components.get(i).active = true;
-            else ship.components.get(i).active = false;
-        }
+//        for(int i=0; i<ship.components.size(); i++) {
+//            if(i == currentAction) ship.components.get(i).active = true;
+//            else ship.components.get(i).active = false;
+//        }
     }
 
     public int getAction(IGameState state) {

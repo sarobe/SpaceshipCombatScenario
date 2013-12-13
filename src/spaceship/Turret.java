@@ -22,7 +22,7 @@ public class Turret extends SpaceshipComponent {
     double counter = 0;
 
 
-    public Turret(Spaceship parentShip, double fireVel) {
+    public Turret(ComplexSpaceship parentShip, double fireVel) {
         super(parentShip);
         this.fireVel = fireVel;
         mass = 20;
@@ -76,7 +76,7 @@ public class Turret extends SpaceshipComponent {
         g.setTransform(at);
     }
 
-    public SpaceshipComponent copy(Spaceship newParent) {
+    public SpaceshipComponent copy(ComplexSpaceship newParent) {
         Turret copy = new Turret(newParent, fireVel);
         copy.attachPos = attachPos.copy();
         copy.attachRot = attachRot;

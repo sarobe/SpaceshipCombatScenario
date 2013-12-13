@@ -43,7 +43,7 @@ public class ShipActionController extends Controller {
 
     public static double VISUALISER_SCALING = 30;
 
-    public ShipActionController(Spaceship ship) {
+    public ShipActionController(ComplexSpaceship ship) {
         super(ship);
 
         chaseTargetWeighting = ship.chromosome[3] * Constants.weightScale;
@@ -62,7 +62,7 @@ public class ShipActionController extends Controller {
         ProjectileManager.suppressNewProjectiles(true);
         for(int i = 0; i < numActions; i++) {
             ship.rot = 0;
-            binaryToActions(ship, i);
+            ship.useAction(i);
             ship.update();
 
             // ignore any actions that turn on a turret
@@ -229,7 +229,8 @@ public class ShipActionController extends Controller {
         Action bestTurnAction = bestAction;
         if(target != null) {
             double smallestTurnDiff = Double.MAX_VALUE;
-            for(SpaceshipComponent sc : ship.components) {
+            ComplexSpaceship cship = (ComplexSpaceship)ship;
+            for(SpaceshipComponent sc : cship.components) {
                 if(sc instanceof Turret) {
                     Vector2d fireDir = sc.attachPos.copy().rotate(ship.rot);
                     fireDir.add(new Vector2d(1,0).rotate(ship.rot + sc.attachRot));
@@ -278,7 +279,7 @@ public class ShipActionController extends Controller {
         moveAction |= encodedFireActions;
 
         // use suitable action
-        binaryToActions(ship, moveAction);
+        ship.useAction(moveAction);
     }
 
     public void think() {

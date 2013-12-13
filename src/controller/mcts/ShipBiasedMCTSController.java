@@ -1,21 +1,21 @@
 package controller.mcts;
 
 import common.Constants;
+import common.math.Vector2d;
 import controller.Controller;
 import controller.ShipState;
 import ea.FitVectorSource;
-import problem.Pickup;
 import problem.PickupManager;
 import problem.ProjectileManager;
-import spaceship.SimObject;
+import spaceship.BasicSpaceship;
+import spaceship.ComplexSpaceship;
 import spaceship.Spaceship;
+import spaceship.SimObject;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Samuel Roberts, 2013
@@ -23,27 +23,15 @@ import java.util.Map;
  */
 public class ShipBiasedMCTSController extends Controller {
 
-    static int nIts = 400;
-    public static int macroActionStep = 50;
+    static int nIts = 500;
+    public static int macroActionStep = 10;
     int timesteps;
     int currentAction;
     ITunableRoller roller;
     FitVectorSource source;
+    TreeNodeLite lastSearch;
 
     public double bestPredictedScore = 0;
-
-    public static SimpleAction[] actions;
-    static {
-        actions = new SimpleAction[]{
-                new SimpleAction(0, -1),
-                new SimpleAction(0, 0),
-                new SimpleAction(0, 1),
-                new SimpleAction(1, -1),
-                new SimpleAction(1, 0),
-                new SimpleAction(1, 1),
-        };
-    }
-
 
     public ShipBiasedMCTSController(Spaceship ship) {
         super(ship);
@@ -75,11 +63,17 @@ public class ShipBiasedMCTSController extends Controller {
     public int getAction(IGameState state) {
         TreeNodeLite tn = new TreeNodeLite(roller);
         tn.mctsSearch(state, nIts, roller, source);
-        for(TreeNodeLite child : tn.children) {
-            System.out.println(child.action + ": " + child.meanValue());
-            if(child.meanValue() > bestPredictedScore) bestPredictedScore = child.meanValue();
+        if(!tn.isLeaf()) {
+            for(TreeNodeLite child : tn.children) {
+                System.out.println(child.action + ": " + child.meanValue());
+                if(child.meanValue() > bestPredictedScore) bestPredictedScore = child.meanValue();
+            }
+        } else {
+            System.out.println("Terminal: " + tn.meanValue());
         }
+        System.out.println(Arrays.toString(source.bestVec()));
         System.out.println();
+        lastSearch = tn;
         return tn.bestRootAction(state, roller);
     }
 
@@ -91,9 +85,41 @@ public class ShipBiasedMCTSController extends Controller {
         g.setColor(Color.YELLOW);
         g.fillOval(-5, -5, 10, 10);
 
-
+        Vector2d shipForward = ship.getForward();
+        g.drawLine(0, 0, (int)(shipForward.x * 20), (int)(shipForward.y * 20));
 
         g.setTransform(at);
+
+
+        if(lastSearch != null) {
+            drawRollouts(g, lastSearch);
+        }
+    }
+
+    private void drawRollouts(Graphics2D g, TreeNodeLite node) {
+        IGameState initialState = node.myState;
+        ShipState initialShipState = new ShipState(ship);
+        ShipState currentShipState = initialState.getShipState();
+
+        for(RollOut rollOut : node.rollOuts) {
+            ship.setState(currentShipState);
+            ShipState prevState = currentShipState;
+            ShipState nextState = null;
+            for(Integer action : rollOut.actions) {
+                useSimpleAction(ship, action);
+                for(int i=0; i<macroActionStep; i++) {
+                    ship.update();
+                }
+                nextState = new ShipState(ship);
+
+                // draw states
+                g.setColor(Color.getHSBColor(1.0f, 0.0f, Math.max(1.0f - (float)(rollOut.value/node.bestRolloutValue), 0.0f)));
+                g.drawLine((int) prevState.px, (int) prevState.py, (int) nextState.px, (int) nextState.py);
+
+                prevState = nextState;
+            }
+        }
+        ship.setState(initialShipState);
     }
 
     public IGameState constructState() {
@@ -111,31 +137,25 @@ public class ShipBiasedMCTSController extends Controller {
     }
 
     public static void useSimpleAction(Spaceship ship, int action) {
-        SimpleAction simpleAction = actions[action];
-        int realAction = 0;
-        if(simpleAction.thrust > 0) {
-            realAction |= ship.forward;
-        }
-        if(simpleAction.turn < 0) {
-            realAction |= ship.turnCW;
-        } else if(simpleAction.turn > 0) {
-            realAction |= ship.turnCCW;
-        }
+        if(ship instanceof BasicSpaceship) {
+            ship.useAction(action);
+        } else if(ship instanceof ComplexSpaceship) {
+            ComplexSpaceship compShip = (ComplexSpaceship)ship;
+            SimpleAction simpleAction = Constants.actions[action];
+            int realAction = 0;
+            if(simpleAction.thrust > 0) {
+                realAction |= compShip.forward;
+            }
+            if(simpleAction.turn < 0) {
+                realAction |= compShip.turnCW;
+            } else if(simpleAction.turn > 0) {
+                realAction |= compShip.turnCCW;
+            }
 
-        binaryToActions(ship, realAction);
+            compShip.useAction(realAction);
+        }
     }
 
 }
 
 
-class SimpleAction {
-    int thrust;
-    int turn;
-
-    SimpleAction(int thrust, int turn) {
-        this.thrust = thrust;
-        this.turn = turn;
-    }
-
-
-}

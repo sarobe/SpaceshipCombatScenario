@@ -1,7 +1,7 @@
 package controller;
 
-import spaceship.SimObject;
 import spaceship.Spaceship;
+import spaceship.SimObject;
 
 import java.awt.*;
 import java.util.List;
@@ -17,20 +17,7 @@ public abstract class Controller {
         this.ship = ship;
     }
 
-    public static void binaryToActions(Spaceship target, int encodedActions) {
-        int j = 1;
-        int actionNum = 0;
-        int totalPossibleActions = target.components.size();
-        while(actionNum < totalPossibleActions) {
-            if((encodedActions & j) != 0) {
-                target.components.get(actionNum).active = true;
-            } else {
-                target.components.get(actionNum).active = false;
-            }
-            actionNum++;
-            j *= 2;
-        }
-    }
+
 
     abstract public void draw(Graphics2D g);
     abstract public void think(List<SimObject> ships);

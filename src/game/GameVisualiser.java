@@ -5,8 +5,8 @@ import main.Runner;
 import problem.PickupManager;
 import problem.ProjectileManager;
 import problem.Pickup;
+import spaceship.ComplexSpaceship;
 import spaceship.Projectile;
-import spaceship.Spaceship;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,7 +39,7 @@ public class GameVisualiser extends JComponent {
                 p.draw(g2d);
             }
 
-            for(Spaceship ship : game.getShipsToDraw()) {
+            for(ComplexSpaceship ship : game.getShipsToDraw()) {
                 if(ship.alive) ship.draw(g2d);
             }
 
