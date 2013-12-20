@@ -22,9 +22,13 @@ public class PickupGameState implements IGameState {
     // true if the pickup has been collected
     // false otherwise
     int timestepsElapsed;
+    int depth;
+    int bounces;
     Map<Pickup, Boolean> pickupStates;
     Spaceship ship;
     ShipState shipState;
+
+    static final int BOUNCE_PENALTY = 1000;
 
 
 
@@ -33,10 +37,12 @@ public class PickupGameState implements IGameState {
         this.shipState = shipState;
         this.pickupStates = new HashMap<Pickup, Boolean>(pickupStates);
         this.timestepsElapsed = timestepsElapsed;
+        bounces = 0;
+        depth = 0;
         if(InfluenceMap.getMap() == null) InfluenceMap.createInfluenceMap(pickupStates);
     }
 
-    private int getCollectedPickups() {
+    public int getCollectedPickups() {
         int numCollected = 0;
         for(Pickup p : pickupStates.keySet()) {
             if(p.type != PickupType.MINE && pickupStates.get(p)) {
@@ -46,7 +52,7 @@ public class PickupGameState implements IGameState {
         return numCollected;
     }
 
-    private int getCollectedMines() {
+    public int getCollectedMines() {
         int numCollected = 0;
         for(Pickup p : pickupStates.keySet()) {
             if(p.type == PickupType.MINE && pickupStates.get(p)) {
@@ -58,23 +64,23 @@ public class PickupGameState implements IGameState {
 
     @Override
     public boolean isTerminal() {
-        return (!shipState.alive) || (getCollectedPickups() == PickupManager.getTotalPickups()) || (timestepsElapsed >= Constants.timesteps);
+        return (!shipState.alive) || (getCollectedPickups() == PickupManager.getTotalPickups()) || (depth > ShipBiasedMCTSController.rolloutDepth) || (timestepsElapsed >= Constants.timesteps);
     }
 
     @Override
     public double value() {
-        if(!shipState.alive) {
+        if(!shipState.alive || shipState.bounced) {
             // a state that ends with the ship being dead is a bad state
             double badStateValue = -99999;
             return badStateValue;
         }
         else if(getCollectedPickups() < PickupManager.getTotalPickups()) {
             // return the proximity to closest pickup (10/distance) as well as a fixed bonus for each collected pickup.
-            //Pickup chosen = getClosestPickup();
-            //double proximityScore = 1000 / chosen.pos.dist(shipState.pos);
-            double collectionScore =  getCollectedPickups() * 100;
-            double minePenalty = getCollectedMines() * 100;
-            return collectionScore - minePenalty;
+            Pickup chosen = getClosestPickup();
+            double proximityScore = 1000 / chosen.pos.dist(shipState.pos);
+            double collectionScore =  getCollectedPickups() * 10000;
+            double minePenalty = getCollectedMines() * 10000;
+            return proximityScore + collectionScore - minePenalty;
         } else {
             return (Constants.timesteps - timestepsElapsed) * 100 - getCollectedMines() * 100;
         }
@@ -95,14 +101,20 @@ public class PickupGameState implements IGameState {
 //            if(i == action) ship.components.get(i).active = true;
 //            else ship.components.get(i).active = false;
 //        }
+        Map<Pickup, Boolean> oldPickupStates = PickupManager.getPickupStates();
         ShipBiasedMCTSController.useSimpleAction(ship, action);
-        for(int i =0; i < ShipMCTSController.macroActionStep; i++) {
+        for(int i =0; i < ShipBiasedMCTSController.macroActionStep; i++) {
             ship.update();
+            timestepsElapsed++;
+            depth++;
+            if(ship.bounced) bounces++;
         }
-        PickupGameState newState = new PickupGameState(ship, new ShipState(ship), timestepsElapsed + ShipMCTSController.macroActionStep, pickupStates);
+        pickupStates = PickupManager.getPickupStates();
+        PickupManager.setPickupStates(oldPickupStates);
+        shipState = new ShipState(ship);
         ship.setState(initialState);
         ProjectileManager.suppressNewProjectiles(false);
-        return newState;
+        return this;
     }
 
     @Override
@@ -112,7 +124,7 @@ public class PickupGameState implements IGameState {
 
     @Override
     public double heuristicValue() {
-        return InfluenceMap.getValue(shipState.pos.x, shipState.pos.y);
+        return InfluenceMap.getValue(shipState.pos.x, shipState.pos.y) - (bounces * BOUNCE_PENALTY);
     }
 
     public ShipState getShipState() {
@@ -142,6 +154,16 @@ public class PickupGameState implements IGameState {
         //double vs = -(ship.v.mag()/s.mag());
 
         return new double[]{f,l,r};
+    }
+
+    @Override
+    public int getTotalTime() {
+        return timestepsElapsed;
+    }
+
+    @Override
+    public boolean mustBePruned() {
+        return shipState.bounced;
     }
 
     public Pickup getClosestPickup() {

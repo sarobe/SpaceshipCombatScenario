@@ -1,16 +1,16 @@
 package controller.mcts;
 
-import common.Constants;
 import common.math.Vector2d;
 import controller.Controller;
 import controller.ShipState;
+import controller.singleMCTS.PlayoutInfo;
+import controller.singleMCTS.PlayoutPickupInfo;
+import controller.singleMCTS.SingleMCTSController;
 import ea.FitVectorSource;
 import problem.PickupManager;
 import problem.ProjectileManager;
-import spaceship.BasicSpaceship;
-import spaceship.ComplexSpaceship;
-import spaceship.Spaceship;
 import spaceship.SimObject;
+import spaceship.Spaceship;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -21,25 +21,22 @@ import java.util.List;
  * Created by Samuel Roberts, 2013
  * with some heavy borrowings from Simon Lucas
  */
-public class ShipBiasedMCTSController extends Controller {
+public class SingleMCTSWrapper extends Controller {
 
-    static int nIts = 1000;
+    static int nIts = 200;
     public static int macroActionStep = 15;
-    public static int rolloutDepth = 50;
+    public static int rolloutDepth = 16;
+    public static int timeAllowance = 1000;
     int timesteps;
     int currentAction;
-    ITunableRoller roller;
-    FitVectorSource source;
-    TreeNodeLite lastSearch;
-
-    boolean terminal = false;
+    SingleMCTSController cont;
+    PlayoutPickupInfo lastPlayoutInfo;
 
     public double bestPredictedScore = 0;
 
-    public ShipBiasedMCTSController(Spaceship ship) {
+    public SingleMCTSWrapper(Spaceship ship) {
         super(ship);
-        roller = new FeatureWeightedRoller(constructState());
-        source = new RandomMutationHillClimberHack(roller.nDim(), 1);
+        cont = new SingleMCTSController(constructState());
         think(); // get the starting action to use
         timesteps = 0;
     }
@@ -53,39 +50,24 @@ public class ShipBiasedMCTSController extends Controller {
     @Override
     public void think() {
         // condense information about pickups into a map of pickup states
-        if(!terminal) {
-            if(timesteps % macroActionStep == 0) {
-                //if(timesteps < Constants.timesteps) currentAction = getAction(constructState());
-                //else currentAction = 1; // do _nothing_
+//        if(timesteps % macroActionStep == 0) {
+//            //if(timesteps < Constants.timesteps) currentAction = getAction(constructState());
+//            //else currentAction = 1; // do _nothing_
+//
+//            currentAction = getAction(constructState());
+//        }
+        timesteps++;
 
-                currentAction = getAction(constructState());
-            }
-            timesteps++;
+        currentAction = getAction(constructState());
 
-            // use current action
-            useSimpleAction(ship, currentAction);
-        }
+        // use current action
+        useSimpleAction(ship, currentAction);
     }
 
     public int getAction(IGameState state) {
-        TreeNodeLite tn = new TreeNodeLite(roller);
-        tn.mctsSearch(state, nIts, roller, source);
-        if(!tn.isLeaf()) {
-            for(TreeNodeLite child : tn.children) {
-                if(child != null) {
-                    System.out.println(child.action + ": " + child.meanValue());
-                    if(child.meanValue() > bestPredictedScore) bestPredictedScore = child.meanValue();
-                }
-            }
-        } else {
-            System.out.println("Terminal: " + tn.meanValue());
-            terminal = true;
-        }
-        //System.out.println(Arrays.toString(source.bestVec()));
-        System.out.println();
-        lastSearch = tn;
-        int action = 0;
-        if(!terminal) action = tn.bestRootAction(state, roller);
+        int action = cont.getAction(state, System.currentTimeMillis()+timeAllowance);
+        lastPlayoutInfo = (PlayoutPickupInfo)cont.m_player.getPlayoutInfo();
+        System.out.println(lastPlayoutInfo);
         return action;
     }
 
@@ -103,21 +85,21 @@ public class ShipBiasedMCTSController extends Controller {
         g.setTransform(at);
 
 
-        if(lastSearch != null) {
-            drawRollouts(g, lastSearch);
+        if(lastPlayoutInfo != null) {
+            drawRollouts(g, lastPlayoutInfo);
         }
     }
 
-    private void drawRollouts(Graphics2D g, TreeNodeLite node) {
-        IGameState initialState = node.initialState;
+    private void drawRollouts(Graphics2D g, PlayoutPickupInfo pInfo) {
+        IGameState initialState = pInfo.startingState;
         ShipState initialShipState = new ShipState(ship);
         ShipState currentShipState = initialState.getShipState();
 
-        for(RollOut rollOut : node.rollOuts) {
-            ship.setState(currentShipState);
+//        for(RollOut rollOut : pInfo.rollOuts) {
+//            ship.setState(currentShipState);
             ShipState prevState = currentShipState;
             ShipState nextState = null;
-            for(Integer action : rollOut.actions) {
+            for(Integer action : pInfo.m_playoutHistory) {
                 useSimpleAction(ship, action);
                 for(int i=0; i<macroActionStep; i++) {
                     ship.update();
@@ -125,12 +107,13 @@ public class ShipBiasedMCTSController extends Controller {
                 nextState = new ShipState(ship);
 
                 // draw states
-                g.setColor(Color.getHSBColor(1.0f, 0.0f, Math.max((float)(rollOut.value/node.bestRolloutValue), 0.0f)));
+//                g.setColor(Color.getHSBColor(1.0f, 0.0f, Math.max((float)(rollOut.value/node.bestRolloutValue), 0.0f)));
+                g.setColor(Color.gray);
                 g.drawLine((int) prevState.px, (int) prevState.py, (int) nextState.px, (int) nextState.py);
 
                 prevState = nextState;
             }
-        }
+//        }
         ship.setState(initialShipState);
     }
 

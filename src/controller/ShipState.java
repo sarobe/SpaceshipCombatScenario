@@ -24,6 +24,8 @@ public class ShipState {
     public int bullets;
     public double fuel;
     public int bulletsFired;
+    public boolean bounced;
+    public int bounces;
 
 
     public ShipState(Spaceship ship) {
@@ -43,6 +45,7 @@ public class ShipState {
         bullets = ship.bullets;
         bulletsFired = ship.bulletsFired;
         fuel = ship.fuel;
+        bounced = ship.bounced;
     }
 
     public ShipState(Spaceship ship, Vector2d target) {
@@ -68,5 +71,6 @@ public class ShipState {
         bullets = state.bullets;
         bulletsFired = state.bulletsFired;
         fuel = state.fuel;
+        bounced = state.bounced;
     }
 }

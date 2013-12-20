@@ -35,7 +35,7 @@ public class BasicSpaceship extends Spaceship {
         hull = Constants.maximumHull;
         maxHull = Constants.maximumHull;
         moment = 1;
-        radius = 20;
+        radius = 30;
         fuel = Constants.maximumFuel;
         bullets = Constants.maximumBullets;
         hullShape = new Polygon();

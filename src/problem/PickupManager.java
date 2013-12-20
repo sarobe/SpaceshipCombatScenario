@@ -85,4 +85,11 @@ public class PickupManager {
         }
         return pickupStates;
     }
+
+    public static void setPickupStates(Map<Pickup,Boolean> states) {
+        Map<Pickup, Boolean> pickupStates = new HashMap<Pickup, Boolean>();
+        for(Pickup p : states.keySet()) {
+            pickupStates.put(p, states.get(p));
+        }
+    }
 }

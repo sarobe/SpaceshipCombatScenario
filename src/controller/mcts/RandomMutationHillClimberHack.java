@@ -59,10 +59,10 @@ public class RandomMutationHillClimberHack implements FitVectorSource {
             proposed[i] = bestYet[i] + rand.nextGaussian() * noiseDev;
         }
         // System.out.println("Returning: " + Arrays.toString(hack));
-        return lunarHack;
+        //return lunarHack;
         //return proposed;
         //return evoHack;
-        //return noHack;
+        return noHack;
     }
 
     @Override

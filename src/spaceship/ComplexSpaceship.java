@@ -3,6 +3,7 @@ package spaceship;
 import common.Constants;
 import common.math.Vector2d;
 import controller.ShipState;
+import controller.mcts.SimpleAction;
 import problem.ProjectileManager;
 
 import java.awt.*;
@@ -272,7 +273,7 @@ public class ComplexSpaceship extends Spaceship {
         }
     }
 
-    public void useAction(int action) {
+    public void useEncodedAction(int action) {
         int j = 1;
         int actionNum = 0;
         int totalPossibleActions = components.size();
@@ -285,6 +286,21 @@ public class ComplexSpaceship extends Spaceship {
             actionNum++;
             j *= 2;
         }
+    }
+
+    public void useAction(int action) {
+        SimpleAction simpleAction = Constants.actions[action];
+        int encodedAction = 0;
+        if(simpleAction.thrust > 0) {
+            encodedAction |= forward;
+        }
+        if(simpleAction.turn < 0) {
+            encodedAction |= turnCW;
+        } else if(simpleAction.turn > 0) {
+            encodedAction |= turnCCW;
+        }
+
+        useEncodedAction(encodedAction);
     }
 
     public void calculateActions() {

@@ -2,7 +2,9 @@ package problem;
 
 import common.Constants;
 import controller.Controller;
+import controller.mcts.InfluenceMap;
 import controller.mcts.ShipBiasedMCTSController;
+import controller.mcts.SingleMCTSWrapper;
 import main.Runner;
 import spaceship.BasicSpaceship;
 import spaceship.ComplexSpaceship;
@@ -198,6 +200,7 @@ public class SpaceshipIndividualCombatProblem {
         Spaceship ship = new BasicSpaceship();
         demoShips.add(ship);
         demoConts.add(new ShipBiasedMCTSController(ship));
+        //demoConts.add(new SingleMCTSWrapper(ship));
     }
 
     public void demonstrate() {
@@ -234,6 +237,7 @@ public class SpaceshipIndividualCombatProblem {
                 for(Spaceship s : demoShips) {
                     if(s.alive && p.alive && s.isColliding(p)) {
                         p.dispenseReward(s);
+                        InfluenceMap.createInfluenceMap(PickupManager.getPickupStates());
                     }
                 }
             }

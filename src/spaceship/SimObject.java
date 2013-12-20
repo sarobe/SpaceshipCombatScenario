@@ -49,9 +49,9 @@ public abstract class SimObject {
 
     public boolean isColliding(SimObject other) {
         boolean collide = false;
-        if(team != other.team) {
+        //if(team != other.team) {
             collide = (pos.dist(other.pos) <= radius + other.radius);
-        }
+        //}
         return collide;
     }
 

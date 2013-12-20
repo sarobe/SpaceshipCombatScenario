@@ -12,9 +12,9 @@ import java.util.Random;
 public class TreeNodeLite {
     // exploration term
     // 0.5 works ok for Othello
-    static double k = 0.3;
+    static double k = 1.4;
     static double epsilon = 1e-6;
-    IGameState myState;
+    IGameState initialState;
     TreeNodeLite parent;
     // that action taken to lead to this node
     Integer action;
@@ -65,20 +65,16 @@ public class TreeNodeLite {
         this.parent = parent;
         this.action = action;
         this.roller = roller;
-        this.myState = state;
+        this.initialState = state;
         rollOuts = new ArrayList<RollOut>();
         nInstances++;
-    }
-
-    int depth() {
-        if (parent == null) return 0;
-        else return 1 + parent.depth();
     }
 
     public void mctsSearch(IGameState root, int its) {
         for (int i = 0; i < its; i++) {
             IGameState state = root.copy();
-            // System.out.println("IGameState = " + state);
+            initialState = root.copy();
+            // System.out.println("State = " + state);
             TreeNodeLite selected = treePolicy(state);
             TreeNodeLite expanded = selected.expand(state);
             double delta = selected.rollOut(state);
@@ -91,13 +87,14 @@ public class TreeNodeLite {
                            ITunableRoller roller,
                            FitVectorSource source) {
         for (int i = 0; i < its; i++) {
+            IGameState state = root.copy();
+            initialState = root.copy();
             roller.setParams(source.getNext());
-            myState = root;
 
-            TreeNodeLite selected = treePolicy(myState);
-            TreeNodeLite expanded = selected.expand(myState);
+            TreeNodeLite selected = treePolicy(state);
+            TreeNodeLite expanded = selected.expand(state);
 
-            double value = selected.rollOut(myState);
+            double value = selected.rollOut(state);
             source.returnFitness(value);
             expanded.backUp(value);
         }
@@ -109,6 +106,7 @@ public class TreeNodeLite {
                                  FitVectorSource source) {
         for (int i = 0; i < its; i++) {
             IGameState state = root.copy();
+            initialState = root.copy();
             roller.setParams(source.getNext());
             TreeNodeLite selected = treePolicy(state);
             TreeNodeLite expanded = selected.expand(state);
@@ -150,6 +148,7 @@ public class TreeNodeLite {
         TreeNodeLite selected = null;
         double bestValue = -Double.MAX_VALUE;
         for (TreeNodeLite child : children) {
+            // addition of epsilon used primarily to avoid cases of dividing by zero (can't divide by zero if a fixed positive constant is added)
             double uctValue =
                     child.totValue / (child.nVisits + epsilon) +
                             k * Math.sqrt(Math.log(nVisits + 1) / (child.nVisits + epsilon)) +
@@ -198,10 +197,10 @@ public class TreeNodeLite {
         }
         // if (unused == 0) throw new RuntimeException("Should not have zero null children; state terminal? " + state.isTerminal());
         int bestAction = picker.getBest();
-        TreeNodeLite tn = new TreeNodeLite(this, bestAction, this.roller, state.next(bestAction));
+        TreeNodeLite tn = new TreeNodeLite(this, bestAction, this.roller, state);
         nExpansions++;
         children[bestAction] = tn;
-        state = state.next(bestAction);
+        state.next(bestAction);
         return tn;
     }
 
@@ -238,6 +237,8 @@ public class TreeNodeLite {
     public double rollOut(IGameState state) {
         // System.out.println(state + " : " + action);
         List<Integer> lastRollOut = new ArrayList<Integer>();
+        //double bestHeuristic = -Double.MAX_VALUE;
+        double totalHeuristic = 0;
         RollOut rollOutData = new RollOut();
         while (!state.isTerminal()) {
             int numActions = state.nActions();
@@ -245,19 +246,22 @@ public class TreeNodeLite {
             action = roller.roll(state);
             if (action >= 0)             //action == -1 is PASS.
             {
-                state = state.next(action);
+                state.next(action);
+                //if(state.heuristicValue() > bestHeuristic) bestHeuristic = state.heuristicValue();
+                totalHeuristic += state.heuristicValue() * 0.1;
             }
             rollOutData.addAction(action);
         }
-        rollOutData.setScore(state.value());
+
+        // one last check
+        //if(state.heuristicValue() > bestHeuristic) bestHeuristic = state.heuristicValue();
+
+
+        double value = state.value() + totalHeuristic;//state.value() + bestHeuristic;
+        rollOutData.setScore(value);
         rollOuts.add(rollOutData);
-        if(state.value() > bestRolloutValue) bestRolloutValue = state.value();
-        return state.value();
-    }
-
-
-    public TreeNodeLite[] getChildren() {
-        return children;
+        if(value > bestRolloutValue) bestRolloutValue = value;
+        return value;
     }
 
     public double meanValue() {
@@ -274,6 +278,10 @@ public class TreeNodeLite {
 
     public int nVisits() {
         return nVisits;
+    }
+
+    public List<Integer> lastRollOut() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public static Random r = new Random();

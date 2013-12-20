@@ -43,7 +43,7 @@ public class Constants {
 
     public static int numPickups = 1;
     public static int numMines = 1;
-    public static int pickupPlacementSeed = 3405;
+    public static int pickupPlacementSeed = 206;
     public static double hullPickupAmount = 30;
     public static double ammoPickupAmount = 20;
     public static double fuelPickupAmount = 500;
@@ -57,7 +57,7 @@ public class Constants {
     public static int combatRepeats = 1;
 
     public static double thrusterRadiusLimit = 0;
-    public static int timesteps = 10000;
+    public static int timesteps = 500;
 
     //public static Rectangle leftTeamStartRect = new Rectangle(0, 0, 450, 768);
     //public static Rectangle rightTeamStartRect = new Rectangle(574, 0, 450, 768);
