@@ -3,6 +3,8 @@ package main;
 import common.Constants;
 import common.utilities.JEasyFrame;
 import controller.mcts.ShipBiasedMCTSController;
+import problem.IProblem;
+import problem.PredatorPreyProblem;
 import problem.SpaceshipIndividualCombatProblem;
 
 import java.util.Arrays;
@@ -13,9 +15,14 @@ import java.util.Arrays;
 public class TestDesigns {
 
     static int duplicates = 1;
+    static int runs = 30;
+    static int runNum = 0;
+
+    public static boolean useGraphics = true;
 
     public static void main(String[] args) {
-        SpaceshipIndividualCombatProblem problem = new SpaceshipIndividualCombatProblem();
+        //SpaceshipIndividualCombatProblem problem = new SpaceshipIndividualCombatProblem();
+        IProblem problem = new PredatorPreyProblem();
 
 //        double[] shipDesignA =
 //                {0, 0, 0, // position and rotation
@@ -51,7 +58,13 @@ public class TestDesigns {
 //        }
 
         SpaceshipVisualiser sv = new SpaceshipVisualiser(problem);
-        JEasyFrame frame = new JEasyFrame(sv, "Pickup Problem - 0");
+        JEasyFrame frame = null;
+
+        if(useGraphics) {
+            sv = new SpaceshipVisualiser(problem);
+            frame = new JEasyFrame(sv, "Predator Prey Problem - 0");
+        }
+
 
 
         // print out the best fitness
@@ -69,22 +82,35 @@ public class TestDesigns {
         //problem.demonstrationInit(pop);
         // parameterless version just creates a basic lunar lander style ship
         problem.demonstrationInit();
-        ShipBiasedMCTSController cont = (ShipBiasedMCTSController)problem.getControllers().get(0);
+        ShipBiasedMCTSController predatorCont = (ShipBiasedMCTSController)problem.getControllers().get(0);
+        ShipBiasedMCTSController preyCont = (ShipBiasedMCTSController)problem.getControllers().get(1);
 
 
         // MAIN DEMONSTRATION LOOP
         try {
-            while(true) {
+            while(runNum < runs) {
                 problem.demonstrate();
-                sv.repaint();
-                frame.setTitle("Pickup Problem - " + cont.bestPredictedScore);
-                Thread.sleep(Constants.delay);
+                if(useGraphics && frame != null) {
+                    sv.repaint();
+                    frame.setTitle("Pickup Problem - Pred: " + predatorCont.bestPredictedScore + " Prey: " + preyCont.bestPredictedScore);
+                    Thread.sleep(Constants.delay);
+                } else {
+                    // this is an ugly hack
+                    if(predatorCont.terminal) {
+                        runNum++;
+                        // reset problem
+                        problem.demonstrationInit();
+                        // get references to new controller instance
+                        predatorCont = (ShipBiasedMCTSController)problem.getControllers().get(0);
+                        preyCont = (ShipBiasedMCTSController)problem.getControllers().get(1);
+                    }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
 
-        frame.dispose();
+        if(useGraphics) frame.dispose();
     }
 }

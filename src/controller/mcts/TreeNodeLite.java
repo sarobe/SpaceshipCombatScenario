@@ -1,5 +1,6 @@
 package controller.mcts;
 
+import controller.mcts.gamestates.IGameState;
 import ea.FitVectorSource;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.Random;
 public class TreeNodeLite {
     // exploration term
     // 0.5 works ok for Othello
-    static double k = 1.4;
+    static double k = 1.0;
     static double epsilon = 1e-6;
     IGameState initialState;
     TreeNodeLite parent;

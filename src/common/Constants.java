@@ -43,7 +43,7 @@ public class Constants {
 
     public static int numPickups = 1;
     public static int numMines = 1;
-    public static int pickupPlacementSeed = 206;
+    public static int pickupPlacementSeed = 2063328942;
     public static double hullPickupAmount = 30;
     public static double ammoPickupAmount = 20;
     public static double fuelPickupAmount = 500;
@@ -75,6 +75,8 @@ public class Constants {
     public static double hullRewardMul = 10;
 
 
+    public static Vector2d predatorStartPos = new Vector2d(450, 384);
+    public static Vector2d preyStartPos = new Vector2d(574, 384);
 
     public static SimpleAction[] actions;
     static {

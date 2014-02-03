@@ -23,6 +23,10 @@ public class Pickup extends SimObject {
         radius = 4;
     }
 
+    public void update() {
+        super.update();
+    }
+
     public void dispenseReward(Spaceship ship) {
         switch(type) {
             case AMMO:

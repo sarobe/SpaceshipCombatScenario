@@ -3,10 +3,8 @@ package main;
 import common.Constants;
 import controller.Controller;
 import controller.mcts.InfluenceMap;
-import controller.mcts.PickupGameState;
 import problem.*;
 import spaceship.Projectile;
-import spaceship.ComplexSpaceship;
 import spaceship.Spaceship;
 
 import javax.swing.*;
@@ -17,17 +15,17 @@ import java.awt.*;
  */
 public class SpaceshipVisualiser extends JComponent {
 
-    private SpaceshipIndividualCombatProblem problem;
+    private IProblem problem;
 
     public static Font statFont = new Font("sans serif", Font.PLAIN, 4);
 
-    public SpaceshipVisualiser(SpaceshipIndividualCombatProblem problem) {
+    public SpaceshipVisualiser(IProblem problem) {
         this.problem = problem;
     }
 
     public void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D)g;
-        g2d.setColor(Color.BLACK);
+        g2d.setColor(Color.GRAY);
         g2d.fillRect(0, 0, Constants.screenWidth, Constants.screenHeight);
 
         if(InfluenceMap.getMap() != null) {
@@ -49,9 +47,9 @@ public class SpaceshipVisualiser extends JComponent {
                 p.draw(g2d);
             }
 
-            for(Pickup p : PickupManager.getLivingPickups()) {
-                p.draw(g2d);
-            }
+//            for(Pickup p : PickupManager.getLivingPickups()) {
+//                p.draw(g2d);
+//            }
 
             for(Spaceship ship : problem.getShips()) {
                 if(ship.alive) ship.draw(g2d);

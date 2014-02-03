@@ -1,6 +1,7 @@
 package problem;
 
 import common.Constants;
+import common.math.Vector2d;
 import controller.Controller;
 import controller.mcts.InfluenceMap;
 import controller.mcts.ShipBiasedMCTSController;
@@ -17,10 +18,14 @@ import java.util.List;
 /**
  * Created by Samuel Roberts, 2012
  */
-public class SpaceshipIndividualCombatProblem {
+public class SpaceshipIndividualCombatProblem implements IProblem {
 
     public List<Spaceship> demoShips;
     public List<Controller> demoConts;
+
+    static boolean fleeingPickup = true;
+    static double fleeSpeed = 8000;
+    int timestepsElapsed = 0;
 
     public SpaceshipIndividualCombatProblem() {
         ProjectileManager.reset();
@@ -88,6 +93,19 @@ public class SpaceshipIndividualCombatProblem {
 //                    }
                 }
 
+                // if pickups can flee make them flee
+                if(fleeingPickup) {
+                    if(j % 20 == 0) {
+                        InfluenceMap.createInfluenceMap(PickupManager.getPickupStates());
+                    }
+                    Vector2d fleeDir;
+                    for(Pickup p : PickupManager.getLivingPickups()) {
+                        fleeDir = p.pos.copy().subtract(ship.pos);
+                        fleeDir.normalise();
+                        p.vel = fleeDir.copy().mul(fleeSpeed * Constants.dt);
+                    }
+                }
+
                 // check for pickup collisions
                 for(Pickup p : PickupManager.getLivingPickups()) {
                     if(ship.alive && p.alive && ship.isColliding(p)) {
@@ -141,6 +159,7 @@ public class SpaceshipIndividualCombatProblem {
         PickupManager.placePickups(Constants.pickupPlacementSeed);
         demoShips.clear();
         demoConts.clear();
+        timestepsElapsed = 0;
 
         // determine the best ship to show
 //        double bestFitness = Double.MAX_VALUE;
@@ -196,6 +215,7 @@ public class SpaceshipIndividualCombatProblem {
         PickupManager.placePickups(Constants.pickupPlacementSeed);
         demoShips.clear();
         demoConts.clear();
+        timestepsElapsed = 0;
 
         Spaceship ship = new BasicSpaceship();
         demoShips.add(ship);
@@ -232,6 +252,20 @@ public class SpaceshipIndividualCombatProblem {
                 }
             }
 
+            // if pickups can flee make them flee
+            if(fleeingPickup) {
+                if(timestepsElapsed % 20 == 0) {
+                    InfluenceMap.createInfluenceMap(PickupManager.getPickupStates());
+                }
+                Vector2d fleeDir;
+                for(Pickup p : PickupManager.getLivingPickups()) {
+                    fleeDir = p.pos.copy().subtract(demoShips.get(0).pos);
+                    fleeDir.normalise();
+                    p.vel = fleeDir.copy().mul(fleeSpeed * Constants.dt);
+                    p.update();
+                }
+            }
+
             // check for pickup collisions
             for(Pickup p : PickupManager.getLivingPickups()) {
                 for(Spaceship s : demoShips) {
@@ -241,6 +275,8 @@ public class SpaceshipIndividualCombatProblem {
                     }
                 }
             }
+
+            timestepsElapsed++;
         }
     }
 

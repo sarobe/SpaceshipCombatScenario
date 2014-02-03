@@ -1,5 +1,7 @@
 package controller.mcts;
 
+import controller.mcts.gamestates.IGameState;
+
 import java.util.Random;
 
 // Taken from Simon Lucas' GGFVL project, 11/13

@@ -4,6 +4,7 @@ import common.Constants;
 import common.math.Vector2d;
 import problem.Pickup;
 import problem.PickupType;
+import spaceship.Spaceship;
 
 import java.util.Map;
 
@@ -22,27 +23,28 @@ public class InfluenceMap {
     static double lowestValue;
     static double highestValue;
 
+    // influence map for pickup collection problem
     public static void createInfluenceMap(Map<Pickup, Boolean> pickupStates) {
-        mapWidth = Constants.screenWidth/CELL_SIZE;
-        mapHeight = Constants.screenHeight/CELL_SIZE;
+        mapWidth = Constants.screenWidth / CELL_SIZE;
+        mapHeight = Constants.screenHeight / CELL_SIZE;
         influenceMap = new double[mapWidth][mapHeight];
 
         lowestValue = Double.MAX_VALUE;
         highestValue = -Double.MAX_VALUE;
 
         Vector2d cellCenter = new Vector2d();
-        for(int y=0; y<mapHeight; y++) {
-            for(int x=0; x<mapWidth; x++) {
+        for (int y = 0; y < mapHeight; y++) {
+            for (int x = 0; x < mapWidth; x++) {
                 // get sum of all proximities to pickups here
-                for(Pickup p : pickupStates.keySet()) {
-                    if(!pickupStates.get(p)) {
+                for (Pickup p : pickupStates.keySet()) {
+                    if (!pickupStates.get(p)) {
                         // existing pickup
                         cellCenter.set(CELL_SIZE * (x + 0.5), CELL_SIZE * (y + 0.5));
                         double dist = cellCenter.dist(p.pos);
                         // use exponential dropoff instead of linear dropoff
-                        //double value = 1 + Math.log1p(dist) * -1;
-                        double value = (MAX_DIST - dist)/MAX_DIST;
-                        if(p.type == PickupType.MINE) value *= 0;
+                        double value = 5 + Math.log1p(dist) * -1;
+                        //double value = (MAX_DIST - dist)/MAX_DIST;
+                        if (p.type == PickupType.MINE) value *= 0;
 
                         influenceMap[x][y] += value * 50;
                     }
@@ -51,11 +53,42 @@ public class InfluenceMap {
         }
 
         // go through map and establish ranges
-        for(int y=0; y<mapHeight; y++) {
-            for(int x=0; x<mapWidth; x++) {
+        for (int y = 0; y < mapHeight; y++) {
+            for (int x = 0; x < mapWidth; x++) {
                 double value = influenceMap[x][y];
-                if(value > highestValue) highestValue = value;
-                if(value < lowestValue) lowestValue = value;
+                if (value > highestValue) highestValue = value;
+                if (value < lowestValue) lowestValue = value;
+            }
+        }
+
+    }
+
+    // influence map for predator prey problem
+    public static void createInfluenceMap(Spaceship predator, Spaceship prey) {
+        mapWidth = Constants.screenWidth / CELL_SIZE;
+        mapHeight = Constants.screenHeight / CELL_SIZE;
+        influenceMap = new double[mapWidth][mapHeight];
+        lowestValue = Double.MAX_VALUE;
+        highestValue = -Double.MAX_VALUE;
+
+        Vector2d cellCenter = new Vector2d();
+        for (int y = 0; y < mapHeight; y++) {
+            for (int x = 0; x < mapWidth; x++) {
+                cellCenter.set(CELL_SIZE * (x + 0.5), CELL_SIZE * (y + 0.5));
+                double dist = cellCenter.dist(prey.pos);
+                // use exponential dropoff instead of linear dropoff
+                double value = 5 + Math.log1p(dist) * -1;
+                //double value = (MAX_DIST - dist)/MAX_DIST;
+                influenceMap[x][y] += value * 50;
+            }
+        }
+
+        // go through map and establish ranges
+        for (int y = 0; y < mapHeight; y++) {
+            for (int x = 0; x < mapWidth; x++) {
+                double value = influenceMap[x][y];
+                if (value > highestValue) highestValue = value;
+                if (value < lowestValue) lowestValue = value;
             }
         }
 
@@ -74,8 +107,8 @@ public class InfluenceMap {
     }
 
     public static double getValue(double x, double y) {
-        int col = (int)(x / CELL_SIZE) % mapWidth;
-        int row = (int)(y / CELL_SIZE) % mapHeight;
+        int col = (int) (x / CELL_SIZE) % mapWidth;
+        int row = (int) (y / CELL_SIZE) % mapHeight;
         return influenceMap[col][row];
     }
 

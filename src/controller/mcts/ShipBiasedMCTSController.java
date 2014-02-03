@@ -1,20 +1,20 @@
 package controller.mcts;
 
-import common.Constants;
 import common.math.Vector2d;
 import controller.Controller;
 import controller.ShipState;
+import controller.mcts.gamestates.IGameState;
+import controller.mcts.gamestates.PickupGameState;
+import controller.mcts.gamestates.PredatorPreyGameState;
 import ea.FitVectorSource;
 import problem.PickupManager;
 import problem.ProjectileManager;
-import spaceship.BasicSpaceship;
-import spaceship.ComplexSpaceship;
 import spaceship.Spaceship;
 import spaceship.SimObject;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,15 +32,37 @@ public class ShipBiasedMCTSController extends Controller {
     FitVectorSource source;
     TreeNodeLite lastSearch;
 
-    boolean terminal = false;
+    public List<Vector2d> trace;
+
+    public boolean terminal = false;
 
     public double bestPredictedScore = 0;
 
+    public boolean isPredator = true; // used by predator prey for marking if predator (true) or prey (false)
+    public Spaceship antagonist; // used for predator prey problem to indicate the other ship
+
+    private boolean TEMP_HACK = true; // i am ashamed
+
     public ShipBiasedMCTSController(Spaceship ship) {
         super(ship);
+        trace = new ArrayList<Vector2d>();
+        if(!TEMP_HACK) {
+            init();
+        }
+        timesteps = 0;
+    }
+
+    public ShipBiasedMCTSController(Spaceship ship, Spaceship antagonist, boolean flag) {
+        this(ship);
+        this.antagonist = antagonist;
+        isPredator = flag;
+        init();
+    }
+
+    private void init() {
         roller = new FeatureWeightedRoller(constructState());
         source = new RandomMutationHillClimberHack(roller.nDim(), 1);
-        think(); // get the starting action to use
+        think();
         timesteps = 0;
     }
 
@@ -65,24 +87,28 @@ public class ShipBiasedMCTSController extends Controller {
             // use current action
             useSimpleAction(ship, currentAction);
         }
+        trace.add(new Vector2d(ship.pos));
     }
 
     public int getAction(IGameState state) {
         TreeNodeLite tn = new TreeNodeLite(roller);
         tn.mctsSearch(state, nIts, roller, source);
         if(!tn.isLeaf()) {
+            bestPredictedScore = 0;
             for(TreeNodeLite child : tn.children) {
                 if(child != null) {
-                    System.out.println(child.action + ": " + child.meanValue());
+                    //System.out.println(child.action + ": " + child.meanValue());
                     if(child.meanValue() > bestPredictedScore) bestPredictedScore = child.meanValue();
                 }
             }
         } else {
-            System.out.println("Terminal: " + tn.meanValue());
+            System.out.println(tn.meanValue());
+            //System.out.println("Terminal: " + tn.meanValue());
+            //System.out.println("Ended at timestep " + timesteps);
             terminal = true;
         }
         //System.out.println(Arrays.toString(source.bestVec()));
-        System.out.println();
+        //System.out.println();
         lastSearch = tn;
         int action = 0;
         if(!terminal) action = tn.bestRootAction(state, roller);
@@ -102,7 +128,18 @@ public class ShipBiasedMCTSController extends Controller {
 
         g.setTransform(at);
 
+        // draw ship trail
+        // defaults to blue, special behaviour if using predator v prey
+        if(isPredator) g.setColor(Color.BLUE);
+        else g.setColor(Color.ORANGE);
 
+        Vector2d lastP = trace.get(0);
+        for(Vector2d p : trace) {
+            g.drawLine((int)p.x, (int)p.y, (int)lastP.x, (int)lastP.y);
+            lastP = p;
+        }
+
+        // draw rollouts
         if(lastSearch != null) {
             drawRollouts(g, lastSearch);
         }
@@ -140,13 +177,22 @@ public class ShipBiasedMCTSController extends Controller {
 
         ShipState initialState = new ShipState(ship);
 
-        //currentState = new PickupGameState(ship, new ShipState(ship), timesteps, PickupManager.getPickupStates());
-        currentState = new PickupGameState(ship, new ShipState(ship), 0, PickupManager.getPickupStates());
+        //currentState = constructPickupGameState();
+        currentState = constructPredatorPreyGameState();
+        //currentState = new PickupGameState(ship, new ShipState(ship), 0, PickupManager.getPickupStates());
 
         // reset ship
         ship.setState(initialState);
         ProjectileManager.suppressNewProjectiles(false);
         return currentState;
+    }
+
+    private IGameState constructPredatorPreyGameState() {
+        return new PredatorPreyGameState(ship, new ShipState(ship), antagonist, new ShipState(antagonist), timesteps, isPredator);
+    }
+
+    private IGameState constructPickupGameState() {
+        return new PickupGameState(ship, new ShipState(ship), timesteps, PickupManager.getPickupStates());
     }
 
     public static void useSimpleAction(Spaceship ship, int action) {

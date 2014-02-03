@@ -1,6 +1,6 @@
 package controller.mcts;
 
-import common.Constants;
+import controller.mcts.gamestates.IGameState;
 
 import java.util.Random;
 

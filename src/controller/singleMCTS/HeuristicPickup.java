@@ -1,7 +1,7 @@
 package controller.singleMCTS;
 
-import controller.mcts.IGameState;
-import controller.mcts.PickupGameState;
+import controller.mcts.gamestates.IGameState;
+import controller.mcts.gamestates.PickupGameState;
 
 /**
  * Created by Samuel Roberts, 2013

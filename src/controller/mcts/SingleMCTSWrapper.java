@@ -3,10 +3,10 @@ package controller.mcts;
 import common.math.Vector2d;
 import controller.Controller;
 import controller.ShipState;
-import controller.singleMCTS.PlayoutInfo;
+import controller.mcts.gamestates.IGameState;
+import controller.mcts.gamestates.PickupGameState;
 import controller.singleMCTS.PlayoutPickupInfo;
 import controller.singleMCTS.SingleMCTSController;
-import ea.FitVectorSource;
 import problem.PickupManager;
 import problem.ProjectileManager;
 import spaceship.SimObject;
@@ -14,7 +14,6 @@ import spaceship.Spaceship;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.util.Arrays;
 import java.util.List;
 
 /**

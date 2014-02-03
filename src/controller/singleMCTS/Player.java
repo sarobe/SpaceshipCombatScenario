@@ -1,6 +1,6 @@
 package controller.singleMCTS;
 
-import controller.mcts.IGameState;
+import controller.mcts.gamestates.IGameState;
 
 /**
  * Created by IntelliJ IDEA.

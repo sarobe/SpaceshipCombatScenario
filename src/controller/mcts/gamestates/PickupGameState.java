@@ -1,13 +1,14 @@
-package controller.mcts;
+package controller.mcts.gamestates;
 
 import common.Constants;
 import common.math.Vector2d;
 import controller.ShipState;
+import controller.mcts.InfluenceMap;
+import controller.mcts.ShipBiasedMCTSController;
 import problem.Pickup;
 import problem.PickupManager;
 import problem.PickupType;
 import problem.ProjectileManager;
-import spaceship.ComplexSpaceship;
 import spaceship.Spaceship;
 
 import java.util.HashMap;
@@ -69,7 +70,7 @@ public class PickupGameState implements IGameState {
 
     @Override
     public double value() {
-        if(!shipState.alive || shipState.bounced) {
+        if(!shipState.alive) {
             // a state that ends with the ship being dead is a bad state
             double badStateValue = -99999;
             return badStateValue;
@@ -78,11 +79,11 @@ public class PickupGameState implements IGameState {
             // return the proximity to closest pickup (10/distance) as well as a fixed bonus for each collected pickup.
             Pickup chosen = getClosestPickup();
             double proximityScore = 1000 / chosen.pos.dist(shipState.pos);
-            double collectionScore =  getCollectedPickups() * 10000;
-            double minePenalty = getCollectedMines() * 10000;
+            double collectionScore =  getCollectedPickups() * 10;
+            double minePenalty = getCollectedMines() * 10;
             return proximityScore + collectionScore - minePenalty;
         } else {
-            return (Constants.timesteps - timestepsElapsed) * 100 - getCollectedMines() * 100;
+            return (Constants.timesteps - timestepsElapsed) - getCollectedMines() * 10;
         }
     }
 

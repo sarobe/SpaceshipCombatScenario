@@ -13,7 +13,7 @@ import java.io.File;
  */
 public class Runner implements Runnable {
 
-    SpaceshipIndividualCombatProblem problem;
+    IProblem problem;
     IStrategy handler;
     boolean runDemo;
     boolean showDemos;

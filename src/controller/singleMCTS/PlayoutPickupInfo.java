@@ -1,11 +1,9 @@
 package controller.singleMCTS;
 
-import controller.mcts.IGameState;
-import controller.mcts.PickupGameState;
-import problem.Pickup;
+import controller.mcts.gamestates.IGameState;
+import controller.mcts.gamestates.PickupGameState;
 
 import java.util.Arrays;
-import java.util.Map;
 
 /**
  * Created by Samuel Roberts, 2013

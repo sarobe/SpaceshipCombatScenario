@@ -1,6 +1,6 @@
 package controller.singleMCTS;
 
-import controller.mcts.IGameState;
+import controller.mcts.gamestates.IGameState;
 import controller.mcts.IRoller;
 
 import java.util.Random;

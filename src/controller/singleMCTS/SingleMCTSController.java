@@ -1,10 +1,8 @@
 package controller.singleMCTS;
 
-import controller.mcts.IGameState;
+import controller.mcts.gamestates.IGameState;
 import controller.singleMCTS.framework.core.Controller;
 
-import java.awt.*;
-import java.util.LinkedList;
 import java.util.Random;
 
 /**

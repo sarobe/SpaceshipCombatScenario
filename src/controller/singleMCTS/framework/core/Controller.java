@@ -1,6 +1,6 @@
 package controller.singleMCTS.framework.core;
 
-import controller.mcts.IGameState;
+import controller.mcts.gamestates.IGameState;
 
 import java.awt.*;
 
