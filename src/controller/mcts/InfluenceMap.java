@@ -41,7 +41,7 @@ public class InfluenceMap {
                         // existing pickup
                         cellCenter.set(CELL_SIZE * (x + 0.5), CELL_SIZE * (y + 0.5));
                         double dist = cellCenter.dist(p.pos);
-                        // use exponential dropoff instead of linear dropoff
+                        //// use exponential dropoff instead of linear dropoff
                         double value = 5 + Math.log1p(dist) * -1;
                         //double value = (MAX_DIST - dist)/MAX_DIST;
                         if (p.type == PickupType.MINE) value *= 0;
@@ -77,8 +77,8 @@ public class InfluenceMap {
                 cellCenter.set(CELL_SIZE * (x + 0.5), CELL_SIZE * (y + 0.5));
                 double dist = cellCenter.dist(prey.pos);
                 // use exponential dropoff instead of linear dropoff
-                double value = 5 + Math.log1p(dist) * -1;
-                //double value = (MAX_DIST - dist)/MAX_DIST;
+                //double value = 5 + Math.log1p(dist) * -1;
+                double value = (MAX_DIST - dist)/MAX_DIST;
                 influenceMap[x][y] += value * 50;
             }
         }

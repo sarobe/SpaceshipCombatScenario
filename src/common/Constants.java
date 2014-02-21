@@ -75,8 +75,8 @@ public class Constants {
     public static double hullRewardMul = 10;
 
 
-    public static Vector2d predatorStartPos = new Vector2d(450, 384);
-    public static Vector2d preyStartPos = new Vector2d(574, 384);
+    public static Vector2d predatorStartPos = new Vector2d(200, 200);
+    public static Vector2d preyStartPos = new Vector2d(800, 400);
 
     public static SimpleAction[] actions;
     static {
@@ -89,4 +89,8 @@ public class Constants {
                 new SimpleAction(1, 1),
         };
     }
+
+    public static int macroActionStep = 30;
+    public static int nIts = 1000;
+    public static int rolloutDepth = 100;
 }

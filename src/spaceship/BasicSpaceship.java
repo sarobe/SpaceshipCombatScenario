@@ -93,7 +93,7 @@ public class BasicSpaceship extends Spaceship {
 
     public void update() {
         if(!alive) return;
-
+        if(currentAction == null) return;
         if(currentAction.thrust > 0) {
             Vector2d d = getForward();
             vel.add(d, thrustPower * Constants.dt);

@@ -1,5 +1,6 @@
 package controller;
 
+import common.math.Vector2d;
 import spaceship.Spaceship;
 import spaceship.SimObject;
 
@@ -11,6 +12,7 @@ import java.util.List;
  */
 public abstract class Controller {
 
+    public List<Vector2d> trace;
     public Spaceship ship;
 
     public Controller(Spaceship ship) {

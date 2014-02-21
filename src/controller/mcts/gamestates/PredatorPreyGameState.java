@@ -3,6 +3,7 @@ package controller.mcts.gamestates;
 import common.Constants;
 import common.math.Vector2d;
 import controller.ShipState;
+import controller.StateController;
 import controller.mcts.InfluenceMap;
 import controller.mcts.ShipBiasedMCTSController;
 import problem.ProjectileManager;
@@ -45,7 +46,7 @@ public class PredatorPreyGameState implements IGameState {
 
     @Override
     public boolean isTerminal() {
-        return predatorCaughtPrey() || (depth > ShipBiasedMCTSController.rolloutDepth) || (timestepsElapsed >= Constants.timesteps);
+        return predatorCaughtPrey() || (depth > Constants.rolloutDepth) || (timestepsElapsed >= Constants.timesteps);
     }
 
     @Override
@@ -53,16 +54,41 @@ public class PredatorPreyGameState implements IGameState {
         // return either the increase of distance as a good thing for the prey
         // or the decrease of distance as a good thing for the predator
         double score = 0;
+//        double distanceWeighting = 1;
+//        double deviationWeighting = 1;
+
         if(!predatorCaughtPrey()) {
             double dist = shipState.pos.dist(otherState.pos);
+            // lowest possible distance: 0, theoretically
+            // maximum possible distance: max
+//            Vector2d desiredHeading;
+//            // use a vector TO the other ship if predator
+//            if(isPredator) {
+//                desiredHeading = otherState.pos.copy().subtract(shipState.pos);
+//            } else {
+//                // use a vector AWAY from the other ship if prey
+//                desiredHeading = shipState.pos.copy().subtract(otherState.pos);
+//            }
+//            desiredHeading.normalise();
+//            Vector2d currentHeading = new Vector2d(shipState.vx, shipState.vy);
+//            currentHeading.normalise();
+////            Vector2d currentHeading = new Vector2d(1,0).rotate(shipState.rot);
+//            double headingDeviation = currentHeading.dist(desiredHeading);
+//            // lowest possible deviation: 0 (exactly moving in the desired direction)
+//            // highest possible deviation: 2 (exactly opposite)
+//            // scaling factor for making this approach the values used for distance: 1/2
+//            headingDeviation *= 0.5;
+
             if(isPredator) {
-                score = (MAX_DIST - dist);
+//                score = (distanceWeighting * ((MAX_DIST - dist)/MAX_DIST)) + (deviationWeighting * headingDeviation);
+                score = MAX_DIST - dist;
             } else {
+//                score = (distanceWeighting * (dist/MAX_DIST)) + (deviationWeighting * headingDeviation);
                 score = dist;
             }
         } else {
-            if(isPredator) score = 99999;
-            else score = -99999;
+            if(isPredator) score = 10000;
+            else score = -10000;
         }
         return score;
     }
@@ -82,17 +108,17 @@ public class PredatorPreyGameState implements IGameState {
 //            if(i == action) ship.components.get(i).active = true;
 //            else ship.components.get(i).active = false;
 //        }
-        ShipBiasedMCTSController.useSimpleAction(ship, action);
+        StateController.useSimpleAction(ship, action);
 
         // ASSUME OTHER SHIP WILL ACT RANDOMLY
         // space for improvement here, there could be some sort of minimax-style estimation of what the best immediate macro-action for the other ship would be
         // until then assume best
-        int otherAction = (int)(Constants.rand.nextDouble() * Constants.actions.length);
-        ShipBiasedMCTSController.useSimpleAction(other, otherAction);
+        //int otherAction = (int)(Constants.rand.nextDouble() * Constants.actions.length);
+        //ShipBiasedMCTSController.useSimpleAction(other, otherAction);
 
-        for(int i =0; i < ShipBiasedMCTSController.macroActionStep; i++) {
+        for(int i =0; i < Constants.macroActionStep; i++) {
             ship.update();
-            other.update();
+            //other.update();
             timestepsElapsed++;
             depth++;
             if(ship.bounced) bounces++;
@@ -112,8 +138,11 @@ public class PredatorPreyGameState implements IGameState {
 
     @Override
     public double heuristicValue() {
-        if(isPredator) return InfluenceMap.getValue(shipState.pos.x, shipState.pos.y) - (bounces * BOUNCE_PENALTY);
-        else return (InfluenceMap.getHeight() - InfluenceMap.getValue(shipState.pos.x, shipState.pos.y)) - (bounces * BOUNCE_PENALTY);
+        return 0;
+        //if(isPredator) return (MAX_DIST - shipState.pos.dist(otherState.pos)) - (bounces * BOUNCE_PENALTY);
+        //else return shipState.pos.dist(otherState.pos) - (bounces * BOUNCE_PENALTY);
+//        if(isPredator) return InfluenceMap.getValue(shipState.pos.x, shipState.pos.y) - (bounces * BOUNCE_PENALTY);
+//        else return (InfluenceMap.getHeight() - InfluenceMap.getValue(shipState.pos.x, shipState.pos.y)) - (bounces * BOUNCE_PENALTY);
     }
 
     public ShipState getShipState() {

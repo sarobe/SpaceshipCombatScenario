@@ -1,13 +1,15 @@
 package problem;
 
 import common.Constants;
-import common.math.Vector2d;
 import controller.Controller;
+import controller.basic.GreedyController;
+import controller.basic.MCController;
+import controller.basic.NullController;
 import controller.mcts.InfluenceMap;
+import controller.basic.RandomController;
 import controller.mcts.ShipBiasedMCTSController;
 import main.Runner;
 import spaceship.BasicSpaceship;
-import spaceship.Projectile;
 import spaceship.Spaceship;
 
 import java.util.ArrayList;
@@ -55,8 +57,8 @@ public class PredatorPreyProblem implements IProblem {
         InfluenceMap.createInfluenceMap(predator, prey);
 
         // awareness: self, other, am i the predator
-        conts.add(new ShipBiasedMCTSController(predator, prey, true));
-        conts.add(new ShipBiasedMCTSController(prey, predator, false));
+        conts.add(new RandomController(predator, prey, true));
+        conts.add(new NullController(prey, predator, false));
     }
 
     public void demonstrate() {
@@ -68,24 +70,6 @@ public class PredatorPreyProblem implements IProblem {
 
             for (Spaceship s : ships) {
                 s.update();
-            }
-
-            // move bullets, update collisions
-            for (Projectile p : ProjectileManager.getLivingProjectiles()) {
-                p.update();
-
-                for (Spaceship s : ships) {
-                    if (s.alive && p.owner != s && s.isColliding(p) && (Constants.allowFriendlyFire || s.team != p.team) && p.alive) {
-                        p.kill();
-                        s.harm(Constants.defaultProjectileHarm);
-//                        if(s.team == Constants.TEAM_LEFT) demoScoreRight += Constants.defaultProjectileHarm;
-//                        else demoScoreLeft += Constants.defaultProjectileHarm;
-//                        if(!s.alive) {
-//                            if(s.team == Constants.TEAM_LEFT) demoScoreRight += Constants.defaultProjectileHarm * 10;
-//                            else demoScoreLeft += Constants.defaultProjectileHarm * 10;
-//                        }
-                    }
-                }
             }
 
             // update influence map periodically

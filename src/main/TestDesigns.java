@@ -2,12 +2,12 @@ package main;
 
 import common.Constants;
 import common.utilities.JEasyFrame;
+import common.utilities.StatSummary;
+import controller.StateController;
 import controller.mcts.ShipBiasedMCTSController;
+import controller.basic.RandomController;
 import problem.IProblem;
 import problem.PredatorPreyProblem;
-import problem.SpaceshipIndividualCombatProblem;
-
-import java.util.Arrays;
 
 /**
  * Created by Samuel Roberts, 2013
@@ -15,10 +15,10 @@ import java.util.Arrays;
 public class TestDesigns {
 
     static int duplicates = 1;
-    static int runs = 30;
+    static int runs = 10000;
     static int runNum = 0;
 
-    public static boolean useGraphics = true;
+    public static boolean useGraphics = false;
 
     public static void main(String[] args) {
         //SpaceshipIndividualCombatProblem problem = new SpaceshipIndividualCombatProblem();
@@ -82,9 +82,11 @@ public class TestDesigns {
         //problem.demonstrationInit(pop);
         // parameterless version just creates a basic lunar lander style ship
         problem.demonstrationInit();
-        ShipBiasedMCTSController predatorCont = (ShipBiasedMCTSController)problem.getControllers().get(0);
-        ShipBiasedMCTSController preyCont = (ShipBiasedMCTSController)problem.getControllers().get(1);
+        StateController predatorCont = (StateController)problem.getControllers().get(0);
+        StateController preyCont = (StateController)problem.getControllers().get(1);
 
+
+        StatSummary predStats = new StatSummary("Predator");
 
         // MAIN DEMONSTRATION LOOP
         try {
@@ -94,22 +96,26 @@ public class TestDesigns {
                     sv.repaint();
                     frame.setTitle("Pickup Problem - Pred: " + predatorCont.bestPredictedScore + " Prey: " + preyCont.bestPredictedScore);
                     Thread.sleep(Constants.delay);
-                } else {
                     // this is an ugly hack
-                    if(predatorCont.terminal) {
-                        runNum++;
-                        // reset problem
-                        problem.demonstrationInit();
-                        // get references to new controller instance
-                        predatorCont = (ShipBiasedMCTSController)problem.getControllers().get(0);
-                        preyCont = (ShipBiasedMCTSController)problem.getControllers().get(1);
-                    }
+                }
+                if(predatorCont.terminal) {
+                    runNum++;
+                    if(runNum % 50 == 0) System.out.println("Completed " + runNum + " runs.");
+                    //System.out.println("Run ended, predator score: " + predatorCont.bestPredictedScore + " prey score: " + preyCont.bestPredictedScore);
+                    predStats.add(predatorCont.bestPredictedScore);
+                    // reset problem
+                    problem.demonstrationInit();
+                    // get references to new controller instance
+                    predatorCont = (StateController)problem.getControllers().get(0);
+                    preyCont = (StateController)problem.getControllers().get(1);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
+
+        System.out.println(predStats);
 
         if(useGraphics) frame.dispose();
     }

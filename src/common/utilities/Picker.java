@@ -1,4 +1,4 @@
-package controller.mcts;
+package common.utilities;
 
 /**
  * utility class made by Simon Lucas carried over for compatibility purposes

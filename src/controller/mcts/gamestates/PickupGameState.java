@@ -65,7 +65,7 @@ public class PickupGameState implements IGameState {
 
     @Override
     public boolean isTerminal() {
-        return (!shipState.alive) || (getCollectedPickups() == PickupManager.getTotalPickups()) || (depth > ShipBiasedMCTSController.rolloutDepth) || (timestepsElapsed >= Constants.timesteps);
+        return (!shipState.alive) || (getCollectedPickups() == PickupManager.getTotalPickups()) || (depth > Constants.rolloutDepth) || (timestepsElapsed >= Constants.timesteps);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class PickupGameState implements IGameState {
 //        }
         Map<Pickup, Boolean> oldPickupStates = PickupManager.getPickupStates();
         ShipBiasedMCTSController.useSimpleAction(ship, action);
-        for(int i =0; i < ShipBiasedMCTSController.macroActionStep; i++) {
+        for(int i =0; i < Constants.macroActionStep; i++) {
             ship.update();
             timestepsElapsed++;
             depth++;

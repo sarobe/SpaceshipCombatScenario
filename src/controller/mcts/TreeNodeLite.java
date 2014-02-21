@@ -1,5 +1,6 @@
 package controller.mcts;
 
+import common.utilities.Picker;
 import controller.mcts.gamestates.IGameState;
 import ea.FitVectorSource;
 
@@ -13,7 +14,7 @@ import java.util.Random;
 public class TreeNodeLite {
     // exploration term
     // 0.5 works ok for Othello
-    static double k = 1.0;
+    static double k = 1.4;
     static double epsilon = 1e-6;
     IGameState initialState;
     TreeNodeLite parent;
@@ -37,6 +38,7 @@ public class TreeNodeLite {
     // need this to draw the roll-out
     public List<RollOut> rollOuts;
     public double bestRolloutValue = 0;
+    public double worstRolloutValue = Double.MAX_VALUE;
 
     // need this to draw the roll-out
     public List<Integer> lastRollOutMax;
@@ -121,6 +123,7 @@ public class TreeNodeLite {
     public void backUp(double result) {
         nVisits++;
         double v = result; // state.valueOf(result);
+
         // System.out.println("Adding in : " + v);
         totValue += v;
         if (parent != null) parent.backUp(result);
@@ -154,6 +157,10 @@ public class TreeNodeLite {
                     child.totValue / (child.nVisits + epsilon) +
                             k * Math.sqrt(Math.log(nVisits + 1) / (child.nVisits + epsilon)) +
                             r.nextDouble() * epsilon;
+            if(uctValue == Double.NEGATIVE_INFINITY) {
+                // aaaaa
+                System.out.println("HALT");
+            }
             // small random numbers: break ties in unexpanded nodes
             if (uctValue > bestValue) {
                 selected = child;
@@ -238,8 +245,8 @@ public class TreeNodeLite {
     public double rollOut(IGameState state) {
         // System.out.println(state + " : " + action);
         List<Integer> lastRollOut = new ArrayList<Integer>();
-        //double bestHeuristic = -Double.MAX_VALUE;
-        double totalHeuristic = 0;
+        double bestHeuristic = 0;
+        //double totalHeuristic = 0;
         RollOut rollOutData = new RollOut();
         while (!state.isTerminal()) {
             int numActions = state.nActions();
@@ -248,8 +255,10 @@ public class TreeNodeLite {
             if (action >= 0)             //action == -1 is PASS.
             {
                 state.next(action);
-                //if(state.heuristicValue() > bestHeuristic) bestHeuristic = state.heuristicValue();
-                totalHeuristic += state.heuristicValue() * 0.1;
+                if(state.heuristicValue() > bestHeuristic) {
+                    bestHeuristic = state.heuristicValue();
+                }
+                //totalHeuristic += state.heuristicValue() * 0.1;
             }
             rollOutData.addAction(action);
         }
@@ -258,10 +267,11 @@ public class TreeNodeLite {
         //if(state.heuristicValue() > bestHeuristic) bestHeuristic = state.heuristicValue();
 
 
-        double value = state.value() + totalHeuristic;//state.value() + bestHeuristic;
+        double value = state.value() + bestHeuristic;//state.value() + totalHeuristic;
         rollOutData.setScore(value);
         rollOuts.add(rollOutData);
         if(value > bestRolloutValue) bestRolloutValue = value;
+        if(value < worstRolloutValue) worstRolloutValue = value;
         return value;
     }
 
