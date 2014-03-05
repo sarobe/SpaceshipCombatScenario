@@ -15,10 +15,10 @@ import problem.PredatorPreyProblem;
 public class TestDesigns {
 
     static int duplicates = 1;
-    static int runs = 10000;
+    static int runs = 100;
     static int runNum = 0;
 
-    public static boolean useGraphics = false;
+    public static boolean useGraphics = true;
 
     public static void main(String[] args) {
         //SpaceshipIndividualCombatProblem problem = new SpaceshipIndividualCombatProblem();
@@ -101,7 +101,7 @@ public class TestDesigns {
                 if(predatorCont.terminal) {
                     runNum++;
                     if(runNum % 50 == 0) System.out.println("Completed " + runNum + " runs.");
-                    //System.out.println("Run ended, predator score: " + predatorCont.bestPredictedScore + " prey score: " + preyCont.bestPredictedScore);
+//                    System.out.println("Run ended, predator score: " + predatorCont.bestPredictedScore + " prey score: " + preyCont.bestPredictedScore);
                     predStats.add(predatorCont.bestPredictedScore);
                     // reset problem
                     problem.demonstrationInit();

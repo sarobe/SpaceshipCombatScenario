@@ -79,7 +79,7 @@ public class InfluenceMap {
                 // use exponential dropoff instead of linear dropoff
                 //double value = 5 + Math.log1p(dist) * -1;
                 double value = (MAX_DIST - dist)/MAX_DIST;
-                influenceMap[x][y] += value * 50;
+                influenceMap[x][y] += value;
             }
         }
 

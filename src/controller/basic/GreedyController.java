@@ -32,6 +32,8 @@ public class GreedyController extends StateController {
             // use current action
             useSimpleAction(ship, currentAction);
         }
+        // determine if current state is terminal
+
         super.think();
     }
 

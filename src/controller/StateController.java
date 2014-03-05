@@ -53,6 +53,8 @@ public abstract class StateController extends Controller {
 
     public void think() {
         trace.add(new Vector2d(ship.pos));
+        terminal = constructState().isTerminal();
+        if(terminal) bestPredictedScore = constructState().value();
         timesteps++;
     }
 
@@ -61,7 +63,7 @@ public abstract class StateController extends Controller {
 
         g.translate(ship.pos.x, ship.pos.y);
         g.setColor(Color.YELLOW);
-        g.fillOval(-5, -5, 10, 10);
+        g.drawOval((int)(-ship.radius), (int)(-ship.radius), (int)(ship.radius*2), (int)(ship.radius*2));
 
         Vector2d shipForward = ship.getForward();
         g.drawLine(0, 0, (int)(shipForward.x * 20), (int)(shipForward.y * 20));

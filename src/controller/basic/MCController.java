@@ -114,8 +114,9 @@ public class MCController extends StateController {
 
                 // draw states
                 // calculate the relative value on a 0 - 1 scale of the value of this action
-                double value = (rollOut.value - worstRolloutValue) / (bestPredictedScore - worstRolloutValue);
-                g.setColor(Color.getHSBColor(1.0f, 0.0f, (float)value));
+                // no longer needed to calculate the relative value, the value can ONLY BE 0 to 1
+                float value = (float)rollOut.value;
+                g.setColor(new Color(value, value, value));
                 g.drawLine((int) prevState.px, (int) prevState.py, (int) nextState.px, (int) nextState.py);
 
                 prevState = nextState;

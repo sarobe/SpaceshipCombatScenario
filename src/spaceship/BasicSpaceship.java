@@ -27,7 +27,7 @@ public class BasicSpaceship extends Spaceship {
     public SimpleAction currentAction;
 
     static double thrustPower = 200;
-    static double steerStep = Math.PI/3;
+    static double steerStep = Math.PI/2;
 
     public BasicSpaceship() {
         super();
@@ -35,7 +35,7 @@ public class BasicSpaceship extends Spaceship {
         hull = Constants.maximumHull;
         maxHull = Constants.maximumHull;
         moment = 1;
-        radius = 30;
+        radius = 15;
         fuel = Constants.maximumFuel;
         bullets = Constants.maximumBullets;
         hullShape = new Polygon();

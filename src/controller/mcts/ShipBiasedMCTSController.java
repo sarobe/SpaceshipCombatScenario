@@ -92,25 +92,24 @@ public class ShipBiasedMCTSController extends StateController {
 
         // draw rollouts
         if(lastSearch != null) {
-            drawAllRollouts(g, lastSearch);
+            drawAllRollouts(g, lastSearch, lastSearch.initialState.copy());
         }
     }
 
-    private void drawAllRollouts(Graphics2D g, TreeNodeLite rootNode) {
+    private void drawAllRollouts(Graphics2D g, TreeNodeLite rootNode, IGameState initState) {
         if(rootNode == null) return;
         ShipState initialShipState = new ShipState(ship);
-
         if(!rootNode.isLeaf()) {
-            for(TreeNodeLite node : rootNode.children) {
-                drawAllRollouts(g, node);
+            for(TreeNodeLite child : rootNode.children) {
+                drawAllRollouts(g, child, initState);
             }
         }
-        drawRollouts(g, rootNode);
+        drawRollouts(g, rootNode, initState);
         ship.setState(initialShipState);
     }
 
-    private void drawRollouts(Graphics2D g, TreeNodeLite node) {
-        IGameState initialState = node.initialState;
+    private void drawRollouts(Graphics2D g, TreeNodeLite node, IGameState initState) {
+        IGameState initialState = initState;//node.initialState;
         ShipState currentShipState = initialState.getShipState();
 
         for(RollOut rollOut : node.rollOuts) {
@@ -126,8 +125,8 @@ public class ShipBiasedMCTSController extends StateController {
 
                 // draw states
                 // calculate the relative value on a 0 - 1 scale of the value of this action
-                double value = (rollOut.value - node.worstRolloutValue) / (node.bestRolloutValue - node.worstRolloutValue);
-                g.setColor(Color.getHSBColor(1.0f, 0.0f, (float)value));
+                float value = (float)rollOut.value;
+                g.setColor(new Color(value, value, value));
                 g.drawLine((int) prevState.px, (int) prevState.py, (int) nextState.px, (int) nextState.py);
 
                 prevState = nextState;

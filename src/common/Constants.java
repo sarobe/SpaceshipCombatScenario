@@ -75,8 +75,8 @@ public class Constants {
     public static double hullRewardMul = 10;
 
 
-    public static Vector2d predatorStartPos = new Vector2d(200, 200);
-    public static Vector2d preyStartPos = new Vector2d(800, 400);
+    public static Vector2d predatorStartPos = new Vector2d(500, 600);
+    public static Vector2d preyStartPos = new Vector2d(200, 300);
 
     public static SimpleAction[] actions;
     static {

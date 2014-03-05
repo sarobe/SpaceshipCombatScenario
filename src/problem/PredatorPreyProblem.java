@@ -29,6 +29,7 @@ public class PredatorPreyProblem implements IProblem {
         ships = new ArrayList<Spaceship>();
     }
 
+
     @Override
     public void demonstrationInit(double[][] populationData) {
         // TODO
@@ -57,8 +58,12 @@ public class PredatorPreyProblem implements IProblem {
         InfluenceMap.createInfluenceMap(predator, prey);
 
         // awareness: self, other, am i the predator
-        conts.add(new RandomController(predator, prey, true));
-        conts.add(new NullController(prey, predator, false));
+//        conts.add(new GreedyController(predator, prey, true));
+//        conts.add(new MCController(predator, prey, true));
+        conts.add(new ShipBiasedMCTSController(predator, prey, true));
+//        conts.add(new RandomController(prey, predator, false));
+//        conts.add(new NullController(prey, predator, false));
+        conts.add(new ShipBiasedMCTSController(prey, predator, false));
     }
 
     public void demonstrate() {
@@ -99,4 +104,6 @@ public class PredatorPreyProblem implements IProblem {
         // TODO
         return 0;
     }
+
+
 }

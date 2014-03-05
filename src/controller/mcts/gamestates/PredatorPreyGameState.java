@@ -81,14 +81,14 @@ public class PredatorPreyGameState implements IGameState {
 
             if(isPredator) {
 //                score = (distanceWeighting * ((MAX_DIST - dist)/MAX_DIST)) + (deviationWeighting * headingDeviation);
-                score = MAX_DIST - dist;
+                score = (MAX_DIST - dist)/MAX_DIST;
             } else {
 //                score = (distanceWeighting * (dist/MAX_DIST)) + (deviationWeighting * headingDeviation);
-                score = dist;
+                score = dist/MAX_DIST;
             }
         } else {
-            if(isPredator) score = 10000;
-            else score = -10000;
+            if(isPredator) score = 1;//10000;
+            else score = 0;//-10000;
         }
         return score;
     }
@@ -108,6 +108,9 @@ public class PredatorPreyGameState implements IGameState {
 //            if(i == action) ship.components.get(i).active = true;
 //            else ship.components.get(i).active = false;
 //        }
+
+        ship.setState(shipState);
+        other.setState(otherState);
         StateController.useSimpleAction(ship, action);
 
         // ASSUME OTHER SHIP WILL ACT RANDOMLY
@@ -115,6 +118,8 @@ public class PredatorPreyGameState implements IGameState {
         // until then assume best
         //int otherAction = (int)(Constants.rand.nextDouble() * Constants.actions.length);
         //ShipBiasedMCTSController.useSimpleAction(other, otherAction);
+
+
 
         for(int i =0; i < Constants.macroActionStep; i++) {
             ship.update();
