@@ -1,6 +1,6 @@
 package controller.mcts;
 
-import controller.mcts.gamestates.IGameState;
+import controller.gamestates.IGameState;
 
 /**
  * Created by Samuel Roberts, 2013

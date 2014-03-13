@@ -49,6 +49,7 @@ public class Constants {
     public static double fuelPickupAmount = 500;
 
     public static double friction = 0.99;
+//    public static double friction = 1.0;
     public static double angleFriction = 0.00;
     public static double edgeBounceLoss = 0.8;
 
@@ -57,7 +58,7 @@ public class Constants {
     public static int combatRepeats = 1;
 
     public static double thrusterRadiusLimit = 0;
-    public static int timesteps = 500;
+    public static int timesteps = 1000;
 
     //public static Rectangle leftTeamStartRect = new Rectangle(0, 0, 450, 768);
     //public static Rectangle rightTeamStartRect = new Rectangle(574, 0, 450, 768);
@@ -93,4 +94,17 @@ public class Constants {
     public static int macroActionStep = 30;
     public static int nIts = 1000;
     public static int rolloutDepth = 100;
+    public static int asteroidPlacementSeed = 88888;
+
+    public static enum WorldType {
+        BOUNDED,
+        WRAPPING,
+        CIRCULAR
+    }
+    public static WorldType worldType = WorldType.WRAPPING;
+
+    public static int numAsteroids = 3;
+    public static double minAsteroidRadius = 5;
+    public static double maxAsteroidRadius = 15;
+    public static double maxVelocityRange = 40;
 }

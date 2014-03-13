@@ -1,7 +1,7 @@
 package controller.mcts;
 
 import common.utilities.Picker;
-import controller.mcts.gamestates.IGameState;
+import controller.gamestates.IGameState;
 import ea.FitVectorSource;
 
 import java.util.ArrayList;
@@ -261,6 +261,7 @@ public class TreeNodeLite {
                 //totalHeuristic += state.heuristicValue() * 0.1;
             }
             rollOutData.addAction(action);
+            rollOutData.addPosition(state.getShipState().pos.copy());
         }
 
         // one last check

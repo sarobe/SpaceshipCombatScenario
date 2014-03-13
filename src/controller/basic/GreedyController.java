@@ -3,8 +3,7 @@ package controller.basic;
 import common.Constants;
 import common.utilities.Picker;
 import controller.StateController;
-import controller.mcts.gamestates.IGameState;
-import spaceship.SimObject;
+import controller.gamestates.IGameState;
 import spaceship.Spaceship;
 
 import java.util.ArrayList;

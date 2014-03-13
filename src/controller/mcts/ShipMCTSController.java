@@ -2,8 +2,8 @@ package controller.mcts;
 
 import controller.Controller;
 import controller.ShipState;
-import controller.mcts.gamestates.IGameState;
-import controller.mcts.gamestates.PickupGameState;
+import controller.gamestates.IGameState;
+import controller.gamestates.PickupGameState;
 import problem.Pickup;
 import problem.PickupManager;
 import spaceship.SimObject;

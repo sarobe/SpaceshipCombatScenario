@@ -1,6 +1,6 @@
 package controller.singleMCTS;
 
-import controller.mcts.gamestates.IGameState;
+import controller.gamestates.IGameState;
 import controller.mcts.IRoller;
 
 import java.util.LinkedList;

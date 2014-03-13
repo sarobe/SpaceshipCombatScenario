@@ -2,22 +2,13 @@ package controller.mcts;
 
 import common.Constants;
 import common.math.Vector2d;
-import controller.Controller;
 import controller.ShipState;
 import controller.StateController;
-import controller.mcts.gamestates.IGameState;
-import controller.mcts.gamestates.PickupGameState;
-import controller.mcts.gamestates.PredatorPreyGameState;
+import controller.gamestates.IGameState;
 import ea.FitVectorSource;
-import problem.PickupManager;
-import problem.ProjectileManager;
 import spaceship.Spaceship;
-import spaceship.SimObject;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Samuel Roberts, 2013
@@ -101,7 +92,7 @@ public class ShipBiasedMCTSController extends StateController {
         ShipState initialShipState = new ShipState(ship);
         if(!rootNode.isLeaf()) {
             for(TreeNodeLite child : rootNode.children) {
-                drawAllRollouts(g, child, initState);
+                drawAllRollouts(g, child, rootNode.initialState);
             }
         }
         drawRollouts(g, rootNode, initState);
@@ -109,27 +100,24 @@ public class ShipBiasedMCTSController extends StateController {
     }
 
     private void drawRollouts(Graphics2D g, TreeNodeLite node, IGameState initState) {
-        IGameState initialState = initState;//node.initialState;
-        ShipState currentShipState = initialState.getShipState();
+        IGameState initialState = node.initialState;
 
         for(RollOut rollOut : node.rollOuts) {
-            ship.setState(currentShipState);
-            ShipState prevState = currentShipState;
-            ShipState nextState = null;
-            for(Integer action : rollOut.actions) {
-                useSimpleAction(ship, action);
-                for(int i=0; i<Constants.macroActionStep; i++) {
-                    ship.update();
-                }
-                nextState = new ShipState(ship);
+            Vector2d prevPos = initialState.getShipState().pos;
+            Vector2d nextPos = null;
+            for(Vector2d pos : rollOut.positions) {
+                nextPos = pos;
 
                 // draw states
-                // calculate the relative value on a 0 - 1 scale of the value of this action
-                float value = (float)rollOut.value;
-                g.setColor(new Color(value, value, value));
-                g.drawLine((int) prevState.px, (int) prevState.py, (int) nextState.px, (int) nextState.py);
+                // if the line is too big (the rollout wraps to the other side of the screen) don't draw it
+                // TODO: DO ANYTHING MORE EFFICIENT THAN HAVING A DISTANCE CHECK FOR EVERY SINGLE LINE SEGMENT
+                if(nextPos.dist(prevPos) < Constants.screenWidth/2) {
+                    float value = (float)rollOut.value;
+                    g.setColor(new Color(value, value, value));
+                    g.drawLine((int) prevPos.x, (int) prevPos.y, (int) nextPos.x, (int) nextPos.y);
+                }
 
-                prevState = nextState;
+                prevPos = nextPos;
             }
         }
     }

@@ -41,6 +41,12 @@ public class SpaceshipVisualiser extends JComponent {
             }
         }
 
+        if(Constants.worldType == Constants.WorldType.CIRCULAR) {
+            g.setColor(Color.WHITE);
+            int radius = Math.min(Constants.screenWidth, Constants.screenHeight)/2;
+            g.drawOval(Constants.screenWidth/2 - radius, Constants.screenHeight/2 - radius, radius*2, radius*2);
+        }
+
         synchronized(Runner.class) {
 
             for(Projectile p : ProjectileManager.getLivingProjectiles()) {
@@ -50,6 +56,10 @@ public class SpaceshipVisualiser extends JComponent {
 //            for(Pickup p : PickupManager.getLivingPickups()) {
 //                p.draw(g2d);
 //            }
+
+            for(Asteroid a : AsteroidManager.getAsteroids()) {
+                a.draw(g2d);
+            }
 
             for(Spaceship ship : problem.getShips()) {
                 if(ship.alive) ship.draw(g2d);

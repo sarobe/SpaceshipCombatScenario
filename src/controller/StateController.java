@@ -1,9 +1,9 @@
 package controller;
 
 import common.math.Vector2d;
-import controller.mcts.gamestates.IGameState;
-import controller.mcts.gamestates.PickupGameState;
-import controller.mcts.gamestates.PredatorPreyGameState;
+import controller.gamestates.IGameState;
+import controller.gamestates.PickupGameState;
+import controller.gamestates.PredatorPreyGameState;
 import problem.PickupManager;
 import problem.ProjectileManager;
 import spaceship.SimObject;

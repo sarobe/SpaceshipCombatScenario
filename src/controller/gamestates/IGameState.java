@@ -1,4 +1,4 @@
-package controller.mcts.gamestates;
+package controller.gamestates;
 
 import controller.ShipState;
 

@@ -71,7 +71,22 @@ public abstract class SimObject {
         }
 
         if(bounced) bounced = false;
-        // game objects cannot leave the world
+
+        switch(Constants.worldType) {
+            case BOUNDED:
+                hitBoundedSides();
+                break;
+            case WRAPPING:
+                hitWrappingSides();
+                break;
+            case CIRCULAR:
+                hitCircularSides();
+                break;
+        }
+
+    }
+
+    private void hitBoundedSides() {
         if(pos.x + radius > Constants.screenWidth) {
             pos.x = Constants.screenWidth - radius;
             vel.x *= -Constants.edgeBounceLoss;
@@ -91,6 +106,52 @@ public abstract class SimObject {
             pos.y = radius;
             vel.y *= -Constants.edgeBounceLoss;
             hitSides();
+        }
+    }
+
+    private void hitWrappingSides() {
+        if(pos.x - radius > Constants.screenWidth) {
+            pos.x = -radius;
+        }
+        if(pos.x + radius < 0) {
+            pos.x = Constants.screenWidth + radius;
+        }
+        if(pos.y - radius > Constants.screenHeight) {
+            pos.y = -radius;
+        }
+        if(pos.y + radius < 0) {
+            pos.y = Constants.screenHeight + radius;
+        }
+    }
+
+    private void hitCircularSides() {
+        double worldRadius = Math.min(Constants.screenWidth, Constants.screenHeight)/2;
+        double worldOriginX = Constants.screenWidth/2;
+        double worldOriginY = Constants.screenHeight/2;
+
+        double dx = pos.x - worldOriginX;
+        double dy = pos.y - worldOriginY;
+
+        if(Math.sqrt(dx*dx + dy*dy) > worldRadius - radius) {
+            // project back onto circle
+            double dist = worldRadius - radius;
+            double theta = Math.atan2(dy, dx);
+
+            pos.x = dist * Math.cos(theta) + worldOriginX;
+            pos.y = dist * Math.sin(theta) + worldOriginY;
+
+            // bounce velocities
+
+            // get normal of the circle
+            Vector2d wallNorm = new Vector2d(worldOriginX - pos.x, worldOriginY - pos.y);
+            wallNorm.normalise();
+            // reflect player velocity!
+            double magnitude=2*wallNorm.scalarProduct(vel);
+            vel.subtract(wallNorm.mul(magnitude));
+
+            // commented out to prevent asteroid velocity loss (for now)
+            //vel.x *= Constants.edgeBounceLoss;
+            //vel.y *= Constants.edgeBounceLoss;
         }
     }
 

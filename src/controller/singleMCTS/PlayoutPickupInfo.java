@@ -1,7 +1,7 @@
 package controller.singleMCTS;
 
-import controller.mcts.gamestates.IGameState;
-import controller.mcts.gamestates.PickupGameState;
+import controller.gamestates.IGameState;
+import controller.gamestates.PickupGameState;
 
 import java.util.Arrays;
 

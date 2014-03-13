@@ -27,7 +27,7 @@ public class BasicSpaceship extends Spaceship {
     public SimpleAction currentAction;
 
     static double thrustPower = 200;
-    static double steerStep = Math.PI/2;
+    static double steerStep = 3*Math.PI/4;
 
     public BasicSpaceship() {
         super();

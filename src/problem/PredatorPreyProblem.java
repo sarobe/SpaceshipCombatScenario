@@ -39,9 +39,12 @@ public class PredatorPreyProblem implements IProblem {
     public void demonstrationInit() {
         // use the basic ship
         ProjectileManager.reset();
+        AsteroidManager.reset();
         timestepsElapsed = 0;
         conts.clear();
         ships.clear();
+
+        AsteroidManager.placeAsteroids(Constants.asteroidPlacementSeed);
 
         predator = new BasicSpaceship();
         prey = new BasicSpaceship();
@@ -68,6 +71,11 @@ public class PredatorPreyProblem implements IProblem {
 
     public void demonstrate() {
         synchronized (Runner.class) {
+
+            for(Asteroid a : AsteroidManager.getAsteroids()) {
+                a.update();
+            }
+
             for (Controller c : conts) {
                 //c.think(demoShips);
                 c.think();
@@ -76,6 +84,8 @@ public class PredatorPreyProblem implements IProblem {
             for (Spaceship s : ships) {
                 s.update();
             }
+
+
 
             // update influence map periodically
             if (timestepsElapsed % 10 == 0) {

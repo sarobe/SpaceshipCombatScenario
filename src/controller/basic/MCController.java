@@ -5,7 +5,7 @@ import common.utilities.Picker;
 import controller.ShipState;
 import controller.StateController;
 import controller.mcts.RollOut;
-import controller.mcts.gamestates.IGameState;
+import controller.gamestates.IGameState;
 import spaceship.Spaceship;
 
 import java.awt.*;

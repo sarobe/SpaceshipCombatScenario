@@ -1,8 +1,6 @@
 package controller.basic;
 
-import common.Constants;
 import controller.StateController;
-import controller.mcts.gamestates.IGameState;
 import spaceship.SimObject;
 import spaceship.Spaceship;
 

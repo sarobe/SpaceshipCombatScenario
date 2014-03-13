@@ -2,11 +2,8 @@ package controller.basic;
 
 import common.Constants;
 import controller.StateController;
-import controller.mcts.gamestates.IGameState;
-import spaceship.SimObject;
+import controller.gamestates.IGameState;
 import spaceship.Spaceship;
-
-import java.util.List;
 
 /**
  * Created by Samuel Roberts, 2014
