@@ -27,6 +27,8 @@ public class ShipState {
     public boolean bounced;
     public int bounces;
 
+    public Vector2d predictedPoint; // used for visualisation
+
 
     public ShipState(Spaceship ship) {
         this.ship = ship;
@@ -72,5 +74,13 @@ public class ShipState {
         bulletsFired = state.bulletsFired;
         fuel = state.fuel;
         bounced = state.bounced;
+    }
+
+    public Vector2d vel() {
+        return new Vector2d(vx, vy);
+    }
+
+    public void setPredictedPoint(Vector2d point) {
+        this.predictedPoint = point.copy();
     }
 }

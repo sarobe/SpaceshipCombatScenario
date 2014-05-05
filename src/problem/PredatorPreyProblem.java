@@ -20,6 +20,7 @@ public class PredatorPreyProblem implements IProblem {
     public Spaceship prey;
     public List<Spaceship> ships;
     public List<Controller> conts;
+    public boolean terminal;
 
     int timestepsElapsed = 0;
 
@@ -43,6 +44,7 @@ public class PredatorPreyProblem implements IProblem {
         timestepsElapsed = 0;
         conts.clear();
         ships.clear();
+        terminal = false;
 
         AsteroidManager.placeAsteroids(Constants.asteroidPlacementSeed);
 
@@ -74,6 +76,8 @@ public class PredatorPreyProblem implements IProblem {
 
             for(Asteroid a : AsteroidManager.getAsteroids()) {
                 a.update();
+                if(a.isColliding(predator)) terminal = true;
+                if(a.isColliding(prey)) terminal = true;
             }
 
             for (Controller c : conts) {
@@ -85,6 +89,13 @@ public class PredatorPreyProblem implements IProblem {
                 s.update();
             }
 
+            if(predator.isColliding(prey)) {
+                terminal = true;
+            }
+
+            if(timestepsElapsed >= Constants.timesteps) {
+                terminal = true;
+            }
 
 
             // update influence map periodically
@@ -113,6 +124,11 @@ public class PredatorPreyProblem implements IProblem {
     public double fitness(double[] x) {
         // TODO
         return 0;
+    }
+
+    @Override
+    public boolean hasEnded() {
+        return terminal;
     }
 
 

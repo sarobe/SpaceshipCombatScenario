@@ -149,6 +149,11 @@ public class SpaceshipIndividualCombatProblem implements IProblem {
         return score;
     }
 
+    @Override
+    public boolean hasEnded() {
+        return true;
+    }
+
     public ComplexSpaceship getInstance(double[] x) {
         return new ComplexSpaceship(x);
     }

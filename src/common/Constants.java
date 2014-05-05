@@ -96,15 +96,19 @@ public class Constants {
     public static int rolloutDepth = 100;
     public static int asteroidPlacementSeed = 88888;
 
+
     public static enum WorldType {
         BOUNDED,
         WRAPPING,
         CIRCULAR
     }
-    public static WorldType worldType = WorldType.WRAPPING;
+    public static WorldType worldType = WorldType.CIRCULAR;
 
-    public static int numAsteroids = 3;
+    public static int numAsteroids = 4;
     public static double minAsteroidRadius = 5;
     public static double maxAsteroidRadius = 15;
     public static double maxVelocityRange = 40;
+
+    public static boolean drawVelocities = false;
+    public static boolean drawPredictedPoint = true;
 }

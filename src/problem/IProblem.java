@@ -17,4 +17,6 @@ public interface IProblem {
     public int nDim();
 
     public double fitness(double[] x);
+
+    public boolean hasEnded();
 }

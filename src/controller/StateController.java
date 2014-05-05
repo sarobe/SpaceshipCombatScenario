@@ -109,4 +109,8 @@ public abstract class StateController extends Controller {
         ship.useAction(action);
     }
 
+    public double getScore() {
+        return constructState().value();
+    }
+
 }

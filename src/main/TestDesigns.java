@@ -98,11 +98,11 @@ public class TestDesigns {
                     Thread.sleep(Constants.delay);
                     // this is an ugly hack
                 }
-                if(predatorCont.terminal) {
+                if(problem.hasEnded()) {
                     runNum++;
                     if(runNum % 50 == 0) System.out.println("Completed " + runNum + " runs.");
-//                    System.out.println("Run ended, predator score: " + predatorCont.bestPredictedScore + " prey score: " + preyCont.bestPredictedScore);
-                    predStats.add(predatorCont.bestPredictedScore);
+                    System.out.println("Run ended, predator score: " + predatorCont.bestPredictedScore + " prey score: " + preyCont.bestPredictedScore);
+                    predStats.add(predatorCont.getScore());
                     // reset problem
                     problem.demonstrationInit();
                     // get references to new controller instance

@@ -1,10 +1,15 @@
 package controller.gamestates;
 
 import common.Constants;
+import common.math.MathUtil;
+import common.math.Vector2d;
+import common.utilities.Picker;
 import controller.ShipState;
 import controller.StateController;
+import controller.mcts.ShipBiasedMCTSController;
 import problem.Asteroid;
 import problem.AsteroidManager;
+import problem.AsteroidsState;
 import problem.ProjectileManager;
 import spaceship.Spaceship;
 
@@ -66,11 +71,51 @@ public class PredatorPreyGameState implements IGameState {
 //        double distanceWeighting = 1;
 //        double deviationWeighting = 1;
 
+        Vector2d ourVel = shipState.vel();
+        Vector2d otherPos = otherState.pos.copy();
+        Vector2d otherVel = other.vel.copy();
+
+        // the further apart the two ships are, the more varied their velocities will be
+        // the closer they are, the more they can be assumed to not change
+        // therefore, assume the velocity will be a reliable predictor of future position in future states
+        // with GREATER CONFIDENCE (higher scalar) when the ships are closer together
+        // and LOWER CONFIDENCE (lower scalar) when the ships are farther apart
+//        double predictionFactor = 1 - (shipState.pos.dist(otherPos)/MAX_DIST);
+//        otherPos.add(otherState.vel(), predictionFactor * 10);
+
+        if(isPredator) {
+            // modify other position to be based on a set of circumstances as follows:
+
+            // find the point closest to the prey we will be on current velocity course, drawing a line starting here
+            Vector2d closestPredictedPoint = MathUtil.closestPointLineStart(otherPos, shipState.pos, ourVel);
+            Vector2d diff = closestPredictedPoint.subtract(shipState.pos);
+
+            // determine how many steps it will take to reach that point
+            // (if we're moving away this will be zero)
+            double numSteps = (diff.mag() / ourVel.mag()) / Constants.dt; // first half of equation reduces to multiples of velocity vector
+            // division by time constant changes from per-frame to per-second
+
+            // given prey maintains velocity, determine where it will end up (remember to factor in collision with walls)
+            // use this as the other ship's position
+            if(numSteps > 0) {
+                ShipState otherStateTemp = new ShipState(other);
+                for(int i=0; i<numSteps; i++) {
+                    other.update();
+                }
+                shipState.setPredictedPoint(other.pos);
+                otherPos.set(other.pos);
+                other.setState(otherStateTemp);
+            }
+        }
+
+
+
+
         if(hitAsteroid) {
             score = 0;
         } else {
             if(!predatorCaughtPrey()) {
-                double dist = shipState.pos.dist(otherState.pos);
+                double dist = shipState.pos.dist(otherPos);
                 // if the world is wrapped, take the shorter of the two potential distances
                 if(Constants.worldType == Constants.WorldType.WRAPPING) {
                     double dx = Constants.screenWidth - (shipState.pos.x - otherState.pos.x);
@@ -126,6 +171,7 @@ public class PredatorPreyGameState implements IGameState {
         ShipState initialState = new ShipState(ship);
         ShipState initialOtherState = new ShipState(other);
         ProjectileManager.suppressNewProjectiles(true);
+        AsteroidsState initialAsteroidsState = AsteroidManager.saveState();
         //binaryToActions(ship, action);
 //        for(int i=0; i<ship.components.size(); i++) {
 //            if(i == action) ship.components.get(i).active = true;
@@ -139,24 +185,50 @@ public class PredatorPreyGameState implements IGameState {
         // ASSUME OTHER SHIP WILL ACT RANDOMLY
         // space for improvement here, there could be some sort of minimax-style estimation of what the best immediate macro-action for the other ship would be
         // until then assume best
-        //int otherAction = (int)(Constants.rand.nextDouble() * Constants.actions.length);
-        //ShipBiasedMCTSController.useSimpleAction(other, otherAction);
+//        int otherAction = (int)(Constants.rand.nextDouble() * Constants.actions.length);
+//        StateController.useSimpleAction(other, otherAction);
 
 
+        // determine what the most obvious action for the other ship would be based on 1-ply greedy search
+        // GET BEST ACTION FOR NEXT MACRO ACTION STEP (this is going to be slow)
+        // assume within this sub-simulation that the current ship isn't changing its action
+        Picker<Integer> actionPicker = new Picker<Integer>();
+        for(int i =0; i< Constants.actions.length; i++) {
+            ship.setState(shipState);
+            other.setState(otherState);
+            StateController.useSimpleAction(other, i);
+            for(int j=0; j<Constants.macroActionStep; j++) {
+                ship.update();
+                other.update();
+            }
+            double stateScore = new PredatorPreyGameState(ship, shipState, other, otherState, timestepsElapsed + Constants.macroActionStep, isPredator).value();
+            actionPicker.add(stateScore, i);
+        }
+        // use best action for other ship
+        StateController.useSimpleAction(other, actionPicker.getBest());
+
+        ship.setState(shipState);
+        other.setState(otherState);
 
         for(int i =0; i < Constants.macroActionStep; i++) {
             ship.update();
-            //other.update();
+            for(Asteroid a : AsteroidManager.getAsteroids()) {
+                a.update();
+            }
+            other.update();
             timestepsElapsed++;
             depth++;
             if(ship.bounced) bounces++;
             if(isShipAsteroidCollision()) hitAsteroid = true;
         }
         shipState = new ShipState(ship);
-        ship.setState(initialState);
         otherState = new ShipState(other);
+
+        ship.setState(initialState);
         other.setState(initialOtherState);
         ProjectileManager.suppressNewProjectiles(false);
+        AsteroidManager.loadState(initialAsteroidsState);
+
         return this;
     }
 

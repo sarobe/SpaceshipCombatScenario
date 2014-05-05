@@ -37,4 +37,21 @@ public class MathUtil {
         }
         return start.copy().add(v.mul(t));
     }
+
+    // Modification of the above, for lines with a finite start and an infinite length
+    public static Vector2d closestPointLineStart(Vector2d point, Vector2d start, Vector2d direction) {
+        if(direction.mag() == 0) {
+            return start.copy(); // there's no line, it's a point
+        }
+
+        Vector2d v = direction.copy();
+        v.normalise();
+        Vector2d w = point.copy();
+        w.subtract(start);
+        double t = w.scalarProduct(v) / v.scalarProduct(v);
+        if(t < 0) {
+            t = 0;
+        }
+        return start.copy().add(v.mul(t));
+    }
 }

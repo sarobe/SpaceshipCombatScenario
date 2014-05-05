@@ -105,7 +105,9 @@ public class ShipBiasedMCTSController extends StateController {
         for(RollOut rollOut : node.rollOuts) {
             Vector2d prevPos = initialState.getShipState().pos;
             Vector2d nextPos = null;
-            for(Vector2d pos : rollOut.positions) {
+            for(int i = 0; i < rollOut.actions.size(); i++) {
+                Vector2d pos = rollOut.positions.get(i);
+                Vector2d vel = rollOut.velocities.get(i);
                 nextPos = pos;
 
                 // draw states
@@ -113,8 +115,30 @@ public class ShipBiasedMCTSController extends StateController {
                 // TODO: DO ANYTHING MORE EFFICIENT THAN HAVING A DISTANCE CHECK FOR EVERY SINGLE LINE SEGMENT
                 if(nextPos.dist(prevPos) < Constants.screenWidth/2) {
                     float value = (float)rollOut.value;
+                    value = Math.max(value, 0);
+                    value = Math.min(value, 1);
                     g.setColor(new Color(value, value, value));
+                    g.drawOval((int) prevPos.x - 2, (int) prevPos.y - 2, 4, 4);
                     g.drawLine((int) prevPos.x, (int) prevPos.y, (int) nextPos.x, (int) nextPos.y);
+
+                    if(Constants.drawVelocities) {
+                        // draw velocity, low velocity red, high velocity purple
+                        value = (float)(vel.mag()/1000);
+                        if(value > 1) value = 1;
+                        g.setColor(Color.getHSBColor(value, 1.0f, 1.0f));
+                        g.drawLine((int) (pos.x), (int) (pos.y), (int) (pos.x + vel.x), (int) (pos.y + vel.y));
+                    }
+
+                    if(Constants.drawPredictedPoint) {
+                        // draw predicted point
+                        Vector2d predictedPoint = rollOut.gameStates.get(i).getShipState().predictedPoint;
+                        if(predictedPoint != null) {
+                            g.setColor(Color.RED);
+                            //g.drawLine((int) (pos.x), (int) (pos.y), (int) (predictedPoint.x), (int) (predictedPoint.y));
+                            g.drawOval((int)(predictedPoint.x - 5), (int)(predictedPoint.y - 5), 10, 10);
+                        }
+                    }
+
                 }
 
                 prevPos = nextPos;

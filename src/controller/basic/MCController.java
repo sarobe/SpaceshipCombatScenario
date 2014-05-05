@@ -65,6 +65,7 @@ public class MCController extends StateController {
                     int randAct = Constants.rand.nextInt(state.nActions());
                     rolloutState.next(randAct);
                     ro.addAction(randAct);
+                    ro.addPosition(rolloutState.getShipState().pos.copy());
                     if(rolloutState.isTerminal()) break;
                 }
                 double finalValue = rolloutState.value();

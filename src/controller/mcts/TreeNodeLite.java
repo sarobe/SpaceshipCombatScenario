@@ -262,6 +262,8 @@ public class TreeNodeLite {
             }
             rollOutData.addAction(action);
             rollOutData.addPosition(state.getShipState().pos.copy());
+            rollOutData.addVelocity(state.getShipState().vel().copy());
+            rollOutData.addGameState(state);
         }
 
         // one last check
