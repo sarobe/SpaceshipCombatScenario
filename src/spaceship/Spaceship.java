@@ -123,6 +123,7 @@ public abstract class Spaceship extends SimObject {
     }
 
     abstract public void useAction(int action);
+    abstract public void useRawAction(int thrust, int turn);
     abstract public Vector2d getForward();
 
 }

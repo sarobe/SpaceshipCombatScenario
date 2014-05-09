@@ -290,16 +290,19 @@ public class ComplexSpaceship extends Spaceship {
 
     public void useAction(int action) {
         SimpleAction simpleAction = Constants.actions[action];
+        useRawAction(simpleAction.thrust, simpleAction.turn);
+    }
+
+    public void useRawAction(int thrust, int turn) {
         int encodedAction = 0;
-        if(simpleAction.thrust > 0) {
+        if(thrust > 0) {
             encodedAction |= forward;
         }
-        if(simpleAction.turn < 0) {
+        if(turn < 0) {
             encodedAction |= turnCW;
-        } else if(simpleAction.turn > 0) {
+        } else if(turn > 0) {
             encodedAction |= turnCCW;
         }
-
         useEncodedAction(encodedAction);
     }
 
@@ -314,7 +317,7 @@ public class ComplexSpaceship extends Spaceship {
 
         for(int i = 0; i < numActions; i++) {
             rot = 0;
-            useAction(i);
+            useEncodedAction(i);
             update();
 
             // ignore any actions that turn on a turret

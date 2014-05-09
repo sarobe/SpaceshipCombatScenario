@@ -49,8 +49,8 @@ public class PredatorPreyGameState implements IGameState {
 
     public boolean isShipAsteroidCollision() {
         boolean colliding = false;
-        for(Asteroid a : AsteroidManager.getAsteroids()) {
-            if(ship.isColliding(a)) {
+        for (Asteroid a : AsteroidManager.getAsteroids()) {
+            if (ship.isColliding(a)) {
                 colliding = true;
                 break;
             }
@@ -60,7 +60,7 @@ public class PredatorPreyGameState implements IGameState {
 
     @Override
     public boolean isTerminal() {
-        return predatorCaughtPrey() || hitAsteroid ||  (depth > Constants.rolloutDepth) || (timestepsElapsed >= Constants.timesteps);
+        return predatorCaughtPrey() || hitAsteroid || (depth > Constants.rolloutDepth) || (timestepsElapsed >= Constants.timesteps);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class PredatorPreyGameState implements IGameState {
 //        double predictionFactor = 1 - (shipState.pos.dist(otherPos)/MAX_DIST);
 //        otherPos.add(otherState.vel(), predictionFactor * 10);
 
-        if(isPredator) {
+        if (isPredator) {
             // modify other position to be based on a set of circumstances as follows:
 
             // find the point closest to the prey we will be on current velocity course, drawing a line starting here
@@ -97,9 +97,9 @@ public class PredatorPreyGameState implements IGameState {
 
             // given prey maintains velocity, determine where it will end up (remember to factor in collision with walls)
             // use this as the other ship's position
-            if(numSteps > 0) {
+            if (numSteps > 0) {
                 ShipState otherStateTemp = new ShipState(other);
-                for(int i=0; i<numSteps; i++) {
+                for (int i = 0; i < numSteps; i++) {
                     other.update();
                 }
                 shipState.setPredictedPoint(other.pos);
@@ -109,52 +109,49 @@ public class PredatorPreyGameState implements IGameState {
         }
 
 
-
-
-        if(hitAsteroid) {
+        if (hitAsteroid) {
             score = 0;
         } else {
-            if(!predatorCaughtPrey()) {
+            if (!predatorCaughtPrey()) {
                 double dist = shipState.pos.dist(otherPos);
                 // if the world is wrapped, take the shorter of the two potential distances
-                if(Constants.worldType == Constants.WorldType.WRAPPING) {
+                if (Constants.worldType == Constants.WorldType.WRAPPING) {
                     double dx = Constants.screenWidth - (shipState.pos.x - otherState.pos.x);
                     double dy = Constants.screenHeight - (shipState.pos.y - otherState.pos.y);
-                    double wrappedDist = Math.sqrt(dx*dx + dy*dy);
+                    double wrappedDist = Math.sqrt(dx * dx + dy * dy);
                     dist = Math.min(dist, wrappedDist);
                 }
 
 
-
                 // lowest possible distance: 0, theoretically
                 // maximum possible distance: max
-    //            Vector2d desiredHeading;
-    //            // use a vector TO the other ship if predator
-    //            if(isPredator) {
-    //                desiredHeading = otherState.pos.copy().subtract(shipState.pos);
-    //            } else {
-    //                // use a vector AWAY from the other ship if prey
-    //                desiredHeading = shipState.pos.copy().subtract(otherState.pos);
-    //            }
-    //            desiredHeading.normalise();
-    //            Vector2d currentHeading = new Vector2d(shipState.vx, shipState.vy);
-    //            currentHeading.normalise();
-    ////            Vector2d currentHeading = new Vector2d(1,0).rotate(shipState.rot);
-    //            double headingDeviation = currentHeading.dist(desiredHeading);
-    //            // lowest possible deviation: 0 (exactly moving in the desired direction)
-    //            // highest possible deviation: 2 (exactly opposite)
-    //            // scaling factor for making this approach the values used for distance: 1/2
-    //            headingDeviation *= 0.5;
+                //            Vector2d desiredHeading;
+                //            // use a vector TO the other ship if predator
+                //            if(isPredator) {
+                //                desiredHeading = otherState.pos.copy().subtract(shipState.pos);
+                //            } else {
+                //                // use a vector AWAY from the other ship if prey
+                //                desiredHeading = shipState.pos.copy().subtract(otherState.pos);
+                //            }
+                //            desiredHeading.normalise();
+                //            Vector2d currentHeading = new Vector2d(shipState.vx, shipState.vy);
+                //            currentHeading.normalise();
+                ////            Vector2d currentHeading = new Vector2d(1,0).rotate(shipState.rot);
+                //            double headingDeviation = currentHeading.dist(desiredHeading);
+                //            // lowest possible deviation: 0 (exactly moving in the desired direction)
+                //            // highest possible deviation: 2 (exactly opposite)
+                //            // scaling factor for making this approach the values used for distance: 1/2
+                //            headingDeviation *= 0.5;
 
-                if(isPredator) {
-    //                score = (distanceWeighting * ((MAX_DIST - dist)/MAX_DIST)) + (deviationWeighting * headingDeviation);
-                    score = (MAX_DIST - dist)/MAX_DIST;
+                if (isPredator) {
+                    //                score = (distanceWeighting * ((MAX_DIST - dist)/MAX_DIST)) + (deviationWeighting * headingDeviation);
+                    score = (MAX_DIST - dist) / MAX_DIST;
                 } else {
-    //                score = (distanceWeighting * (dist/MAX_DIST)) + (deviationWeighting * headingDeviation);
-                    score = dist/MAX_DIST;
+                    //                score = (distanceWeighting * (dist/MAX_DIST)) + (deviationWeighting * headingDeviation);
+                    score = dist / MAX_DIST;
                 }
             } else {
-                if(isPredator) score = 1;//10000;
+                if (isPredator) score = 1;//10000;
                 else score = 0;//-10000;
             }
         }
@@ -182,44 +179,45 @@ public class PredatorPreyGameState implements IGameState {
         other.setState(otherState);
         StateController.useSimpleAction(ship, action);
 
-        // ASSUME OTHER SHIP WILL ACT RANDOMLY
-        // space for improvement here, there could be some sort of minimax-style estimation of what the best immediate macro-action for the other ship would be
-        // until then assume best
-//        int otherAction = (int)(Constants.rand.nextDouble() * Constants.actions.length);
-//        StateController.useSimpleAction(other, otherAction);
-
-
-        // determine what the most obvious action for the other ship would be based on 1-ply greedy search
-        // GET BEST ACTION FOR NEXT MACRO ACTION STEP (this is going to be slow)
-        // assume within this sub-simulation that the current ship isn't changing its action
-        Picker<Integer> actionPicker = new Picker<Integer>();
-        for(int i =0; i< Constants.actions.length; i++) {
-            ship.setState(shipState);
-            other.setState(otherState);
-            StateController.useSimpleAction(other, i);
-            for(int j=0; j<Constants.macroActionStep; j++) {
-                ship.update();
-                other.update();
+        // determine other ship action for this macro action duration
+        if (Constants.useGreedyInternalModel) {
+            // determine what the most obvious action for the other ship would be based on 1-ply greedy search
+            // GET BEST ACTION FOR NEXT MACRO ACTION STEP (this is going to be slow)
+            // assume within this sub-simulation that the current ship isn't changing its action
+            Picker<Integer> actionPicker = new Picker<Integer>();
+            for (int i = 0; i < Constants.actions.length; i++) {
+                ship.setState(shipState);
+                other.setState(otherState);
+                StateController.useSimpleAction(other, i);
+                for (int j = 0; j < Constants.macroActionStep; j++) {
+                    ship.update();
+                    other.update();
+                }
+                double stateScore = new PredatorPreyGameState(ship, shipState, other, otherState, timestepsElapsed + Constants.macroActionStep, isPredator).value();
+                actionPicker.add(stateScore, i);
             }
-            double stateScore = new PredatorPreyGameState(ship, shipState, other, otherState, timestepsElapsed + Constants.macroActionStep, isPredator).value();
-            actionPicker.add(stateScore, i);
+            // use best action for other ship
+            StateController.useSimpleAction(other, actionPicker.getBest());
+        } else {
+            // use simple random action picking
+            int otherAction = (int) (Constants.rand.nextDouble() * Constants.actions.length);
+            StateController.useSimpleAction(other, otherAction);
         }
-        // use best action for other ship
-        StateController.useSimpleAction(other, actionPicker.getBest());
+
 
         ship.setState(shipState);
         other.setState(otherState);
 
-        for(int i =0; i < Constants.macroActionStep; i++) {
+        for (int i = 0; i < Constants.macroActionStep; i++) {
             ship.update();
-            for(Asteroid a : AsteroidManager.getAsteroids()) {
+            for (Asteroid a : AsteroidManager.getAsteroids()) {
                 a.update();
             }
             other.update();
             timestepsElapsed++;
             depth++;
-            if(ship.bounced) bounces++;
-            if(isShipAsteroidCollision()) hitAsteroid = true;
+            if (ship.bounced) bounces++;
+            if (isShipAsteroidCollision()) hitAsteroid = true;
         }
         shipState = new ShipState(ship);
         otherState = new ShipState(other);
@@ -258,7 +256,7 @@ public class PredatorPreyGameState implements IGameState {
         // and the distance to the nearest edge
         double edgeDist = MAX_DIST;
         // leave as max dist for wrapped world, otherwise calculate actual distance
-        if(Constants.worldType == Constants.WorldType.BOUNDED) {
+        if (Constants.worldType == Constants.WorldType.BOUNDED) {
             double edgeX = Math.min(shipState.pos.x, Constants.screenWidth - shipState.pos.x);
             double edgeY = Math.min(shipState.pos.y, Constants.screenHeight - shipState.pos.y);
             edgeDist = Math.min(edgeX, edgeY);

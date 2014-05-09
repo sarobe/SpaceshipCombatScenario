@@ -5,7 +5,6 @@ import common.math.Vector2d;
 import controller.Controller;
 import controller.mcts.InfluenceMap;
 import controller.mcts.ShipBiasedMCTSController;
-import controller.mcts.SingleMCTSWrapper;
 import main.Runner;
 import spaceship.BasicSpaceship;
 import spaceship.ComplexSpaceship;
@@ -152,6 +151,11 @@ public class SpaceshipIndividualCombatProblem implements IProblem {
     @Override
     public boolean hasEnded() {
         return true;
+    }
+
+    @Override
+    public int getTimesteps() {
+        return timestepsElapsed;
     }
 
     public ComplexSpaceship getInstance(double[] x) {

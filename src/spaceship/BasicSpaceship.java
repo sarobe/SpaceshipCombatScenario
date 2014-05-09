@@ -56,6 +56,10 @@ public class BasicSpaceship extends Spaceship {
         currentAction = Constants.actions[index];
     }
 
+    public void useRawAction(int thrust, int turn) {
+        currentAction = new SimpleAction(thrust, turn);
+    }
+
     public void setState(ShipState state) {
         pos.x = state.px;
         pos.y = state.py;

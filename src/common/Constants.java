@@ -59,6 +59,7 @@ public class Constants {
 
     public static double thrusterRadiusLimit = 0;
     public static int timesteps = 1000;
+//    public static int timesteps = 500;
 
     //public static Rectangle leftTeamStartRect = new Rectangle(0, 0, 450, 768);
     //public static Rectangle rightTeamStartRect = new Rectangle(574, 0, 450, 768);
@@ -93,8 +94,10 @@ public class Constants {
 
     public static int macroActionStep = 30;
     public static int nIts = 1000;
+//    public static int nIts = 200;
     public static int rolloutDepth = 100;
     public static int asteroidPlacementSeed = 88888;
+
 
 
     public static enum WorldType {
@@ -102,6 +105,8 @@ public class Constants {
         WRAPPING,
         CIRCULAR
     }
+//    public static WorldType worldType = WorldType.BOUNDED;
+//    public static WorldType worldType = WorldType.WRAPPING;
     public static WorldType worldType = WorldType.CIRCULAR;
 
     public static int numAsteroids = 4;
@@ -111,4 +116,15 @@ public class Constants {
 
     public static boolean drawVelocities = false;
     public static boolean drawPredictedPoint = true;
+
+    public static boolean useGreedyInternalModel = false;
+
+    public static enum HumanControl {
+        NONE,
+        PREDATOR,
+        PREY
+    }
+    public static HumanControl humanControl = HumanControl.NONE;
+//    public static HumanControl humanControl = HumanControl.PREDATOR;
+//    public static HumanControl humanControl = HumanControl.PREY;
 }

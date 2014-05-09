@@ -19,4 +19,6 @@ public interface IProblem {
     public double fitness(double[] x);
 
     public boolean hasEnded();
+
+    public int getTimesteps();
 }

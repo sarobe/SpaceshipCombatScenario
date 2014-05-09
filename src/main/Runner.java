@@ -35,14 +35,14 @@ public class Runner implements Runnable {
         this.runIndex = runIndex;
 
         //problem = new SpaceshipCombatProblem();
-        problem = new SpaceshipIndividualCombatProblem();
+        problem = new PredatorPreyProblem();
         handler = new CMAHandler(problem, runIndex);
 
         showDemos = true;
     }
 
     public void run() {
-        int demonstrationInterval = 50;//(int)Math.floor(Constants.numEvals / 50);
+        int demonstrationInterval = 10;//(int)Math.floor(Constants.numEvals / 50);
 
 //        if(showDemos) demonstrate();
         while(!handler.hasCompleted()) {
@@ -77,6 +77,7 @@ public class Runner implements Runnable {
                 problem.demonstrate();
                 sv.repaint();
                 Thread.sleep(Constants.delay);
+                if(problem.hasEnded()) runDemo = false;
             }
         } catch (Exception e) {
             e.printStackTrace();
