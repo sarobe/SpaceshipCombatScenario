@@ -28,6 +28,9 @@ public class ComplexSpaceship extends Spaceship {
     // centre of mass
     public Vector2d COM;
 
+    // cached component based forward
+    public Vector2d cachedRawForward;
+
     // some encoded action integers relating to basic ship actions
     public int forward = 0;
     public Vector2d forwardDir;
@@ -73,11 +76,15 @@ public class ComplexSpaceship extends Spaceship {
     public Vector2d getForward() {
         // Calculate the best "forwards" direction of the ship
         // or the direction the ship can move the fastest in a linear direction
-        Vector2d d = new Vector2d();
-        for(SpaceshipComponent sc : components) {
-            d.add(new Vector2d(1, 0).rotate(sc.attachRot));
+        if(cachedRawForward == null) {
+            cachedRawForward = new Vector2d();
+            for(SpaceshipComponent sc : components) {
+                cachedRawForward.add(new Vector2d(1, 0).rotate(sc.attachRot));
+            }
+            cachedRawForward.normalise();
         }
-        d.normalise();
+
+        Vector2d d = cachedRawForward.copy();
         d.rotate(rot);
         return d;
     }
@@ -202,6 +209,9 @@ public class ComplexSpaceship extends Spaceship {
             if(comp.attachPos.mag()/2 > radius) {
                 radius = comp.attachPos.mag()/2;
             }
+
+            // invalidate cached forward
+            cachedRawForward = null;
         }
     }
 
@@ -219,6 +229,12 @@ public class ComplexSpaceship extends Spaceship {
             colliding = hitShape.contains(other.pos.x, other.pos.y);
         }
         return colliding;
+    }
+
+    public void drawExtras(Graphics2D g) {
+        for(SpaceshipComponent c : components) {
+            c.draw(g);
+        }
     }
 
     // Use after ALL COMPONENTS HAVE BEEN ADDED to adjust all positions such

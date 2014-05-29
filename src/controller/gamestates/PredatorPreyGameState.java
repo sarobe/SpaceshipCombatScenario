@@ -5,8 +5,7 @@ import common.math.MathUtil;
 import common.math.Vector2d;
 import common.utilities.Picker;
 import controller.ShipState;
-import controller.StateController;
-import controller.mcts.ShipBiasedMCTSController;
+import controller.statebased.StateController;
 import problem.Asteroid;
 import problem.AsteroidManager;
 import problem.AsteroidsState;
@@ -44,7 +43,14 @@ public class PredatorPreyGameState implements IGameState {
     }
 
     public boolean predatorCaughtPrey() {
-        return shipState.pos.dist(otherState.pos) < (ship.radius + other.radius);
+        ShipState tempShipState = new ShipState(ship);
+        ShipState tempOtherShipState = new ShipState(other);
+        ship.setState(shipState);
+        other.setState(otherState);
+        boolean caught = ship.isColliding(other);
+        ship.setState(tempShipState);
+        other.setState(tempOtherShipState);
+        return caught;
     }
 
     public boolean isShipAsteroidCollision() {
@@ -68,22 +74,12 @@ public class PredatorPreyGameState implements IGameState {
         // return either the increase of distance as a good thing for the prey
         // or the decrease of distance as a good thing for the predator
         double score = 0;
-//        double distanceWeighting = 1;
-//        double deviationWeighting = 1;
 
         Vector2d ourVel = shipState.vel();
         Vector2d otherPos = otherState.pos.copy();
         Vector2d otherVel = other.vel.copy();
 
-        // the further apart the two ships are, the more varied their velocities will be
-        // the closer they are, the more they can be assumed to not change
-        // therefore, assume the velocity will be a reliable predictor of future position in future states
-        // with GREATER CONFIDENCE (higher scalar) when the ships are closer together
-        // and LOWER CONFIDENCE (lower scalar) when the ships are farther apart
-//        double predictionFactor = 1 - (shipState.pos.dist(otherPos)/MAX_DIST);
-//        otherPos.add(otherState.vel(), predictionFactor * 10);
-
-        if (isPredator) {
+        if (isPredator && Constants.usePredictedPreyPos) {
             // modify other position to be based on a set of circumstances as follows:
 
             // find the point closest to the prey we will be on current velocity course, drawing a line starting here
@@ -100,10 +96,10 @@ public class PredatorPreyGameState implements IGameState {
             if (numSteps > 0) {
                 ShipState otherStateTemp = new ShipState(other);
                 for (int i = 0; i < numSteps; i++) {
-                    other.update();
+                    other.update(); // handles wall collision
                 }
-                shipState.setPredictedPoint(other.pos);
-                otherPos.set(other.pos);
+                shipState.setPredictedPoint(other.pos.copy());
+                otherPos.set(other.pos.copy());
                 other.setState(otherStateTemp);
             }
         }
@@ -122,39 +118,22 @@ public class PredatorPreyGameState implements IGameState {
                     dist = Math.min(dist, wrappedDist);
                 }
 
-
-                // lowest possible distance: 0, theoretically
-                // maximum possible distance: max
-                //            Vector2d desiredHeading;
-                //            // use a vector TO the other ship if predator
-                //            if(isPredator) {
-                //                desiredHeading = otherState.pos.copy().subtract(shipState.pos);
-                //            } else {
-                //                // use a vector AWAY from the other ship if prey
-                //                desiredHeading = shipState.pos.copy().subtract(otherState.pos);
-                //            }
-                //            desiredHeading.normalise();
-                //            Vector2d currentHeading = new Vector2d(shipState.vx, shipState.vy);
-                //            currentHeading.normalise();
-                ////            Vector2d currentHeading = new Vector2d(1,0).rotate(shipState.rot);
-                //            double headingDeviation = currentHeading.dist(desiredHeading);
-                //            // lowest possible deviation: 0 (exactly moving in the desired direction)
-                //            // highest possible deviation: 2 (exactly opposite)
-                //            // scaling factor for making this approach the values used for distance: 1/2
-                //            headingDeviation *= 0.5;
-
                 if (isPredator) {
-                    //                score = (distanceWeighting * ((MAX_DIST - dist)/MAX_DIST)) + (deviationWeighting * headingDeviation);
                     score = (MAX_DIST - dist) / MAX_DIST;
                 } else {
-                    //                score = (distanceWeighting * (dist/MAX_DIST)) + (deviationWeighting * headingDeviation);
                     score = dist / MAX_DIST;
                 }
             } else {
-                if (isPredator) score = 1;//10000;
+                if (isPredator) {
+                    double timeBonus = (Constants.timesteps - timestepsElapsed)/(Constants.timesteps + 0.0);
+                    assert(timeBonus >= 0);
+                    assert(timeBonus <= 1);
+                    score = 1 + timeBonus;//10000;   // make the max score 1 + 1 where the first 1 is "caught the enemy" and the second 1 is "in X timesteps"
+                }
                 else score = 0;//-10000;
             }
         }
+
         return score;
     }
 

@@ -3,7 +3,7 @@ package controller.mcts;
 import common.Constants;
 import common.math.Vector2d;
 import controller.ShipState;
-import controller.StateController;
+import controller.statebased.StateController;
 import controller.gamestates.IGameState;
 import ea.FitVectorSource;
 import spaceship.Spaceship;

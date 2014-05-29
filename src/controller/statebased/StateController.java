@@ -1,6 +1,9 @@
-package controller;
+package controller.statebased;
 
+import common.Constants;
 import common.math.Vector2d;
+import controller.Controller;
+import controller.ShipState;
 import controller.gamestates.IGameState;
 import controller.gamestates.PickupGameState;
 import controller.gamestates.PredatorPreyGameState;
@@ -22,29 +25,18 @@ public abstract class StateController extends Controller {
     // A common class for state-based controllers.
     // Remember to adjust what states are constructed! TODO: figure out a better way to vary what states are constructed.
 
-    protected int timesteps;
     protected int currentAction;
 
     public double bestPredictedScore = 0;
 
-    public List<Vector2d> trace;
-
     public boolean terminal = false;
-
-    public Spaceship antagonist; // for predator vs prey
-    public boolean isPredator = true; // for predator vs prey
-
 
     public StateController(Spaceship ship) {
         super(ship);
-        trace = new ArrayList<Vector2d>();
-        timesteps = 0;
     }
 
     public StateController(Spaceship ship, Spaceship antagonist, boolean flag) {
-        this(ship);
-        this.antagonist = antagonist;
-        isPredator = flag;
+        super(ship, antagonist, flag);
     }
 
     public void think(List<SimObject> ships) {
@@ -52,34 +44,12 @@ public abstract class StateController extends Controller {
     }
 
     public void think() {
-        trace.add(new Vector2d(ship.pos));
+        super.think();
         terminal = constructState().isTerminal();
         if(terminal) bestPredictedScore = constructState().value();
-        timesteps++;
     }
 
-    public void draw(Graphics2D g) {
-        AffineTransform at = g.getTransform();
 
-        g.translate(ship.pos.x, ship.pos.y);
-        g.setColor(Color.YELLOW);
-        g.drawOval((int)(-ship.radius), (int)(-ship.radius), (int)(ship.radius*2), (int)(ship.radius*2));
-
-        Vector2d shipForward = ship.getForward();
-        g.drawLine(0, 0, (int)(shipForward.x * 20), (int)(shipForward.y * 20));
-
-        g.setTransform(at);
-
-        // draw ship trail
-        if(isPredator) g.setColor(Color.BLUE);
-        else g.setColor(Color.ORANGE);
-
-        Vector2d lastP = trace.get(0);
-        for(Vector2d p : trace) {
-            g.drawLine((int)p.x, (int)p.y, (int)lastP.x, (int)lastP.y);
-            lastP = p;
-        }
-    }
 
     public IGameState constructState() {
         IGameState currentState;
@@ -111,6 +81,15 @@ public abstract class StateController extends Controller {
 
     public double getScore() {
         return constructState().value();
+    }
+
+    public static double getScoreForPredatorPrey(Spaceship ship, Spaceship antagonist, boolean isPredator, int timesteps) {
+        IGameState gameState = new PredatorPreyGameState(ship, new ShipState(ship), antagonist, new ShipState(antagonist), timesteps, isPredator);
+        boolean temp = Constants.usePredictedPreyPos;
+        Constants.usePredictedPreyPos = false;
+        double value = gameState.value();
+        Constants.usePredictedPreyPos = temp;
+        return value;
     }
 
 }

@@ -1,11 +1,14 @@
 package problem;
 
 import common.Constants;
+import controller.ConditionActionController;
 import controller.Controller;
-import controller.HumanStateController;
-import controller.StateController;
+import controller.statebased.HumanStateController;
+import controller.statebased.StateController;
 import controller.mcts.InfluenceMap;
 import controller.mcts.ShipBiasedMCTSController;
+import controller.statebased.basic.GreedyController;
+import controller.statebased.basic.MCController;
 import main.HumanStateControllerKeyHandler;
 import main.Runner;
 import spaceship.BasicSpaceship;
@@ -55,7 +58,12 @@ public class PredatorPreyProblem implements IProblem {
         AsteroidManager.placeAsteroids(Constants.asteroidPlacementSeed);
 
         // get the best ship to be predator
-        predator = new ComplexSpaceship(bestChromosome);
+        if(populationData.length > 1) {
+            predator = new ComplexSpaceship(bestChromosome);
+        } else {
+            predator = new ComplexSpaceship(populationData[0]);
+        }
+
 
         // set up a basic prey ship
         prey = new BasicSpaceship();
@@ -68,8 +76,16 @@ public class PredatorPreyProblem implements IProblem {
         ships.add(predator);
         ships.add(prey);
 
-        conts.add(new ShipBiasedMCTSController(predator, prey, true));
-        conts.add(new ShipBiasedMCTSController(prey, predator, false));
+//        conts.add(new GreedyController(predator, prey, true));
+//        conts.add(new MCController(predator, prey, true));
+//        conts.add(new ShipBiasedMCTSController(predator, prey, true));
+        conts.add(new ConditionActionController(predator, prey, true));
+
+//        conts.add(new RandomController(prey, predator, false));
+//        conts.add(new NullController(prey, predator, false));
+//        conts.add(new ShipBiasedMCTSController(prey, predator, false));
+//        conts.add(new ConditionActionController(predator, prey, true));
+        conts.add(new GreedyController(prey, predator, false));
     }
 
     public void demonstrationInit() {
@@ -108,7 +124,8 @@ public class PredatorPreyProblem implements IProblem {
             // add ai
 //            conts.add(new GreedyController(predator, prey, true));
 //            conts.add(new MCController(predator, prey, true));
-            conts.add(new ShipBiasedMCTSController(predator, prey, true));
+//            conts.add(new ShipBiasedMCTSController(predator, prey, true));
+            conts.add(new ConditionActionController(predator, prey, true));
         }
 
         // PREY CONTROLLER
@@ -120,7 +137,10 @@ public class PredatorPreyProblem implements IProblem {
         } else {
 //            conts.add(new RandomController(prey, predator, false));
 //            conts.add(new NullController(prey, predator, false));
-            conts.add(new ShipBiasedMCTSController(prey, predator, false));
+//            conts.add(new ShipBiasedMCTSController(prey, predator, false));
+            //conts.add(new ConditionActionController(predator, prey, true));
+            conts.add(new GreedyController(prey, predator, false));
+//            conts.add(new MCController(prey, predator, false));
         }
 
     }
@@ -193,9 +213,11 @@ public class PredatorPreyProblem implements IProblem {
         ship.pos.set(Constants.predatorStartPos);
         antagonistShip.pos.set(Constants.preyStartPos);
 
-        StateController shipController = new ShipBiasedMCTSController(ship, antagonistShip, true);
-        StateController antagonistController = new ShipBiasedMCTSController(antagonistShip, ship, false);
-
+//        StateController shipController = new ShipBiasedMCTSController(ship, antagonistShip, true);
+//        StateController antagonistController = new ShipBiasedMCTSController(antagonistShip, ship, false);
+        Controller shipController = new ConditionActionController(ship, antagonistShip, true);
+//        Controller antagonistController = new ConditionActionController(antagonistShip, ship, false);
+        Controller antagonistController = new GreedyController(antagonistShip, ship, false);
         // Simulate.
         double score = 0;
         int timesteps = 0;
@@ -228,6 +250,9 @@ public class PredatorPreyProblem implements IProblem {
             bestChromosomeScore = score;
             bestChromosome = Arrays.copyOf(x, x.length);
         }
+
+        // Flip for CMA!
+        score = 2 - score;
 
         return score;
     }

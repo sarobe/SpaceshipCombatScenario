@@ -288,6 +288,11 @@ public class ShipActionController extends Controller {
         think(ships);
     }
 
+    @Override
+    public double getScore() {
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     public void draw(Graphics2D g) {
         AffineTransform at = g.getTransform();
         g.translate(ship.pos.x, ship.pos.y);

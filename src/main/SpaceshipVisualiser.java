@@ -18,6 +18,7 @@ public class SpaceshipVisualiser extends JComponent {
     private IProblem problem;
 
     public static Font statFont = new Font("sans serif", Font.PLAIN, 4);
+    public static Color bgColor = new Color(0x5B8659);
 
     public SpaceshipVisualiser(IProblem problem) {
         this.problem = problem;
@@ -25,10 +26,10 @@ public class SpaceshipVisualiser extends JComponent {
 
     public void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D)g;
-        g2d.setColor(Color.GRAY);
+        g2d.setColor(bgColor);
         g2d.fillRect(0, 0, Constants.screenWidth, Constants.screenHeight);
 
-        if(InfluenceMap.getMap() != null) {
+        /*if(InfluenceMap.getMap() != null) {
             for(int y=0; y<InfluenceMap.getHeight(); y++) {
                 for(int x=0; x<InfluenceMap.getWidth(); x++) {
                     double value = InfluenceMap.getValueAtCell(x, y);
@@ -36,10 +37,10 @@ public class SpaceshipVisualiser extends JComponent {
                     g.setColor(Color.getHSBColor(0.3f, (float)colorValue, 0.3f));
                     g.fillRect(x*InfluenceMap.CELL_SIZE, y*InfluenceMap.CELL_SIZE, InfluenceMap.CELL_SIZE, InfluenceMap.CELL_SIZE);
                     g.setColor(Color.getHSBColor(0.3f, (float)colorValue, 0.6f));
-                    ((Graphics2D) g).drawString(String.format("%.2f", value), (x*InfluenceMap.CELL_SIZE) + 4, (y*InfluenceMap.CELL_SIZE) + 14);
+                    g.drawString(String.format("%.2f", value), (x*InfluenceMap.CELL_SIZE) + 4, (y*InfluenceMap.CELL_SIZE) + 14);
                 }
             }
-        }
+        }*/
 
         if(Constants.worldType == Constants.WorldType.CIRCULAR) {
             g.setColor(Color.WHITE);

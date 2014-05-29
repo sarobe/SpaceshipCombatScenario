@@ -91,6 +91,11 @@ public class PlayerController extends Controller {
        // this needs a massive overhaul
     }
 
+    @Override
+    public double getScore() {
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     public void think(PlayerAction action) {
         int actionToExecute = 0;
 

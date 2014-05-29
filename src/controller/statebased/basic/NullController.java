@@ -1,6 +1,6 @@
-package controller.basic;
+package controller.statebased.basic;
 
-import controller.StateController;
+import controller.statebased.StateController;
 import spaceship.SimObject;
 import spaceship.Spaceship;
 

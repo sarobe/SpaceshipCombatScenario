@@ -1,9 +1,9 @@
-package controller.basic;
+package controller.statebased.basic;
 
 import common.Constants;
 import common.utilities.Picker;
 import controller.ShipState;
-import controller.StateController;
+import controller.statebased.StateController;
 import controller.mcts.RollOut;
 import controller.gamestates.IGameState;
 import spaceship.Spaceship;
@@ -115,8 +115,7 @@ public class MCController extends StateController {
 
                 // draw states
                 // calculate the relative value on a 0 - 1 scale of the value of this action
-                // no longer needed to calculate the relative value, the value can ONLY BE 0 to 1
-                float value = (float)rollOut.value;
+                float value = (float)(rollOut.value/2);
                 g.setColor(new Color(value, value, value));
                 g.drawLine((int) prevState.px, (int) prevState.py, (int) nextState.px, (int) nextState.py);
 

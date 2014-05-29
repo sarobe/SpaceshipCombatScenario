@@ -25,7 +25,7 @@ public class Constants {
     public static boolean usePickups = true;
 
     public static int numComponents = 5;
-    public static int numWeights = 4;
+    public static int numWeights = 6;
     public static double startingStdDev = 100;
     public static double positionScale = 1;
     public static double componentScale = 0.1;
@@ -78,7 +78,7 @@ public class Constants {
 
 
     public static Vector2d predatorStartPos = new Vector2d(500, 600);
-    public static Vector2d preyStartPos = new Vector2d(200, 300);
+    public static Vector2d preyStartPos = new Vector2d(700, 300);
 
     public static SimpleAction[] actions;
     static {
@@ -96,7 +96,7 @@ public class Constants {
     public static int nIts = 1000;
 //    public static int nIts = 200;
     public static int rolloutDepth = 100;
-    public static int asteroidPlacementSeed = 88888;
+    public static int asteroidPlacementSeed = 106839;
 
 
 
@@ -109,15 +109,17 @@ public class Constants {
 //    public static WorldType worldType = WorldType.WRAPPING;
     public static WorldType worldType = WorldType.CIRCULAR;
 
-    public static int numAsteroids = 4;
+    public static int numAsteroids = 3;
     public static double minAsteroidRadius = 5;
     public static double maxAsteroidRadius = 15;
-    public static double maxVelocityRange = 40;
+    public static double maxVelocityRange = 20;
 
     public static boolean drawVelocities = false;
     public static boolean drawPredictedPoint = true;
 
     public static boolean useGreedyInternalModel = false;
+
+    public static boolean usePredictedPreyPos = true;
 
     public static enum HumanControl {
         NONE,

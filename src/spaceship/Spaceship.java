@@ -91,6 +91,8 @@ public abstract class Spaceship extends SimObject {
         g.setColor(Color.GRAY);
         g.drawPolygon(hullShape);
 
+        drawExtras(g);
+
         if(justHit) {
             g.setColor(Color.WHITE);
             g.fillPolygon(hullShape);
@@ -120,6 +122,11 @@ public abstract class Spaceship extends SimObject {
 
 
         g.setTransform(at);
+    }
+
+
+    public void drawExtras(Graphics2D g) {
+        // purposefully left empty for some subclasses to override with any extra ship details
     }
 
     abstract public void useAction(int action);

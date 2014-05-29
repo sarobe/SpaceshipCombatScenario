@@ -1,7 +1,6 @@
-package controller;
+package controller.statebased;
 
 import common.math.Vector2d;
-import controller.StateController;
 import spaceship.Spaceship;
 
 import java.awt.*;

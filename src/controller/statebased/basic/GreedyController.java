@@ -1,8 +1,8 @@
-package controller.basic;
+package controller.statebased.basic;
 
 import common.Constants;
 import common.utilities.Picker;
-import controller.StateController;
+import controller.statebased.StateController;
 import controller.gamestates.IGameState;
 import spaceship.Spaceship;
 

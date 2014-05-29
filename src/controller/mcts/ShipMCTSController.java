@@ -67,6 +67,11 @@ public class ShipMCTSController extends Controller {
 //        }
     }
 
+    @Override
+    public double getScore() {
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     public int getAction(IGameState state) {
         TreeNodeLite tn = new TreeNodeLite(roller);
         tn.mctsSearch(state, nIts);

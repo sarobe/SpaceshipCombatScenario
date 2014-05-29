@@ -1,6 +1,6 @@
 package main;
 
-import controller.HumanStateController;
+import controller.statebased.HumanStateController;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;

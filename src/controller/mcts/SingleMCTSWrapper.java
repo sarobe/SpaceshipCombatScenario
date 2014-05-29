@@ -63,6 +63,11 @@ public class SingleMCTSWrapper extends Controller {
         useSimpleAction(ship, currentAction);
     }
 
+    @Override
+    public double getScore() {
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     public int getAction(IGameState state) {
         int action = cont.getAction(state, System.currentTimeMillis()+timeAllowance);
         lastPlayoutInfo = (PlayoutPickupInfo)cont.m_player.getPlayoutInfo();
