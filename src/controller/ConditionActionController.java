@@ -26,35 +26,56 @@ public class ConditionActionController extends Controller {
     public double turnTolerance;
     public double brakeUntilSpeed;
 
+    public int lastFwd = 0;
+    public int lastTrn = 0;
+
+    public static Font stateFont = new Font("sans serif", Font.PLAIN, 12);
+
+    public ActionState state;
+    enum ActionState {
+        NONE,
+        APPROACHING_TARGET,
+        AVOIDING_ASTEROID,
+        AVOIDING_EDGE
+    }
+
     public static double VISUALISER_SCALING = 30;
 
     public ConditionActionController(Spaceship ship) {
         super(ship);
+        init();
         useDefaultParameters();
     }
 
     public ConditionActionController(ComplexSpaceship ship) {
         super(ship);
+        init();
         useChromosomeParameters(ship.chromosome);
     }
 
     public ConditionActionController(Spaceship ship, Spaceship antagonist, boolean flag) {
         super(ship, antagonist, flag);
+        init();
         useDefaultParameters();
     }
 
     public ConditionActionController(ComplexSpaceship ship, Spaceship antagonist, boolean flag) {
         super(ship, antagonist, flag);
+        init();
         useChromosomeParameters(ship.chromosome);
+    }
+
+    public void init() {
+        state = ActionState.NONE;
     }
 
     public void useDefaultParameters() {
         shipDistanceThreshold = 100;
         asteroidDistanceThreshold = 150;
         worldEdgeDistanceThreshold = 100;
-        moveSpeed = 200;
-        turnTolerance = Math.PI/8;
-        brakeUntilSpeed = 50;
+        moveSpeed = 500;
+        turnTolerance = Math.PI/16;
+        brakeUntilSpeed = 100;
     }
 
     public void useChromosomeParameters(double[] chromosome) {
@@ -80,40 +101,56 @@ public class ConditionActionController extends Controller {
         int turn = 0;
 
         // determine in advance the values for different actions
-        int[] brakeAction = brake(brakeUntilSpeed);
         int moveAction = moveToPoint(antagonist.pos, moveSpeed);
         int turnAction = turnToPoint(antagonist.pos, turnTolerance);
 
         // IMPORTANT: HIGHEST PRIORITY HAPPENS LAST
         // PRIORITY:
         // AVOID ASTEROID
-        // TARGET
         // AVOID EDGE
+        // TARGET
+
+
+        // UNUSED - MOVE TO TARGET SHIP AT ALL TIMES INSTEAD
+        thrust = moveAction;
+        turn = turnAction;
+        state = ActionState.APPROACHING_TARGET;
 
         // IF DISTANCE TO WORLD EDGE < DISTANCE THRESHOLD
-        if(getEdgeDistance() < worldEdgeDistanceThreshold) {
+        if(getEdgeDistance() < worldEdgeDistanceThreshold && ship.vel.mag() > brakeUntilSpeed) {
+            int[] brakeAction = brake(getClosestEdgePoint(), brakeUntilSpeed);
             thrust = brakeAction[0];
             turn = brakeAction[1];
+            state = ActionState.AVOIDING_EDGE;
         }
 
-        // IF TARGET SHIP < DISTANCE THRESHOLD
-        if(ship.pos.dist(antagonist.pos) < shipDistanceThreshold) {
-            thrust = brakeAction[0];
-            turn = brakeAction[1];
-        } else {
-            thrust = moveAction;
-            turn = turnAction;
-        }
+        // UNUSED - MOVE TO TARGET SHIP AT ALL TIMES INSTEAD
+
+//        // IF TARGET SHIP < DISTANCE THRESHOLD
+//        if(ship.pos.dist(antagonist.pos) < shipDistanceThreshold) {
+//            thrust = brakeAction[0];
+//            turn = brakeAction[1];
+//        } else {
+//            thrust = moveAction;
+//            turn = turnAction;
+//        }
+
+
 
         // IF NEAREST ASTEROID < DISTANCE THRESHOLD
-        if(getNearestAsteroidDistance() < worldEdgeDistanceThreshold) {
+        Vector2d nearestAsteroidPos = getNearestAsteroidPosition();
+        if(ship.pos.dist(nearestAsteroidPos) < worldEdgeDistanceThreshold) {
+            int[] brakeAction = brake(nearestAsteroidPos, brakeUntilSpeed);
             thrust = brakeAction[0];
             turn = brakeAction[1];
+            state = ActionState.AVOIDING_ASTEROID;
         }
 
 
         // finally use the decisions we have made
         ship.useRawAction(thrust, turn);
+        lastFwd = thrust;
+        lastTrn = turn;
     }
 
 
@@ -128,7 +165,40 @@ public class ConditionActionController extends Controller {
         AffineTransform at = g.getTransform();
         g.translate(ship.pos.x, ship.pos.y);
 
+        // draw forward direction
+        Vector2d fwd = ship.getForward();
+        g.setColor(Color.CYAN);
+        g.drawLine(0, 0, (int)fwd.x * 3, (int)fwd.y * 3);
+
+//        // draw counter-velocity direction (braking direction)
+//        Vector2d brake = ship.vel.copy().rotate(Math.PI);
+//        g.setColor(Color.RED);
+//        g.drawLine(0, 0, (int)brake.x, (int)brake.y);
+
+        // draw what the controller's trying to do
+        g.setColor(Color.WHITE);
+        g.setFont(stateFont);
+        String stateLabel = "";
+        switch(state) {
+            case APPROACHING_TARGET:
+                stateLabel = "Goto Target";
+                break;
+            case AVOIDING_ASTEROID:
+                stateLabel = "Avoid Asteroid";
+                break;
+            case AVOIDING_EDGE:
+                stateLabel = "Avoid Edge";
+                break;
+        }
+        String actionLabel = "{ Fwd: " + lastFwd + ", Trn: " + lastTrn + " }";
+        g.drawString(stateLabel, -30, -45);
+        g.drawString(actionLabel, -40, -25);
         g.setTransform(at);
+
+        // draw closest edge point
+        Vector2d edgePoint = getClosestEdgePoint();
+        g.setColor(Color.RED);
+        g.drawOval((int)(edgePoint.x - 5), (int)(edgePoint.y - 5), 10, 10);
     }
 
     public double getEdgeDistance() {
@@ -152,13 +222,38 @@ public class ConditionActionController extends Controller {
         return edgeDistance;
     }
 
-    public double getNearestAsteroidDistance() {
+    public Vector2d getClosestEdgePoint() {
+        Vector2d edgePoint = new Vector2d();
+        switch(Constants.worldType) {
+            case BOUNDED:
+                edgePoint.x =  ship.pos.x < Constants.screenWidth/2 ? 0 : Constants.screenWidth;
+                edgePoint.y =  ship.pos.y < Constants.screenHeight/2 ? 0 : Constants.screenHeight;
+                break;
+            case WRAPPING:
+                // kind of a meaningless answer
+                edgePoint.set(ship.pos);
+                break;
+            case CIRCULAR:
+                Vector2d circleOrigin = new Vector2d(Constants.screenWidth/2, Constants.screenHeight/2);
+                double circleRadius = Math.min(Constants.screenWidth, Constants.screenHeight)/2;
+                double dx = ship.pos.x - circleOrigin.x;
+                double dy = ship.pos.y - circleOrigin.y;
+                double theta = Math.atan2(dy, dx);
+                edgePoint.x = circleOrigin.x + circleRadius * Math.cos(theta);
+                edgePoint.y = circleOrigin.y + circleRadius * Math.sin(theta);
+                break;
+        }
+
+        return edgePoint;
+    }
+
+    public Vector2d getNearestAsteroidPosition() {
         List<Asteroid> asteroids = AsteroidManager.getAsteroids();
         Picker<Asteroid> p = new Picker<Asteroid>(Picker.MIN_FIRST);
         for(Asteroid a : asteroids) {
             p.add(a.pos.dist(ship.pos), a);
         }
-        return p.getBestScore();
+        return p.getBest().pos.copy();
     }
 
     public int moveToPoint(Vector2d point, double maxSpeed) {
@@ -166,7 +261,7 @@ public class ConditionActionController extends Controller {
         // and we're under the max speed
         // accelerate
         // otherwise don't
-        if(point.dist(ship.pos) > (ship.vel.mag() / Constants.dt) && (ship.vel.mag() < maxSpeed)) {
+        if(point.dist(ship.pos) > (ship.vel.mag() * Constants.dt) && (ship.vel.mag() < maxSpeed)) {
             return 1;
         } else {
             return 0;
@@ -176,11 +271,16 @@ public class ConditionActionController extends Controller {
     public int turnToPoint(Vector2d point, double tolerance) {
         // determine angle to turn to
         Vector2d targetHeading = point.copy().subtract(ship.pos).normalise();
-        double angle = targetHeading.angBetween(ship.getForward());
+        double angleA = Math.atan2(ship.getForward().y, ship.getForward().x);
+        double angleB = Math.atan2(targetHeading.y, targetHeading.x);
+        double angle = angleA - angleB;
+        // angle used purely for tolerance
+
+        double crossProd = targetHeading.crossProduct(ship.getForward());
 
         if(Math.abs(angle) > tolerance) {
             // turn!
-            if(angle >= 0) {
+            if(crossProd < 0) {
                 return 1;
             } else {
                 return -1;
@@ -191,9 +291,10 @@ public class ConditionActionController extends Controller {
         }
     }
 
-    public int[] brake(double maxSpeed) {
+    public int[] brake(Vector2d hazardPoint, double maxSpeed) {
         // find angle to turn to (opposite of current velocity heading)
-        Vector2d targetMovePoint = ship.vel.copy().rotate(Math.PI);
+        //Vector2d targetMovePoint = ship.vel.copy().rotate(Math.PI);
+        Vector2d targetMovePoint = ship.pos.copy().add(hazardPoint.copy().subtract(ship.pos), -1); // move to opposite direction of hazard point
         int turnAction = turnToPoint(targetMovePoint, turnTolerance);
         int moveAction;
 
@@ -204,7 +305,7 @@ public class ConditionActionController extends Controller {
         } else {
             moveAction = 0;
         }
-        // return both thrust action and turn action
+//        return both thrust action and turn action
         int[] brakeAction = new int[2];
         brakeAction[0] = moveAction;
         brakeAction[1] = turnAction;

@@ -153,4 +153,8 @@ public class Vector2d {
         }
         return this;
     }
+
+    // THIS IS A SHORTHAND HACK FOR "GET THE Z COMPONENT OF THE CROSS PRODUCT OF TWO 2D VECTORS BEING TREATED AS 3D VECTORS"
+    public double crossProduct(Vector2d vec) { return (x*vec.y) - y*vec.x; }
+
 }

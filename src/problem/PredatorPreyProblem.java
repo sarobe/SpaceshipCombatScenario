@@ -150,8 +150,8 @@ public class PredatorPreyProblem implements IProblem {
 
             for (Asteroid a : AsteroidManager.getAsteroids()) {
                 a.update();
-                if (a.isColliding(predator)) terminal = true;
-                if (a.isColliding(prey)) terminal = true;
+                if (predator.isColliding(a)) terminal = true;
+                if (prey.isColliding(a)) terminal = true;
             }
 
             for (Controller c : conts) {
@@ -225,8 +225,8 @@ public class PredatorPreyProblem implements IProblem {
         while(timesteps < Constants.timesteps) {
             for (Asteroid a : AsteroidManager.getAsteroids()) {
                 a.update();
-                if (a.isColliding(ship)) break;
-                if (a.isColliding(antagonistShip)) break;
+                if (ship.isColliding(a)) break;
+                if (antagonistShip.isColliding(a)) break;
             }
 
             shipController.think();
@@ -252,6 +252,8 @@ public class PredatorPreyProblem implements IProblem {
         }
 
         // Flip for CMA!
+        assert(score >= 0);
+        assert(score < 2);
         score = 2 - score;
 
         return score;
