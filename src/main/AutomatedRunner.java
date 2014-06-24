@@ -9,7 +9,7 @@ import strategy.IStrategy;
 import java.io.*;
 import java.util.*;
 
-public class AutoRunner {
+public class AutomatedRunner {
 
     static Set<Runner> activeRuns;
 
