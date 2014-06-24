@@ -32,6 +32,7 @@ public class AutomatedRunner {
         for(int i=0; i<totalControllers; ++i) {
             // Change to specific controller
             currentController = controllerEnumArray[i];
+            RunParameters.runShipController = currentController;
             System.out.println("- Switching to controller " + currentController);
 
             for(int j=0; j<totalParameters; j++) {
@@ -42,13 +43,14 @@ public class AutomatedRunner {
                     System.out.println("--- Using index " + k);
 
                     for(int l=0; l<numTrials; l++) {
-                        System.out.println("---- Trial " + l + "/" + numTrials);
+                        System.out.println("---- Trial " + (l+1) + "/" + numTrials);
                         Runner r = startNewRun(getNextRunIndex(), currentController, currentVariable, k);
                         activeRuns.add(r);
 
                         // don't allow more than two concurrent runs
                         // wait for an existing run to finish
-                        if(activeRuns.size() >= 2) {
+                        // ACTUALLY RIGHT NOW CONCURRENT RUNS AREN'T POSSIBLE, ONLY ALLOW ONE EVER
+                        if(activeRuns.size() >= 1) {
                             boolean waitingForVacancy = true;
                             while(waitingForVacancy) {
                                 Set<Runner> livingRuns = new HashSet<Runner>();
@@ -58,7 +60,7 @@ public class AutomatedRunner {
                                     }
                                 }
                                 activeRuns = livingRuns;
-                                waitingForVacancy = activeRuns.size() < 2;
+                                waitingForVacancy = activeRuns.isEmpty();//activeRuns.size() < 2;
                                 Thread.sleep(10000);
                             }
                         }
