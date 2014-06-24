@@ -18,6 +18,7 @@ public class Runner implements Runnable {
     boolean runDemo;
     boolean showDemos;
     int runIndex;
+    boolean isRunning = false;
 
     public static void main(String[] args) {
 
@@ -38,7 +39,8 @@ public class Runner implements Runnable {
         problem = new PredatorPreyProblem();
         handler = new CMAHandler(problem, runIndex);
 
-        showDemos = true;
+        showDemos = false;
+        isRunning = true;
     }
 
     public void run() {
@@ -48,16 +50,21 @@ public class Runner implements Runnable {
         while(!handler.hasCompleted()) {
             //problem.runCombat(handler.getPopulation());
             handler.run();
-            if((handler.getIterations()% demonstrationInterval == 2) && showDemos) {  //% demonstrationInterval
-                demonstrate();
-            }
+//            if((handler.getIterations()% demonstrationInterval == 2) && showDemos) {  //% demonstrationInterval
+//                demonstrate();
+//            }
         }
         handler.finish();
         System.out.println("Function evaluations: " + handler.getFuncEvals());
+        isRunning = false;
         // show a graph after finishing
         //Grapher.drawGraph(runIndex);
 
-        demonstrate();
+        //demonstrate();
+    }
+
+    public boolean isRunning() {
+        return isRunning;
     }
 
     public void demonstrate() {

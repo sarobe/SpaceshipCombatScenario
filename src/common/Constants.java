@@ -31,7 +31,7 @@ public class Constants {
     public static double componentScale = 0.1;
     public static double weightScale = 0.01;
 
-    public static double defaultThrust = 1000;
+    public static double thrusterThrust = 1000;
     public static double defaultFireVel = 10000;
     public static double defaultProjectileHarm = 10;
     public static double projectileLifetime = 3.0; // seconds

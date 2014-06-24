@@ -1,8 +1,10 @@
 package problem;
 
 import common.Constants;
+import common.RunParameters;
 import controller.ConditionActionController;
 import controller.Controller;
+import controller.neuralnet.BasicPerceptronController;
 import controller.statebased.HumanStateController;
 import controller.statebased.StateController;
 import controller.mcts.InfluenceMap;
@@ -13,6 +15,7 @@ import main.HumanStateControllerKeyHandler;
 import main.Runner;
 import spaceship.BasicSpaceship;
 import spaceship.ComplexSpaceship;
+import spaceship.SimObject;
 import spaceship.Spaceship;
 
 import java.util.ArrayList;
@@ -57,16 +60,15 @@ public class PredatorPreyProblem implements IProblem {
 
         AsteroidManager.placeAsteroids(Constants.asteroidPlacementSeed);
 
-        // get the best ship to be predator
+        // get the best ship to be predator AND prey
         if(populationData.length > 1) {
             predator = new ComplexSpaceship(bestChromosome);
+            prey = new ComplexSpaceship(bestChromosome);
         } else {
             predator = new ComplexSpaceship(populationData[0]);
+            prey = new ComplexSpaceship(populationData[0]);
         }
 
-
-        // set up a basic prey ship
-        prey = new BasicSpaceship();
 
         // place the two ships apart
 
@@ -76,16 +78,8 @@ public class PredatorPreyProblem implements IProblem {
         ships.add(predator);
         ships.add(prey);
 
-//        conts.add(new GreedyController(predator, prey, true));
-//        conts.add(new MCController(predator, prey, true));
-//        conts.add(new ShipBiasedMCTSController(predator, prey, true));
-        conts.add(new ConditionActionController(predator, prey, true));
-
-//        conts.add(new RandomController(prey, predator, false));
-//        conts.add(new NullController(prey, predator, false));
-//        conts.add(new ShipBiasedMCTSController(prey, predator, false));
-//        conts.add(new ConditionActionController(predator, prey, true));
-        conts.add(new GreedyController(prey, predator, false));
+        conts.add(RunParameters.getAppropriateController(RunParameters.runShipController, predator, prey, true));
+        conts.add(RunParameters.getAppropriateController(RunParameters.runShipController, prey, predator, false));
     }
 
     public void demonstrationInit() {
@@ -125,7 +119,8 @@ public class PredatorPreyProblem implements IProblem {
 //            conts.add(new GreedyController(predator, prey, true));
 //            conts.add(new MCController(predator, prey, true));
 //            conts.add(new ShipBiasedMCTSController(predator, prey, true));
-            conts.add(new ConditionActionController(predator, prey, true));
+//            conts.add(new ConditionActionController(predator, prey, true));
+            conts.add(new BasicPerceptronController(predator, prey, true));
         }
 
         // PREY CONTROLLER
@@ -139,8 +134,8 @@ public class PredatorPreyProblem implements IProblem {
 //            conts.add(new NullController(prey, predator, false));
 //            conts.add(new ShipBiasedMCTSController(prey, predator, false));
             //conts.add(new ConditionActionController(predator, prey, true));
-            conts.add(new GreedyController(prey, predator, false));
-//            conts.add(new MCController(prey, predator, false));
+//            conts.add(new GreedyController(prey, predator, false));
+            conts.add(new MCController(prey, predator, false));
         }
 
     }
@@ -195,9 +190,6 @@ public class PredatorPreyProblem implements IProblem {
 
     @Override
     public double fitness(double[] x) {
-        // ONLY EVOLVES PREDATOR AT THE MOMENT
-        // TODO: MEANS OF DETERMINING WHETHER TO EVALUATE CHROMOSOME AS PREY OR NOT (VALUE AT THE END OF THE ARRAY IGNORED BY OTHER PROBLEMS?)
-
         // Reset simulation state.
         ProjectileManager.reset();
         AsteroidManager.reset();
@@ -213,12 +205,53 @@ public class PredatorPreyProblem implements IProblem {
         ship.pos.set(Constants.predatorStartPos);
         antagonistShip.pos.set(Constants.preyStartPos);
 
-//        StateController shipController = new ShipBiasedMCTSController(ship, antagonistShip, true);
-//        StateController antagonistController = new ShipBiasedMCTSController(antagonistShip, ship, false);
-        Controller shipController = new ConditionActionController(ship, antagonistShip, true);
-//        Controller antagonistController = new ConditionActionController(antagonistShip, ship, false);
-        Controller antagonistController = new GreedyController(antagonistShip, ship, false);
+        // Run once with ship as predator.
+        Controller shipController = RunParameters.getAppropriateController(RunParameters.runShipController, ship, antagonistShip, true);
+        Controller antagonistController = RunParameters.getAppropriateController(RunParameters.runShipController, ship, antagonistShip, false);
         // Simulate.
+        double predScore = runSimulation(ship, antagonistShip, shipController, antagonistController);
+
+        // Reset state.
+        ProjectileManager.reset();
+        AsteroidManager.reset();
+        AsteroidManager.placeAsteroids(Constants.asteroidPlacementSeed);
+
+        // Reset and swap the ships.
+        ship.pos.set(Constants.preyStartPos);
+        ship.vel.zero();
+        ship.rot = 0;
+        ship.rotvel = 0;
+
+        antagonistShip.pos.set(Constants.predatorStartPos);
+        antagonistShip.vel.zero();
+        antagonistShip.rot = 0;
+        antagonistShip.rotvel = 0;
+
+        // Flip the controllers.
+        shipController.isPredator = false;
+        antagonistController.isPredator = true;
+
+        // Simulate.
+        double preyScore = runSimulation(ship, antagonistShip, shipController, antagonistController);
+
+        // Take the average of both scores.
+        double score = (predScore + preyScore) / 2;
+
+        if(score >= bestChromosomeScore) {
+            // use >= so that if score is inexplicably identical, we at least prefer novelty
+            bestChromosomeScore = score;
+            bestChromosome = Arrays.copyOf(x, x.length);
+        }
+
+        // Flip for CMA!
+        assert(score >= 0);
+        assert(score < 1);
+        score = 1 - score;
+
+        return score;
+    }
+
+    private double runSimulation(Spaceship ship, Spaceship antagonistShip, Controller shipController, Controller antagonistController) {
         double score = 0;
         int timesteps = 0;
 
@@ -241,22 +274,7 @@ public class PredatorPreyProblem implements IProblem {
 
             timesteps++;
         }
-
-        // Return score.
-        score = shipController.getScore();
-
-        if(score >= bestChromosomeScore) {
-            // use >= so that if score is inexplicably identical, we at least prefer novelty
-            bestChromosomeScore = score;
-            bestChromosome = Arrays.copyOf(x, x.length);
-        }
-
-        // Flip for CMA!
-        assert(score >= 0);
-        assert(score < 2);
-        score = 2 - score;
-
-        return score;
+        return shipController.getScore();
     }
 
     @Override
@@ -268,4 +286,5 @@ public class PredatorPreyProblem implements IProblem {
     public int getTimesteps() {
         return timestepsElapsed;
     }
+
 }

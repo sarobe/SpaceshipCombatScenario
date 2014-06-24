@@ -6,10 +6,7 @@ import controller.Controller;
 import controller.mcts.InfluenceMap;
 import controller.mcts.ShipBiasedMCTSController;
 import main.Runner;
-import spaceship.BasicSpaceship;
-import spaceship.ComplexSpaceship;
-import spaceship.Projectile;
-import spaceship.Spaceship;
+import spaceship.*;
 
 import java.util.ArrayList;
 import java.util.List;

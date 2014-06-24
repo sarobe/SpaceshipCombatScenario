@@ -101,14 +101,27 @@ public class ConditionActionController extends Controller {
         int turn = 0;
 
         // determine in advance the values for different actions
-        int moveAction = moveToPoint(antagonist.pos, moveSpeed);
-        int turnAction = turnToPoint(antagonist.pos, turnTolerance);
+        int moveAction; moveAction = moveToPoint(antagonist.pos, moveSpeed);
+        int turnAction; turnAction = turnToPoint(antagonist.pos, turnTolerance);
+
+        if(isPredator) {
+            // APPROACH antagonist position
+            moveAction = moveToPoint(antagonist.pos, moveSpeed);
+            turnAction = turnToPoint(antagonist.pos, turnTolerance);
+        } else {
+            // FLEE antagonist position
+            Vector2d antagonistDir = antagonist.pos.copy().subtract(ship.pos);
+            antagonistDir.mul(-1); // flip vector
+            Vector2d fleeTarget = antagonist.pos.copy().add(antagonistDir);
+            moveAction = moveToPoint(fleeTarget, moveSpeed);
+            turnAction = turnToPoint(fleeTarget, turnTolerance);
+        }
 
         // IMPORTANT: HIGHEST PRIORITY HAPPENS LAST
         // PRIORITY:
         // AVOID ASTEROID
         // AVOID EDGE
-        // TARGET
+        // TARGET (approach if predator, flee if prey)
 
 
         // UNUSED - MOVE TO TARGET SHIP AT ALL TIMES INSTEAD

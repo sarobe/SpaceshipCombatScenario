@@ -54,4 +54,19 @@ public class MathUtil {
         }
         return start.copy().add(v.mul(t));
     }
+
+    // Gives the distance as a double from start in the direction of a line where the line intersects a circle of radius
+    // Returns the distance to the circle centre
+    // Returns -1 if there is no intersection
+    public static double lineDistanceToCircle(Vector2d start, Vector2d direction, Vector2d circlePos, double circleRadius) {
+        Vector2d closestPointOnLine = closestPointLineStart(circlePos, start, direction);
+        if(circlePos.dist(closestPointOnLine) <= circleRadius) {
+            // the circle is intersecting the line
+            // return distance to projected point on line
+            return closestPointOnLine.dist(start);
+        } else {
+            // circle not intersecting line
+            return -1;
+        }
+    }
 }

@@ -129,6 +129,7 @@ public class PredatorPreyGameState implements IGameState {
                     assert(timeBonus >= 0);
                     assert(timeBonus <= 1);
                     score = 1 + timeBonus;//10000;   // make the max score 1 + 1 where the first 1 is "caught the enemy" and the second 1 is "in X timesteps"
+                    score *= 0.5; // take from range 0-2 to range 0-1
                 }
                 else score = 0;//-10000;
             }

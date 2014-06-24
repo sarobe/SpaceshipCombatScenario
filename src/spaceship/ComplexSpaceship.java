@@ -55,7 +55,7 @@ public class ComplexSpaceship extends Spaceship {
             if(x[i] < 0) {
                 c = new Turret(this, Constants.defaultFireVel);
             } else {
-                c = new Thruster(this, Constants.defaultThrust);
+                c = new Thruster(this, Constants.thrusterThrust);
             }
             // the next two doubles are the position of a thruster
             c.attachPos = new Vector2d(x[i+1]*Constants.componentScale, x[i+2]*Constants.componentScale);
