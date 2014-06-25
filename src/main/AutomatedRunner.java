@@ -1,10 +1,6 @@
 package main;
 
 import common.RunParameters;
-import problem.IProblem;
-import problem.PredatorPreyProblem;
-import strategy.CMAHandler;
-import strategy.IStrategy;
 
 import java.io.*;
 import java.util.*;
@@ -14,60 +10,58 @@ public class AutomatedRunner {
     static Set<Runner> activeRuns;
 
     public static void main(String[] args) throws Exception {
+        RunParameters.ShipController currentController = RunParameters.ShipController.GREEDY_SEARCH;
+        if(args.length > 0) {
+             currentController = RunParameters.ShipController.valueOf(args[0]);
+        }
+
         activeRuns = new HashSet<Runner>();
-        doRuns(RunParameters.numTrials);
+        doRuns(RunParameters.numTrials, currentController);
     }
 
-    public static void doRuns(int numTrials) throws Exception {
-        RunParameters.ShipController[] controllerEnumArray = RunParameters.ShipController.values();
-        int totalControllers = controllerEnumArray.length;
-        RunParameters.ShipController currentController;
-
+    public static void doRuns(int numTrials, RunParameters.ShipController currentController) throws Exception {
         RunParameters.RunParameterEnums[] runParameterArray = RunParameters.RunParameterEnums.values();
         int totalParameters = runParameterArray.length;
         RunParameters.RunParameterEnums currentVariable;
 
+        RunParameters.runShipController = currentController;
         long startingTime = System.currentTimeMillis();
+        System.out.println("Starting " + currentController + " experiment");
+        for(int i=0; i<totalParameters; i++) {
+            currentVariable = runParameterArray[i];
+            System.out.println("-- Looking at " + currentVariable);
 
-        for(int i=0; i<totalControllers; ++i) {
-            // Change to specific controller
-            currentController = controllerEnumArray[i];
-            RunParameters.runShipController = currentController;
-            System.out.println("- Switching to controller " + currentController);
+            for(int j=0; j<currentVariable.getNumValues(); j++) {
+                System.out.println("--- Using index " + j);
 
-            for(int j=0; j<totalParameters; j++) {
-                currentVariable = runParameterArray[j];
-                System.out.println("-- Looking at " + currentVariable);
-
-                for(int k=0; k<currentVariable.getNumValues(); k++) {
-                    System.out.println("--- Using index " + k);
-
-                    for(int l=0; l<numTrials; l++) {
-                        System.out.println("---- Trial " + (l+1) + "/" + numTrials);
-                        Runner r = startNewRun(getNextRunIndex(), currentController, currentVariable, k);
-                        activeRuns.add(r);
-
-                        // don't allow more than two concurrent runs
-                        // wait for an existing run to finish
-                        // ACTUALLY RIGHT NOW CONCURRENT RUNS AREN'T POSSIBLE, ONLY ALLOW ONE EVER
-                        if(activeRuns.size() >= 1) {
-                            boolean waitingForVacancy = true;
-                            while(waitingForVacancy) {
-                                Set<Runner> livingRuns = new HashSet<Runner>();
-                                for(Runner a : activeRuns) {
-                                    if(a.isRunning()) {
-                                        livingRuns.add(a);
-                                    }
-                                }
-                                activeRuns = livingRuns;
-                                waitingForVacancy = activeRuns.isEmpty();//activeRuns.size() < 2;
-                                Thread.sleep(10000);
-                            }
-                        }
+                for(int k=0; k<numTrials; k++) {
+                    System.out.println("---- Trial " + (k+1) + "/" + numTrials);
+                    Runner r = startNewRun(getNextRunIndex(currentController), currentController, currentVariable, j);
+                    while(r.isRunning()) {
+                        // wait;
+                        Thread.sleep(100);
                     }
+//                        activeRuns.add(r);
+//
+//                        // don't allow more than two concurrent runs
+//                        // wait for an existing run to finish
+//                        if(activeRuns.size() >= 1) {
+//                            boolean waitingForVacancy = true;
+//                            while(waitingForVacancy) {
+//                                Set<ProblemRunner> livingRuns = new HashSet<ProblemRunner>();
+//                                for(ProblemRunner a : activeRuns) {
+//                                    if(a.isRunning()) {
+//                                        livingRuns.add(a);
+//                                    }
+//                                }
+//                                activeRuns = livingRuns;
+//                                waitingForVacancy = activeRuns.size() < 2;
+//                                Thread.sleep(10000);
+//                            }
+//                        }
                 }
-
             }
+
         }
         System.out.println("Everything complete, hopefully. Total time elapsed (ms): " + (System.currentTimeMillis() - startingTime));
     }
@@ -76,39 +70,61 @@ public class AutomatedRunner {
         // set up values
         RunParameters.setParameter(runParameter, runParameterIndex);
 
-        // log a file to indicate the run data being tested
-        String directoryName = "data/run-" + runIndex;
-        new File(directoryName).mkdir();
-        PrintWriter pw = new PrintWriter(new FileWriter(directoryName + "/param.txt"));
-        pw.println("Run " + runIndex + " stats:\n----------\n");
-        pw.println("Controller: " + shipController);
-        pw.println("Parameter adjusted: " + runParameter);
-        pw.println("Variables being used:\n\n" + RunParameters.outputValues());
-        pw.close();
+        // do not run if default parameters
+        // check to see these are a unique set of parameters
+        if(RunParameters.usingDefaultParameters) {
+            System.out.println("Skipping default parameter run.");
+            return new NullRunner();
+        } else {
+            // log a file to indicate the run data being tested
+            String directoryName = "data/" + shipController.toString().toLowerCase() + "/run-" + runIndex;
+            boolean madeDirectory = new File(directoryName).mkdirs();
+            if(madeDirectory) {
+                PrintWriter pw = new PrintWriter(new FileWriter(directoryName + "/param.txt"));
 
-        // go!
-        Runner r = new Runner(runIndex);
-        Thread t = new Thread(r);
-        t.start();
-        return r;
-    }
+                pw.println("Run " + runIndex + " stats:\n----------\n");
+                pw.println("Controller: " + shipController);
+                pw.println("Parameter adjusted: " + runParameter);
+                pw.println("Variables being used:\n\n" + RunParameters.outputValues());
+                pw.close();
 
-    public static int getNextRunIndex() {
-        File dataDirectory = new File("data/");
-        File directories[] = dataDirectory.listFiles();
-        int highestRunNum = 0;
-        for(File dir : directories) {
-            String dirNumPart = dir.getName().substring(4);
-            int dirNum = 0;
-            try {
-                dirNum = Integer.parseInt(dirNumPart);
-                if(dirNum > highestRunNum) highestRunNum = dirNum;
-            } catch(NumberFormatException e) {
-                // do nothing, just skip
+                // go!
+                Runner r = new ProblemRunner(runIndex, "data/" + shipController.toString().toLowerCase());
+                Thread t = new Thread(r);
+                t.start();
+                return r;
+            } else {
+                System.out.println("Couldn't make directory.");
+                return new NullRunner();
             }
         }
-        int startingIndex = highestRunNum + 1;
-        return startingIndex;
+    }
+
+    public static int getNextRunIndex(RunParameters.ShipController shipController) {
+        File dataDirectory = new File("data/" + shipController.toString().toLowerCase() + "/");
+        File directories[] = dataDirectory.listFiles();
+        int highestRunNum = 0;
+        if(directories == null || directories.length == 0) {
+            // no folders present, the highest run num remains 0
+            highestRunNum = 0;
+        } else {
+            // folders present, find latest run folder
+            for(File dir : directories) {
+                String dirName = dir.getName();
+                if(dirName.substring(0, 3).equals("run")) {
+                    // get run number of run directory
+                    String dirNumPart = dirName.substring(4);
+                    int dirNum = 0;
+                    try {
+                        dirNum = Integer.parseInt(dirNumPart);
+                        if(dirNum > highestRunNum) highestRunNum = dirNum;
+                    } catch(NumberFormatException e) {
+                        // do nothing, just skip
+                    }
+                }
+            }
+        }
+        return highestRunNum + 1;
     }
 
 }

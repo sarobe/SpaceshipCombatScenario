@@ -70,7 +70,7 @@ public class RunParameters {
     }
 
     // WorldType is defined in Constants
-    public static Constants.WorldType defaultWorldType = Constants.WorldType.CIRCULAR;
+    public static int defaultWorldTypeIndex = 2;
 
     // associated global: Constants.friction
     public static double[] runFrictionConstants = {
@@ -78,7 +78,7 @@ public class RunParameters {
             0.99,
             0.8
     };
-    public static double defaultFriction = 0.99;
+    public static int defaultFrictionIndex = 1;
 
     // associated global: Constants.numAsteroids
     public static int[] runAsteroidCounts = {
@@ -86,7 +86,7 @@ public class RunParameters {
             4,
             8
     };
-    public static int defaultAsteroidCount = 4;
+    public static int defaultAsteroidCountIndex = 1;
 
     // associated globals: Constants.minAsteroidRadius, Constants.maxAsteroidRadius
     public static int[] runAsteroidSizeRanges = {
@@ -94,7 +94,7 @@ public class RunParameters {
             5, 15,
             15, 25
     };
-    public static int[] defaultAsteroidSizeRange = {5, 15};
+    public static int defaultAsteroidSizeRangeIndex = 1;
 
     // associated global: Constants.maxVelocityRange
     public static double[] runAsteroidMaxVelocityRanges = {
@@ -102,7 +102,7 @@ public class RunParameters {
             20,
             40
     };
-    public static double defaultAsteroidMaxVelocityRange = 20;
+    public static int defaultAsteroidMaxVelocityRangeIndex = 1;
 
     // associated global: Constants.thrusterThrust
     public static double[] runThrusts = {
@@ -110,55 +110,70 @@ public class RunParameters {
             1000,
             2000
     };
-    public static double defaultThrust = 1000;
+    public static int defaultThrustIndex = 1;
 
+
+    // this value determines if the values set are the default parameters or not
+    public static boolean usingDefaultParameters = false;
 
     // and now a method to tie it all together, save the ship controller stuff which should be handled separately
     public static void setParameter(RunParameterEnums runParameter, int index) {
         // first set all parameters to defaults
-        Constants.worldType = defaultWorldType;
-        Constants.friction = defaultFriction;
-        Constants.numAsteroids = defaultAsteroidCount;
-        Constants.minAsteroidRadius = defaultAsteroidSizeRange[0];
-        Constants.maxAsteroidRadius = defaultAsteroidSizeRange[1];
-        Constants.maxVelocityRange = defaultAsteroidMaxVelocityRange;
-        Constants.thrusterThrust = defaultThrust;
+        Constants.worldType = Constants.WorldType.values()[defaultWorldTypeIndex];
+        Constants.friction = runFrictionConstants[defaultFrictionIndex];
+        Constants.numAsteroids = runAsteroidCounts[defaultAsteroidCountIndex];
+        Constants.minAsteroidRadius = runAsteroidSizeRanges[defaultAsteroidSizeRangeIndex*2];
+        Constants.maxAsteroidRadius = runAsteroidSizeRanges[defaultAsteroidSizeRangeIndex*2 + 1];
+        Constants.maxVelocityRange = runAsteroidMaxVelocityRanges[defaultAsteroidMaxVelocityRangeIndex];
+        Constants.thrusterThrust = runThrusts[defaultThrustIndex];
 
         // then set the specific parameter requested
         // if the index is invalid, don't change the parameter
+        // if the index is the default index for that parameter, as all other parameters are also default values,
+        // all values are set to default
         switch (runParameter) {
             case WORLD_TYPE:
                 if ( index >= 0 && index < Constants.WorldType.values().length ) {
                     Constants.worldType = Constants.WorldType.values()[index];
+                    usingDefaultParameters = (index == defaultWorldTypeIndex);
                 }
                 break;
             case FRICTION:
                 if ( index >= 0 && index < runFrictionConstants.length ) {
                     Constants.friction = runFrictionConstants[index];
+                    usingDefaultParameters = (index == defaultFrictionIndex);
                 }
                 break;
             case ASTEROID_COUNT:
                 if ( index > 0 && index < runAsteroidCounts.length ) {
                     Constants.numAsteroids = runAsteroidCounts[index];
+                    usingDefaultParameters = (index == defaultAsteroidCountIndex);
                 }
                 break;
             case ASTEROID_SIZE:
                 if ( index > 0 && index < runAsteroidSizeRanges.length ) {
                     Constants.minAsteroidRadius = runAsteroidSizeRanges[index * 2];
                     Constants.maxAsteroidRadius = runAsteroidSizeRanges[index * 2 + 1];
+                    usingDefaultParameters = (index == defaultAsteroidSizeRangeIndex);
                 }
                 break;
             case ASTEROID_SPEED:
                 if ( index > 0 && index < runAsteroidMaxVelocityRanges.length ) {
                     Constants.maxVelocityRange = runAsteroidMaxVelocityRanges[index];
+                    usingDefaultParameters = (index == defaultAsteroidMaxVelocityRangeIndex);
                 }
                 break;
             case THRUSTER_SPEED:
                 if ( index > 0 && index < runThrusts.length ) {
                     Constants.thrusterThrust = runThrusts[index];
+                    usingDefaultParameters = (index == defaultThrustIndex);
                 }
                 break;
         }
+    }
+
+    public static boolean isUsingDefaultParameters() {
+        return usingDefaultParameters;
     }
 
     public static String outputValues() {

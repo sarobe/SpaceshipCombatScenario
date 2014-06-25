@@ -2,20 +2,15 @@ package problem;
 
 import common.Constants;
 import common.RunParameters;
-import controller.ConditionActionController;
 import controller.Controller;
 import controller.neuralnet.BasicPerceptronController;
 import controller.statebased.HumanStateController;
-import controller.statebased.StateController;
 import controller.mcts.InfluenceMap;
-import controller.mcts.ShipBiasedMCTSController;
-import controller.statebased.basic.GreedyController;
 import controller.statebased.basic.MCController;
 import main.HumanStateControllerKeyHandler;
-import main.Runner;
+import main.ProblemRunner;
 import spaceship.BasicSpaceship;
 import spaceship.ComplexSpaceship;
-import spaceship.SimObject;
 import spaceship.Spaceship;
 
 import java.util.ArrayList;
@@ -141,7 +136,7 @@ public class PredatorPreyProblem implements IProblem {
     }
 
     public void demonstrate() {
-        synchronized (Runner.class) {
+        synchronized (ProblemRunner.class) {
 
             for (Asteroid a : AsteroidManager.getAsteroids()) {
                 a.update();

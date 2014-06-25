@@ -1,7 +1,7 @@
 package game;
 
 import common.Constants;
-import main.Runner;
+import main.ProblemRunner;
 import problem.PickupManager;
 import problem.ProjectileManager;
 import problem.Pickup;
@@ -29,7 +29,7 @@ public class GameVisualiser extends JComponent {
         g2d.setColor(Color.BLACK);
         g2d.fillRect(0, 0, Constants.screenWidth, Constants.screenHeight);
 
-        synchronized(Runner.class) {
+        synchronized(ProblemRunner.class) {
 
             for(Projectile p : ProjectileManager.getLivingProjectiles()) {
                 p.draw(g2d);

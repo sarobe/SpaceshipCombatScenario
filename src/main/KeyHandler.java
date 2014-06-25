@@ -8,9 +8,9 @@ import java.awt.event.KeyEvent;
  */
 public class KeyHandler extends KeyAdapter {
 
-    Runner r;
+    ProblemRunner r;
     
-    public KeyHandler(Runner r) {
+    public KeyHandler(ProblemRunner r) {
         this.r = r;
     }
     

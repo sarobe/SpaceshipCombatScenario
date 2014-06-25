@@ -17,15 +17,18 @@ public class CMAHandler implements IStrategy {
 
     public IProblem problem;
     public CMAEvolutionStrategy cma;
+    public String loggingDirectory;
     private int funcEvals;
     private int runIndex;
 
     private double[] fitness;
 
 
-    public CMAHandler(IProblem problem, int runIndex) {
+    public CMAHandler(IProblem problem, int runIndex, String loggingDirectory) {
+        this.runIndex = runIndex;
         this.problem = problem;
         this.runIndex = runIndex;
+        this.loggingDirectory = loggingDirectory;
         init();
     }
 
@@ -85,7 +88,7 @@ public class CMAHandler implements IStrategy {
 
             mean /= pop.length;
             try {
-                Grapher.writeGenData(runIndex, (int) cma.getCountIter(), cma.getBestRecentFunctionValue(), mean, cma.getBestRecentX());
+                Grapher.writeGenData(loggingDirectory, runIndex, (int) cma.getCountIter(), cma.getBestRecentFunctionValue(), mean, cma.getBestRecentX());
             } catch (Exception e) {
                 System.out.println("Unsuccessful attempt to write graphing data! : " + e.getMessage());
             }

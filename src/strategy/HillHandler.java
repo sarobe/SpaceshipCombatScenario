@@ -43,7 +43,7 @@ public class HillHandler implements IStrategy {
 
 
             try {
-                Grapher.writeGenData(runIndex, funcEvals, mostRecentFitness, mostRecentFitness, mostRecent);
+                Grapher.writeGenData("data", runIndex, funcEvals, mostRecentFitness, mostRecentFitness, mostRecent);
             } catch (Exception e) {
                 System.out.println("Unsuccessful attempt to write graphing data! : " + e.getMessage());
             }

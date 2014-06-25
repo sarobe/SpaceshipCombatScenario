@@ -2,7 +2,6 @@ package main;
 
 import common.Constants;
 import controller.Controller;
-import controller.mcts.InfluenceMap;
 import problem.*;
 import spaceship.Projectile;
 import spaceship.Spaceship;
@@ -48,7 +47,7 @@ public class SpaceshipVisualiser extends JComponent {
             g.drawOval(Constants.screenWidth/2 - radius, Constants.screenHeight/2 - radius, radius*2, radius*2);
         }
 
-        synchronized(Runner.class) {
+        synchronized(ProblemRunner.class) {
 
             for(Projectile p : ProjectileManager.getLivingProjectiles()) {
                 p.draw(g2d);

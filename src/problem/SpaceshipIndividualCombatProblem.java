@@ -5,7 +5,7 @@ import common.math.Vector2d;
 import controller.Controller;
 import controller.mcts.InfluenceMap;
 import controller.mcts.ShipBiasedMCTSController;
-import main.Runner;
+import main.ProblemRunner;
 import spaceship.*;
 
 import java.util.ArrayList;
@@ -230,7 +230,7 @@ public class SpaceshipIndividualCombatProblem implements IProblem {
     }
 
     public void demonstrate() {
-        synchronized (Runner.class) {
+        synchronized (ProblemRunner.class) {
             for(Controller c : demoConts) {
                 //c.think(demoShips);
                 c.think();

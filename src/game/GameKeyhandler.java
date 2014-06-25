@@ -1,7 +1,5 @@
 package game;
 
-import main.Runner;
-
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 

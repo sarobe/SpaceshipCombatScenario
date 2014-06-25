@@ -3,7 +3,7 @@ package problem;
 import common.Constants;
 import common.math.Vector2d;
 import controller.ShipActionController;
-import main.Runner;
+import main.ProblemRunner;
 import spaceship.ComplexSpaceship;
 import spaceship.Projectile;
 
@@ -260,7 +260,7 @@ public class SpaceshipCombatProblem {
     }
 
     public void demonstrate() {
-        synchronized (Runner.class) {
+        synchronized (ProblemRunner.class) {
             for(ShipActionController c : demoConts) {
                 //c.think(demoShips);
                 c.think();

@@ -37,13 +37,14 @@ public class Grapher {
         }
     }
 
-    public static void writeGenData(int runIndex, int genIndex, double bestResult, double meanResult, double[] bestSolution) throws IOException {
+    public static void writeGenData(String logDirectory, int runIndex, int genIndex, double bestResult, double meanResult, double[] bestSolution) throws IOException {
 
         // Use to write gnuplot compatible data
 
         // make directory to write to
-        String directoryName = dataDirectory + "run-" + runIndex;
-        new File(directoryName).mkdir();
+
+        String directoryName = logDirectory + "/run-" + runIndex;
+        new File(directoryName).mkdirs();
 
         // write/append data to graphing files
         boolean append = true;
@@ -95,7 +96,7 @@ public class Grapher {
         while((line = reader.readLine()) != null) {
             String[] tokens = line.split(" \t ");
             double gen = Double.parseDouble(tokens[0]);
-            double bestResult = constant - Double.parseDouble(tokens[1]);;
+            double bestResult = constant - Double.parseDouble(tokens[1]);
             pw.format("%f \t %f \n", gen, bestResult);
         }
         reader.close();

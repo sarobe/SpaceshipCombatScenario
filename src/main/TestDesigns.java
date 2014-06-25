@@ -104,7 +104,7 @@ public class TestDesigns {
 
         PrintWriter pw = null;
         if(logOutput) {
-            int logRunNum = 1;//Runner.getNextRunIndex();
+            int logRunNum = 1;//ProblemRunner.getNextRunIndex();
             try {
                 String directoryName = "data/run-" + logRunNum;
                 new File(directoryName).mkdir();
