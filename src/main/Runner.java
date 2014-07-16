@@ -14,4 +14,8 @@ public abstract class Runner implements Runnable {
         isRunning = true;
     }
 
+    boolean isStarted = false;
+    public boolean started() {
+        return isStarted;
+    }
 }

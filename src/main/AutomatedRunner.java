@@ -1,5 +1,6 @@
 package main;
 
+import common.Constants;
 import common.RunParameters;
 
 import java.io.*;
@@ -38,7 +39,6 @@ public class AutomatedRunner {
                     System.out.println("---- Trial " + (k+1) + "/" + numTrials);
                     Runner r = startNewRun(getNextRunIndex(currentController), currentController, currentVariable, j);
                     while(r.isRunning()) {
-                        // wait;
                         Thread.sleep(100);
                     }
 //                        activeRuns.add(r);
@@ -86,6 +86,10 @@ public class AutomatedRunner {
                 pw.println("Controller: " + shipController);
                 pw.println("Parameter adjusted: " + runParameter);
                 pw.println("Variables being used:\n\n" + RunParameters.outputValues());
+                pw.println();
+                pw.println("MC/MCTS iterations: " + Constants.nIts);
+                pw.println("Function evaluations: " + Constants.numEvals);
+                pw.println("Max timesteps per sim: " + Constants.timesteps);
                 pw.close();
 
                 // go!

@@ -53,12 +53,12 @@ public class Constants {
     public static double angleFriction = 0.00;
     public static double edgeBounceLoss = 0.8;
 
-    public static int numEvals = 10000;
+    public static int numEvals = 1000;//10000;
     public static int numShips = 10;
     public static int combatRepeats = 1;
 
     public static double thrusterRadiusLimit = 0;
-    public static int timesteps = 1000;
+    public static int timesteps = 100;//1000;
 //    public static int timesteps = 500;
 
     //public static Rectangle leftTeamStartRect = new Rectangle(0, 0, 450, 768);
@@ -93,7 +93,7 @@ public class Constants {
     }
 
     public static int macroActionStep = 30;
-    public static int nIts = 1000;
+    public static int nIts = 100;//1000;
 //    public static int nIts = 200;
     public static int rolloutDepth = 100;
     public static int asteroidPlacementSeed = 106839;

@@ -79,7 +79,8 @@ public class PredatorPreyGameState implements IGameState {
         Vector2d otherPos = otherState.pos.copy();
         Vector2d otherVel = other.vel.copy();
 
-        if (isPredator && Constants.usePredictedPreyPos) {
+        if (isPredator && Constants.usePredictedPreyPos && ourVel.mag() > 1) { // if our speed is too slow there's not much point aiming to intercept
+
             // modify other position to be based on a set of circumstances as follows:
 
             // find the point closest to the prey we will be on current velocity course, drawing a line starting here

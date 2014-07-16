@@ -61,8 +61,10 @@ public class Vector2d {
     }
 
     public Vector2d rotate(double theta) { // radians
-        double rotx = (x * Math.cos(theta)) - (y * Math.sin(theta));
-        double roty = (x * Math.sin(theta)) + (y * Math.cos(theta));
+        double cosTheta = Math.cos(theta);
+        double sinTheta = Math.sin(theta);
+        double rotx = (x * cosTheta) - (y * sinTheta);
+        double roty = (x * sinTheta) + (y * cosTheta);
         x = rotx;
         y = roty;
         return this;

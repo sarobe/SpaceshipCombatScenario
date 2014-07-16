@@ -41,9 +41,11 @@ public class ProblemRunner extends Runner {
         handler = new CMAHandler(problem, runIndex, logDirectory);
 
         showDemos = false;
+        isStarted = false;
     }
 
     public void run() {
+        isStarted = true;
         int demonstrationInterval = 100;//(int)Math.floor(Constants.numEvals / 50);
 
 //        if(showDemos) demonstrate();
