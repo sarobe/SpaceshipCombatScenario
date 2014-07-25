@@ -4,6 +4,10 @@ import common.Constants;
 import common.math.Vector2d;
 import controller.ShipActionController;
 import main.ProblemRunner;
+import problem.entities.Pickup;
+import problem.managers.PickupManager;
+import problem.managers.PickupType;
+import problem.managers.ProjectileManager;
 import spaceship.ComplexSpaceship;
 import spaceship.Projectile;
 
@@ -35,7 +39,7 @@ public class SpaceshipCombatProblem {
         return Constants.numWeights + (4 * Constants.numComponents) + 3;
     }
 
-    public void runCombat(double[][] shipData) {
+    public void preFitnessSim(double[][] shipData) {
         ////////////////////////////////////
         // INITIALISING COMBAT
         ////////////////////////////////////
@@ -201,7 +205,7 @@ public class SpaceshipCombatProblem {
         double score = 0;
         double[][] substitutePopulation = new double[1][];
         substitutePopulation[0] = x;
-        runCombat(substitutePopulation);
+        preFitnessSim(substitutePopulation);
         score = fitnessScores.get(x);
         return score;
     }

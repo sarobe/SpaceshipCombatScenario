@@ -1,7 +1,8 @@
-package problem;
+package problem.managers;
 
 import common.Constants;
 import common.math.Vector2d;
+import problem.entities.Pickup;
 
 import java.util.*;
 

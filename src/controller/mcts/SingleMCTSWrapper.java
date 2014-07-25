@@ -7,8 +7,8 @@ import controller.gamestates.IGameState;
 import controller.gamestates.PickupGameState;
 import controller.singleMCTS.PlayoutPickupInfo;
 import controller.singleMCTS.SingleMCTSController;
-import problem.PickupManager;
-import problem.ProjectileManager;
+import problem.managers.PickupManager;
+import problem.managers.ProjectileManager;
 import spaceship.SimObject;
 import spaceship.Spaceship;
 

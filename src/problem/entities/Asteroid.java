@@ -1,4 +1,4 @@
-package problem;
+package problem.entities;
 
 import common.math.Vector2d;
 import spaceship.SimObject;

@@ -1,16 +1,15 @@
 package controller;
 
 import common.Constants;
-import common.math.MathUtil;
 import common.math.Vector2d;
 import common.utilities.Picker;
 import controller.statebased.StateController;
-import problem.*;
+import problem.entities.Asteroid;
+import problem.managers.AsteroidManager;
 import spaceship.*;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

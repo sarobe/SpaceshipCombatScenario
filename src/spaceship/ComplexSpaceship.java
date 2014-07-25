@@ -4,7 +4,7 @@ import common.Constants;
 import common.math.Vector2d;
 import controller.ShipState;
 import controller.mcts.SimpleAction;
-import problem.ProjectileManager;
+import problem.managers.ProjectileManager;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;

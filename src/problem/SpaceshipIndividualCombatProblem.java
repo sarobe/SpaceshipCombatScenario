@@ -6,6 +6,10 @@ import controller.Controller;
 import controller.mcts.InfluenceMap;
 import controller.mcts.ShipBiasedMCTSController;
 import main.ProblemRunner;
+import problem.entities.Pickup;
+import problem.managers.PickupManager;
+import problem.managers.PickupType;
+import problem.managers.ProjectileManager;
 import spaceship.*;
 
 import java.util.ArrayList;
@@ -32,6 +36,11 @@ public class SpaceshipIndividualCombatProblem implements IProblem {
 
     public int nDim() {
         return Constants.numWeights + (4 * Constants.numComponents) + 3;
+    }
+
+    @Override
+    public void preFitnessSim(double[][] popData) {
+        // do nothing
     }
 
     public double fitness(double[] x) {

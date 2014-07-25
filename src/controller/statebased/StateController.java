@@ -1,20 +1,16 @@
 package controller.statebased;
 
 import common.Constants;
-import common.math.Vector2d;
 import controller.Controller;
 import controller.ShipState;
 import controller.gamestates.IGameState;
 import controller.gamestates.PickupGameState;
 import controller.gamestates.PredatorPreyGameState;
-import problem.PickupManager;
-import problem.ProjectileManager;
+import problem.managers.PickupManager;
+import problem.managers.ProjectileManager;
 import spaceship.SimObject;
 import spaceship.Spaceship;
 
-import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

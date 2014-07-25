@@ -9,6 +9,9 @@ import controller.mcts.InfluenceMap;
 import controller.statebased.basic.MCController;
 import main.HumanStateControllerKeyHandler;
 import main.ProblemRunner;
+import problem.entities.Asteroid;
+import problem.managers.AsteroidManager;
+import problem.managers.ProjectileManager;
 import spaceship.BasicSpaceship;
 import spaceship.ComplexSpaceship;
 import spaceship.Spaceship;
@@ -181,6 +184,11 @@ public class PredatorPreyProblem implements IProblem {
     @Override
     public int nDim() {
         return Constants.numWeights + (4 * Constants.numComponents) + 3;
+    }
+
+    @Override
+    public void preFitnessSim(double[][] popData) {
+        // do nothing
     }
 
     @Override

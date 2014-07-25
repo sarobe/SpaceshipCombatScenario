@@ -2,17 +2,10 @@ package spaceship;
 
 import common.Constants;
 import common.math.Vector2d;
-import controller.Controller;
 import controller.ShipState;
 import controller.mcts.SimpleAction;
-import problem.ProjectileManager;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Path2D;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Samuel Roberts

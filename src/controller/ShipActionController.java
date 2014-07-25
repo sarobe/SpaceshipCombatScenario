@@ -3,10 +3,10 @@ package controller;
 import common.Constants;
 import common.math.MathUtil;
 import common.math.Vector2d;
-import problem.Pickup;
-import problem.PickupManager;
-import problem.PickupType;
-import problem.ProjectileManager;
+import problem.entities.Pickup;
+import problem.managers.PickupManager;
+import problem.managers.PickupType;
+import problem.managers.ProjectileManager;
 import spaceship.*;
 
 import java.awt.*;

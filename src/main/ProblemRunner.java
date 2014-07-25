@@ -50,7 +50,7 @@ public class ProblemRunner extends Runner {
 
 //        if(showDemos) demonstrate();
         while(!handler.hasCompleted()) {
-            //problem.runCombat(handler.getPopulation());
+            problem.preFitnessSim(handler.getPopulation());
             handler.run();
 //            if((handler.getIterations()% demonstrationInterval == 2) && showDemos) {  //% demonstrationInterval
 //                demonstrate();

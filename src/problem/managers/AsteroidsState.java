@@ -1,6 +1,7 @@
-package problem;
+package problem.managers;
 
 import common.math.Vector2d;
+import problem.entities.Asteroid;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package problem;
+package problem.managers;
 
 import java.awt.*;
 

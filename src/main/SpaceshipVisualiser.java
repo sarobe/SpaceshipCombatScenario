@@ -3,6 +3,9 @@ package main;
 import common.Constants;
 import controller.Controller;
 import problem.*;
+import problem.entities.Asteroid;
+import problem.managers.AsteroidManager;
+import problem.managers.ProjectileManager;
 import spaceship.Projectile;
 import spaceship.Spaceship;
 

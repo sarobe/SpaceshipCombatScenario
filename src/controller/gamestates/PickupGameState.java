@@ -5,10 +5,10 @@ import common.math.Vector2d;
 import controller.ShipState;
 import controller.mcts.InfluenceMap;
 import controller.mcts.ShipBiasedMCTSController;
-import problem.Pickup;
-import problem.PickupManager;
-import problem.PickupType;
-import problem.ProjectileManager;
+import problem.entities.Pickup;
+import problem.managers.PickupManager;
+import problem.managers.PickupType;
+import problem.managers.ProjectileManager;
 import spaceship.Spaceship;
 
 import java.util.HashMap;

@@ -2,8 +2,8 @@ package controller.mcts;
 
 import common.Constants;
 import common.math.Vector2d;
-import problem.Pickup;
-import problem.PickupType;
+import problem.entities.Pickup;
+import problem.managers.PickupType;
 import spaceship.Spaceship;
 
 import java.util.Map;

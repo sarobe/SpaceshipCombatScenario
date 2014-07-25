@@ -1,9 +1,9 @@
 package game;
 
 import common.Constants;
-import problem.PickupManager;
-import problem.ProjectileManager;
-import problem.Pickup;
+import problem.managers.PickupManager;
+import problem.managers.ProjectileManager;
+import problem.entities.Pickup;
 import spaceship.ComplexSpaceship;
 import spaceship.Projectile;
 

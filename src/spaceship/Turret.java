@@ -2,7 +2,7 @@ package spaceship;
 
 import common.Constants;
 import common.math.Vector2d;
-import problem.ProjectileManager;
+import problem.managers.ProjectileManager;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;

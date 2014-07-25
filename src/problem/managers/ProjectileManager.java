@@ -1,4 +1,4 @@
-package problem;
+package problem.managers;
 
 import common.Constants;
 import spaceship.Projectile;

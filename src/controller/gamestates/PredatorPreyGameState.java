@@ -6,10 +6,10 @@ import common.math.Vector2d;
 import common.utilities.Picker;
 import controller.ShipState;
 import controller.statebased.StateController;
-import problem.Asteroid;
-import problem.AsteroidManager;
-import problem.AsteroidsState;
-import problem.ProjectileManager;
+import problem.entities.Asteroid;
+import problem.managers.AsteroidManager;
+import problem.managers.AsteroidsState;
+import problem.managers.ProjectileManager;
 import spaceship.Spaceship;
 
 public class PredatorPreyGameState implements IGameState {

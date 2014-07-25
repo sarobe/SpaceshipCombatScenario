@@ -17,6 +17,11 @@ public interface IProblem {
 
     public int nDim();
 
+    public void preFitnessSim(double[][] popData); // use this for
+    // anything requiring multiple population members being compared
+    // stuff to do before calling fitness for a generation
+    // CALLED ONCE BEFORE FITNESS FOR EACH GENERATION
+
     public double fitness(double[] x);
 
     public boolean hasEnded();

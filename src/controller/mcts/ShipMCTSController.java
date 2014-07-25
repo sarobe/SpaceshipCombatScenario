@@ -4,8 +4,8 @@ import controller.Controller;
 import controller.ShipState;
 import controller.gamestates.IGameState;
 import controller.gamestates.PickupGameState;
-import problem.Pickup;
-import problem.PickupManager;
+import problem.entities.Pickup;
+import problem.managers.PickupManager;
 import spaceship.SimObject;
 import spaceship.ComplexSpaceship;
 

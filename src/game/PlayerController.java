@@ -3,7 +3,7 @@ package game;
 import common.Constants;
 import controller.Controller;
 import controller.ShipState;
-import problem.ProjectileManager;
+import problem.managers.ProjectileManager;
 import spaceship.SimObject;
 import spaceship.ComplexSpaceship;
 import spaceship.SpaceshipComponent;

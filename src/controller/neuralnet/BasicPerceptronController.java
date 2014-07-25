@@ -1,13 +1,11 @@
 package controller.neuralnet;
 
-import common.Constants;
 import common.math.MathUtil;
 import common.math.Vector2d;
-import common.utilities.Picker;
 import controller.Controller;
 import controller.statebased.StateController;
-import problem.Asteroid;
-import problem.AsteroidManager;
+import problem.entities.Asteroid;
+import problem.managers.AsteroidManager;
 import spaceship.ComplexSpaceship;
 import spaceship.SimObject;
 import spaceship.Spaceship;

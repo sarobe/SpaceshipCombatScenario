@@ -13,10 +13,20 @@ public class AutomatedRunner {
     public static void main(String[] args) throws Exception {
         RunParameters.ShipController currentController = RunParameters.ShipController.GREEDY_SEARCH;
         if(args.length > 0) {
-             currentController = RunParameters.ShipController.valueOf(args[0]);
+            currentController = RunParameters.ShipController.valueOf(args[0]);
+            if(args.length > 1) {
+                Constants.numEvals = Integer.parseInt(args[1]);
+            }
+            if(args.length > 2) {
+                Constants.timesteps = Integer.parseInt(args[2]);
+            }
+            if(args.length > 3) {
+                Constants.nIts = Integer.parseInt(args[3]);
+            }
         }
 
         activeRuns = new HashSet<Runner>();
+        System.out.println("Using " + currentController + " controller with " + Constants.numEvals + " function evals, " + Constants.timesteps + " timesteps, and " + Constants.nIts + " MC iterations.");
         doRuns(RunParameters.numTrials, currentController);
     }
 
