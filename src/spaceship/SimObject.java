@@ -162,4 +162,11 @@ public abstract class SimObject {
     public void kill() {
         alive = false;
     }
+
+    public void reset() {
+        pos.zero();
+        vel.zero();
+        rot = 0;
+        rotvel = 0;
+    }
 }

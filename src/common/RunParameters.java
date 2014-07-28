@@ -36,7 +36,7 @@ public class RunParameters {
     }
 
     public static RunParameterEnums currentRunVariable;
-    public static int numTrials = 1;
+    public static int numTrials = 3;
 
     public static enum ShipController {
         GREEDY_SEARCH,
@@ -45,7 +45,7 @@ public class RunParameters {
         MCTS
     }
 
-    public static ShipController runShipController;
+    public static ShipController runShipController = ShipController.CONDITION_ACTION;
 
     // to a) avoid reflection and b) writing repeat copies of this code chunk every single place it's wanted
     public static Controller getAppropriateController(ShipController specifiedController, Spaceship ship, Spaceship antagonist, boolean isPredator) {

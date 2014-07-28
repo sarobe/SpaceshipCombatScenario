@@ -37,7 +37,8 @@ public class ProblemRunner extends Runner {
         this.runIndex = runIndex;
 
         //problem = new SpaceshipCombatProblem();
-        problem = new PredatorPreyProblem();
+        //problem = new PredatorPreyProblem();
+        problem = new PredatorPreyCoevolutionProblem();
         handler = new CMAHandler(problem, runIndex, logDirectory);
 
         showDemos = false;

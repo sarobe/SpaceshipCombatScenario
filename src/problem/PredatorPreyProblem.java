@@ -2,6 +2,7 @@ package problem;
 
 import common.Constants;
 import common.RunParameters;
+import common.utilities.Pair;
 import controller.Controller;
 import controller.neuralnet.BasicPerceptronController;
 import controller.statebased.HumanStateController;
@@ -23,8 +24,8 @@ import java.util.List;
 public class PredatorPreyProblem implements IProblem {
     public Spaceship predator;
     public Spaceship prey;
-    public List<Spaceship> ships;
-    public List<Controller> conts;
+    public List<Spaceship> demoShips;
+    public List<Controller> demoConts;
     public boolean terminal;
 
     // used for demonstration purposes and caching to avoid constantly resimulating in demo init
@@ -37,8 +38,8 @@ public class PredatorPreyProblem implements IProblem {
 
     public PredatorPreyProblem() {
         ProjectileManager.reset();
-        conts = new ArrayList<Controller>();
-        ships = new ArrayList<Spaceship>();
+        demoConts = new ArrayList<Controller>();
+        demoShips = new ArrayList<Spaceship>();
     }
 
     public PredatorPreyProblem(HumanStateControllerKeyHandler keyHandler) {
@@ -52,8 +53,8 @@ public class PredatorPreyProblem implements IProblem {
         ProjectileManager.reset();
         AsteroidManager.reset();
         timestepsElapsed = 0;
-        conts.clear();
-        ships.clear();
+        demoConts.clear();
+        demoShips.clear();
         terminal = false;
 
         AsteroidManager.placeAsteroids(Constants.asteroidPlacementSeed);
@@ -73,11 +74,11 @@ public class PredatorPreyProblem implements IProblem {
         predator.pos.set(Constants.predatorStartPos);
         prey.pos.set(Constants.preyStartPos);
 
-        ships.add(predator);
-        ships.add(prey);
+        demoShips.add(predator);
+        demoShips.add(prey);
 
-        conts.add(RunParameters.getAppropriateController(RunParameters.runShipController, predator, prey, true));
-        conts.add(RunParameters.getAppropriateController(RunParameters.runShipController, prey, predator, false));
+        demoConts.add(RunParameters.getAppropriateController(RunParameters.runShipController, predator, prey, true));
+        demoConts.add(RunParameters.getAppropriateController(RunParameters.runShipController, prey, predator, false));
     }
 
     public void demonstrationInit() {
@@ -85,8 +86,8 @@ public class PredatorPreyProblem implements IProblem {
         ProjectileManager.reset();
         AsteroidManager.reset();
         timestepsElapsed = 0;
-        conts.clear();
-        ships.clear();
+        demoConts.clear();
+        demoShips.clear();
         terminal = false;
 
         AsteroidManager.placeAsteroids(Constants.asteroidPlacementSeed);
@@ -100,8 +101,8 @@ public class PredatorPreyProblem implements IProblem {
         prey.pos.set(Constants.preyStartPos);
 
 
-        ships.add(predator);
-        ships.add(prey);
+        demoShips.add(predator);
+        demoShips.add(prey);
 
         InfluenceMap.createInfluenceMap(predator, prey);
 
@@ -111,14 +112,14 @@ public class PredatorPreyProblem implements IProblem {
             // add human
             HumanStateController humanCont = new HumanStateController(predator, prey, true);
             if(keyHandler != null) keyHandler.setController(humanCont);
-            conts.add(humanCont);
+            demoConts.add(humanCont);
         } else {
             // add ai
-//            conts.add(new GreedyController(predator, prey, true));
-//            conts.add(new MCController(predator, prey, true));
-//            conts.add(new ShipBiasedMCTSController(predator, prey, true));
-//            conts.add(new ConditionActionController(predator, prey, true));
-            conts.add(new BasicPerceptronController(predator, prey, true));
+//            demoConts.add(new GreedyController(predator, prey, true));
+//            demoConts.add(new MCController(predator, prey, true));
+//            demoConts.add(new ShipBiasedMCTSController(predator, prey, true));
+//            demoConts.add(new ConditionActionController(predator, prey, true));
+            demoConts.add(new BasicPerceptronController(predator, prey, true));
         }
 
         // PREY CONTROLLER
@@ -126,14 +127,14 @@ public class PredatorPreyProblem implements IProblem {
             // add human
             HumanStateController humanCont = new HumanStateController(prey, predator, false);
             if(keyHandler != null) keyHandler.setController(humanCont);
-            conts.add(humanCont);
+            demoConts.add(humanCont);
         } else {
-//            conts.add(new RandomController(prey, predator, false));
-//            conts.add(new NullController(prey, predator, false));
-//            conts.add(new ShipBiasedMCTSController(prey, predator, false));
-            //conts.add(new ConditionActionController(predator, prey, true));
-//            conts.add(new GreedyController(prey, predator, false));
-            conts.add(new MCController(prey, predator, false));
+//            demoConts.add(new RandomController(prey, predator, false));
+//            demoConts.add(new NullController(prey, predator, false));
+//            demoConts.add(new ShipBiasedMCTSController(prey, predator, false));
+            //demoConts.add(new ConditionActionController(predator, prey, true));
+//            demoConts.add(new GreedyController(prey, predator, false));
+            demoConts.add(new MCController(prey, predator, false));
         }
 
     }
@@ -147,12 +148,12 @@ public class PredatorPreyProblem implements IProblem {
                 if (prey.isColliding(a)) terminal = true;
             }
 
-            for (Controller c : conts) {
+            for (Controller c : demoConts) {
                 //c.think(demoShips);
                 c.think();
             }
 
-            for (Spaceship s : ships) {
+            for (Spaceship s : demoShips) {
                 s.update();
             }
 
@@ -174,11 +175,11 @@ public class PredatorPreyProblem implements IProblem {
     }
 
     public List<Spaceship> getShips() {
-        return ships;
+        return demoShips;
     }
 
     public List<Controller> getControllers() {
-        return conts;
+        return demoConts;
     }
 
     @Override
@@ -193,49 +194,24 @@ public class PredatorPreyProblem implements IProblem {
 
     @Override
     public double fitness(double[] x) {
-        // Reset simulation state.
-        ProjectileManager.reset();
-        AsteroidManager.reset();
-        AsteroidManager.placeAsteroids(Constants.asteroidPlacementSeed);
-
         // Use a basic ship as the antagonist ship.
         Spaceship antagonistShip = new BasicSpaceship();
 
         // Create ship from chromosome.
         Spaceship ship = new ComplexSpaceship(x);
 
-        // Set up properties and controllers for both.
-        ship.pos.set(Constants.predatorStartPos);
-        antagonistShip.pos.set(Constants.preyStartPos);
-
         // Run once with ship as predator.
         Controller shipController = RunParameters.getAppropriateController(RunParameters.runShipController, ship, antagonistShip, true);
         Controller antagonistController = RunParameters.getAppropriateController(RunParameters.runShipController, ship, antagonistShip, false);
         // Simulate.
-        double predScore = runSimulation(ship, antagonistShip, shipController, antagonistController);
-
-        // Reset state.
-        ProjectileManager.reset();
-        AsteroidManager.reset();
-        AsteroidManager.placeAsteroids(Constants.asteroidPlacementSeed);
-
-        // Reset and swap the ships.
-        ship.pos.set(Constants.preyStartPos);
-        ship.vel.zero();
-        ship.rot = 0;
-        ship.rotvel = 0;
-
-        antagonistShip.pos.set(Constants.predatorStartPos);
-        antagonistShip.vel.zero();
-        antagonistShip.rot = 0;
-        antagonistShip.rotvel = 0;
+        double predScore = runSimulation(ship, antagonistShip, shipController, antagonistController).first();
 
         // Flip the controllers.
         shipController.isPredator = false;
         antagonistController.isPredator = true;
 
         // Simulate.
-        double preyScore = runSimulation(ship, antagonistShip, shipController, antagonistController);
+        double preyScore = runSimulation(antagonistShip, ship, antagonistController, shipController).second();
 
         // Take the average of both scores.
         double score = (predScore + preyScore) / 2;
@@ -254,30 +230,44 @@ public class PredatorPreyProblem implements IProblem {
         return score;
     }
 
-    private double runSimulation(Spaceship ship, Spaceship antagonistShip, Controller shipController, Controller antagonistController) {
-        double score = 0;
+    // returns <predator score, prey score>
+    protected Pair<Double, Double> runSimulation(Spaceship predatorShip, Spaceship preyShip, Controller predatorController, Controller preyController) {
         int timesteps = 0;
 
+        // Reset simulation state.
+        ProjectileManager.reset();
+        AsteroidManager.reset();
+        AsteroidManager.placeAsteroids(Constants.asteroidPlacementSeed);
+
+        // Reset ship states.
+        predatorShip.reset();
+        predatorShip.pos.set(Constants.predatorStartPos);
+        preyShip.reset();
+        preyShip.pos.set(Constants.preyStartPos);
+
+        // Run simulation!
         while(timesteps < Constants.timesteps) {
             for (Asteroid a : AsteroidManager.getAsteroids()) {
                 a.update();
-                if (ship.isColliding(a)) break;
-                if (antagonistShip.isColliding(a)) break;
+                if (predatorShip.isColliding(a)) break;
+                if (preyShip.isColliding(a)) break;
             }
 
-            shipController.think();
-            antagonistController.think();
+            predatorController.think();
+            preyController.think();
 
-            ship.update();
-            antagonistShip.update();
+            predatorShip.update();
+            preyShip.update();
 
-            if (ship.isColliding(antagonistShip)) {
+            if (predatorShip.isColliding(preyShip)) {
                 break;
             }
 
             timesteps++;
         }
-        return shipController.getScore();
+
+        Pair<Double, Double> score = new Pair<Double, Double>(predatorController.getScore(), preyController.getScore());
+        return score;
     }
 
     @Override
