@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PredatorPreySpecialistCoevolutionProblem extends PredatorPreyProblem {
+public class PredatorPreySpecialistCoevolutionProblem extends PredatorPreyProblem implements ITwoPopProblem {
 
     public Map<double[], Pair<Integer, Double>> fitnessScores;
     // chromosome = key
@@ -22,58 +22,75 @@ public class PredatorPreySpecialistCoevolutionProblem extends PredatorPreyProble
         fitnessScores = new HashMap<double[], Pair<Integer, Double>>();
     }
 
-    // handle the knockout tournament and simulation here
-    public void preFitnessSim(double[][] shipData) {
-        List<ComplexSpaceship> ships = new ArrayList<ComplexSpaceship>();
+    // much like preFitnessSim in the other class, except takes two populations
+    public void competePopulations(double[][] predatorData, double[][] preyData) {
         fitnessScores.clear();
+        List<ComplexSpaceship> predatorShips = new ArrayList<ComplexSpaceship>();
+        List<ComplexSpaceship> preyShips = new ArrayList<ComplexSpaceship>();
 
-        // reify all ships and initialise score information
-        for(double[] shipDatum : shipData) {
+        // reify all ships etc etc
+        for(double[] shipDatum : predatorData) {
             ComplexSpaceship ship = new ComplexSpaceship(shipDatum);
-            ships.add(ship);
+            predatorShips.add(ship);
+            Pair<Integer, Double> initData = new Pair<Integer, Double>(0, 0.0);
+            fitnessScores.put(ship.chromosome, initData);
+        }
+        for(double[] shipDatum : preyData) {
+            ComplexSpaceship ship = new ComplexSpaceship(shipDatum);
+            preyShips.add(ship);
             Pair<Integer, Double> initData = new Pair<Integer, Double>(0, 0.0);
             fitnessScores.put(ship.chromosome, initData);
         }
 
         // begin tournament!!
-        List<ComplexSpaceship> winners = new ArrayList<ComplexSpaceship>();
-        winners.addAll(ships);
+        List<ComplexSpaceship> winnerPredators = new ArrayList<ComplexSpaceship>();
+        List<ComplexSpaceship> winnerPreys = new ArrayList<ComplexSpaceship>();
+        winnerPredators.addAll(predatorShips);
+        winnerPreys.addAll(preyShips);
 
-        while(winners.size() > 1) {
-            List<ComplexSpaceship> remainingWinners = new ArrayList<ComplexSpaceship>();
-            for(int i=0; i<winners.size()/2; ++i) {
-                ComplexSpaceship shipA = winners.get(i*2);
-                ComplexSpaceship shipB = winners.get((i*2) + 1);
-                Controller contA = RunParameters.getAppropriateController(RunParameters.runShipController, shipA, shipB, true);
-                Controller contB = RunParameters.getAppropriateController(RunParameters.runShipController, shipB, shipA, false);
+        while(winnerPredators.size() >= 1 && winnerPreys.size() >= 1) {
+            List<ComplexSpaceship> remainingPredators = new ArrayList<ComplexSpaceship>();
+            List<ComplexSpaceship> remainingPreys = new ArrayList<ComplexSpaceship>();
+
+            // determine the number of trials
+            int numOfTrials = Math.min(winnerPredators.size(), winnerPreys.size());
+            for(int i=0; i<numOfTrials; ++i) {
+
+
+
+                ComplexSpaceship predatorShip = winnerPredators.get(i);
+                ComplexSpaceship preyShip = winnerPreys.get(i);
+                Controller predatorCont = RunParameters.getAppropriateController(RunParameters.runShipController, predatorShip, preyShip, true);
+                Controller preyCont = RunParameters.getAppropriateController(RunParameters.runShipController, preyShip, predatorShip, false);
 
                 // get scores
-                Pair<Double, Double> firstContest = runSimulation(shipA, shipB, contA, contB);
-                contA.isPredator = false;
-                contB.isPredator = true;
-                Pair<Double, Double> secondContest = runSimulation(shipB, shipA, contB, contA);
+                Pair<Double, Double> contest = runSimulation(predatorShip, preyShip, predatorCont, preyCont);
 
-                double shipAScore = (firstContest.first() + secondContest.second()) / 2;
-                double shipBScore = (firstContest.second() + secondContest.first()) / 2;
+                double predatorScore = contest.first();
+                double preyScore = contest.second();
 
                 // store scores
-                Pair<Integer, Double> shipAStats = fitnessScores.get(shipA.chromosome);
-                Pair<Integer, Double> shipBStats = fitnessScores.get(shipB.chromosome);
+                Pair<Integer, Double> predatorStats = fitnessScores.get(predatorShip.chromosome);
+                Pair<Integer, Double> preyStats = fitnessScores.get(preyShip.chromosome);
                 // increment number of trials
-                shipAStats.first++;
-                shipBStats.first++;
+                predatorStats.first++;
+                preyStats.first++;
                 // add both scores
-                shipAStats.second += shipAScore;
-                shipBStats.second += shipBScore;
+                predatorStats.second += predatorScore;
+                preyStats.second += preyScore;
 
                 // add winner to remaining winners
-                if(shipAScore > shipBScore) {
-                    remainingWinners.add(shipA);
+                if(predatorScore > preyScore) {
+                    remainingPredators.add(predatorShip);
                 } else {
-                    remainingWinners.add(shipB);
+                    remainingPreys.add(preyShip);
                 }
+
+
             }
-            winners = remainingWinners;
+
+            winnerPredators = remainingPredators;
+            winnerPreys = remainingPreys;
         }
     }
 

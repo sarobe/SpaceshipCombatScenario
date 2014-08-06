@@ -11,6 +11,7 @@ import spaceship.Spaceship;
 public class RunParameters {
 
 
+
     // master enumeration of parameters to go through
     // (a better structure would likely be more OOP, but i'm not sure how to link that to the Constants fields without reflection)
     // (dictionary structure? perhaps a total rewrite of the code is in order after this first test run)
@@ -37,6 +38,7 @@ public class RunParameters {
 
     public static RunParameterEnums currentRunVariable;
     public static int numTrials = 3;
+    public static String experimentName = "";
 
     public static enum ShipController {
         GREEDY_SEARCH,

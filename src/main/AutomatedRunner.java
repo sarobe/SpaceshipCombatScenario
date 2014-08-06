@@ -9,6 +9,7 @@ import java.util.*;
 public class AutomatedRunner {
 
     static Set<Runner> activeRuns;
+    static boolean specialistPopulations = false; // false, do all ships in one population, true, do two-pop problem instead
 
     public static void main(String[] args) throws Exception {
         RunParameters.ShipController currentController = RunParameters.ShipController.GREEDY_SEARCH;
@@ -22,6 +23,16 @@ public class AutomatedRunner {
             }
             if(args.length > 3) {
                 Constants.nIts = Integer.parseInt(args[3]);
+            }
+            if(args.length > 4) {
+                RunParameters.numTrials = Integer.parseInt(args[4]);
+            }
+            if(args.length > 5) {
+                specialistPopulations = Boolean.parseBoolean(args[5]);
+                Constants.numShips /= 2; // make each population half the size it would be normally, because we have two populations
+            }
+            if(args.length > 6) {
+                RunParameters.experimentName = args[6];
             }
         }
 
@@ -103,7 +114,14 @@ public class AutomatedRunner {
                 pw.close();
 
                 // go!
-                Runner r = new ProblemRunner(runIndex, "data/" + shipController.toString().toLowerCase());
+                Runner r;
+                if(specialistPopulations) {
+                    r = new TwoPopProblemRunner(runIndex, "data/" + shipController.toString().toLowerCase());
+                } else {
+                    r = new ProblemRunner(runIndex, "data/" + shipController.toString().toLowerCase());
+                }
+
+
                 Thread t = new Thread(r);
                 t.start();
                 return r;
@@ -115,7 +133,14 @@ public class AutomatedRunner {
     }
 
     public static int getNextRunIndex(RunParameters.ShipController shipController) {
-        File dataDirectory = new File("data/" + shipController.toString().toLowerCase() + "/");
+
+        String filePath;
+        if(!RunParameters.experimentName.isEmpty()) {
+            filePath = "data/" + RunParameters.experimentName + "/" + shipController.toString().toLowerCase() + "/";
+        } else {
+            filePath = "data/" + shipController.toString().toLowerCase() + "/";
+        }
+        File dataDirectory = new File(filePath);
         File directories[] = dataDirectory.listFiles();
         int highestRunNum = 0;
         if(directories == null || directories.length == 0) {

@@ -41,6 +41,7 @@ public class ProblemRunner extends Runner {
         problem = new PredatorPreyCoevolutionProblem();
         handler = new CMAHandler(problem, runIndex, logDirectory);
 
+
         showDemos = false;
         isStarted = false;
     }
@@ -58,7 +59,7 @@ public class ProblemRunner extends Runner {
 //            }
         }
         handler.finish();
-        System.out.println("Function evaluations: " + handler.getFuncEvals());
+        System.out.println("Function evaluations: Predator - " + handler.getFuncEvals());
         isRunning = false;
         // show a graph after finishing
         //Grapher.drawGraph(runIndex);
