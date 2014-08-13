@@ -21,17 +21,17 @@ public class ProblemRunner extends Runner {
     int runIndex;
 
 
-    public static void main(String[] args) {
-
-//        final int repeats = 1;
-        final int startingIndex = getNextRunIndex();
-
-//        for(int i=0; i<repeats; ++i) {
-            ProblemRunner r = new ProblemRunner(startingIndex, "data"); //+ i
-            Thread t = new Thread(r);
-            t.start();
-//        }
-    }
+//    public static void main(String[] args) {
+//
+////        final int repeats = 1;
+//        final int startingIndex = getNextRunIndex();
+//
+////        for(int i=0; i<repeats; ++i) {
+//            ProblemRunner r = new ProblemRunner(startingIndex, "data"); //+ i
+//            Thread t = new Thread(r);
+//            t.start();
+////        }
+//    }
     
     public ProblemRunner(int runIndex, String logDirectory) {
         super();
@@ -97,21 +97,21 @@ public class ProblemRunner extends Runner {
 
 
 
-    public static int getNextRunIndex() {
-        File dataDirectory = new File("data/");
-        File directories[] = dataDirectory.listFiles();
-        int highestRunNum = 0;
-        for(File dir : directories) {
-            String dirNumPart = dir.getName().substring(4);
-            int dirNum = 0;
-            try {
-                dirNum = Integer.parseInt(dirNumPart);
-                if(dirNum > highestRunNum) highestRunNum = dirNum;
-            } catch(NumberFormatException e) {
-                // do nothing, just skip
-            }
-        }
-        int startingIndex = highestRunNum + 1;
-        return startingIndex;
-    }
+//    public static int getNextRunIndex() {
+//        File dataDirectory = new File("data/");
+//        File directories[] = dataDirectory.listFiles();
+//        int highestRunNum = 0;
+//        for(File dir : directories) {
+//            String dirNumPart = dir.getName().substring(4);
+//            int dirNum = 0;
+//            try {
+//                dirNum = Integer.parseInt(dirNumPart);
+//                if(dirNum > highestRunNum) highestRunNum = dirNum;
+//            } catch(NumberFormatException e) {
+//                // do nothing, just skip
+//            }
+//        }
+//        int startingIndex = highestRunNum + 1;
+//        return startingIndex;
+//    }
 }

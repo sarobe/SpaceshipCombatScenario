@@ -10,6 +10,7 @@ public class AutomatedRunner {
 
     static Set<Runner> activeRuns;
     static boolean twoPopulations = false; // false, do all ships in one population, true, do two-pop problem instead
+    static boolean testedDefault = false;
 
     public static void main(String[] args) throws Exception {
         RunParameters.ShipController currentController = RunParameters.ShipController.GREEDY_SEARCH;
@@ -91,25 +92,30 @@ public class AutomatedRunner {
         System.out.println("Everything complete, hopefully. Total time elapsed (ms): " + (System.currentTimeMillis() - startingTime));
     }
 
+
     public static Runner startNewRun(int runIndex, int trialIndex, RunParameters.ShipController shipController, RunParameters.RunParameterEnums runParameter, int runParameterIndex) throws IOException {
         // set up values
         RunParameters.setParameter(runParameter, runParameterIndex);
 
         // do not run if default parameters
         // check to see these are a unique set of parameters
-        if(RunParameters.usingDefaultParameters) {
+        if(RunParameters.usingDefaultParameters && testedDefault) {
             System.out.println("Skipping default parameter run.");
             return new NullRunner();
         } else {
             // log a file to indicate the run data being tested
-            String directoryName = getLoggingDirectory(shipController, trialIndex) + "/run-" + runIndex;
+            String directoryName = getLoggingDirectory(shipController) + "/run-" + runIndex;
             boolean madeDirectory = new File(directoryName).mkdirs();
             if(madeDirectory) {
                 PrintWriter pw = new PrintWriter(new FileWriter(directoryName + "/param.txt"));
 
+                if(RunParameters.usingDefaultParameters) {
+                    pw.println("!!! THIS RUN IS TESTING THE DEFAULT PARAMETERS. USE FOR COMPARISON. !!!");
+                    testedDefault = true;
+                }
                 pw.println("Run " + runIndex + " stats:\n----------\n");
                 if(RunParameters.numTrials > 1) {
-                    pw.println("Trial " + trialIndex + " of " + RunParameters.numTrials + "\n----------\n");
+                    pw.println("Trial " + (trialIndex + 1) + " of " + RunParameters.numTrials + "\n----------\n");
                 }
                 pw.println("Controller: " + shipController);
                 pw.println("Parameter adjusted: " + runParameter);
@@ -122,7 +128,7 @@ public class AutomatedRunner {
 
                 // go!
                 Runner r;
-                String dataLogDirectory = getLoggingDirectory(shipController, trialIndex);
+                String dataLogDirectory = getLoggingDirectory(shipController);
                 if( twoPopulations ) {
                     r = new TwoPopProblemRunner(runIndex, dataLogDirectory);
                 } else {
@@ -142,7 +148,7 @@ public class AutomatedRunner {
 
     public static int getNextRunIndex(RunParameters.ShipController shipController, int trial) {
 
-        String filePath = getLoggingDirectory(shipController, trial);
+        String filePath = getLoggingDirectory(shipController);
         File dataDirectory = new File(filePath);
         File directories[] = dataDirectory.listFiles();
         int highestRunNum = 0;
@@ -169,15 +175,15 @@ public class AutomatedRunner {
         return highestRunNum + 1;
     }
 
-    public static String getLoggingDirectory(RunParameters.ShipController shipController, int trial) {
+    public static String getLoggingDirectory(RunParameters.ShipController shipController) {
         String dataLogDirectory = "data/";
         if(!RunParameters.experimentName.isEmpty()) {
             dataLogDirectory += RunParameters.experimentName + "/";
         }
         dataLogDirectory += shipController.toString().toLowerCase();
-        if(RunParameters.numTrials > 1) {
-            dataLogDirectory += "/set-" + trial;
-        }
+//        if(RunParameters.numTrials > 1) {
+//            dataLogDirectory += "/set-" + trial;
+//        }
         return dataLogDirectory;
     }
 
