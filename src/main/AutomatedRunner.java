@@ -9,7 +9,7 @@ import java.util.*;
 public class AutomatedRunner {
 
     static Set<Runner> activeRuns;
-    static boolean specialistPopulations = false; // false, do all ships in one population, true, do two-pop problem instead
+    static boolean twoPopulations = false; // false, do all ships in one population, true, do two-pop problem instead
 
     public static void main(String[] args) throws Exception {
         RunParameters.ShipController currentController = RunParameters.ShipController.GREEDY_SEARCH;
@@ -28,8 +28,12 @@ public class AutomatedRunner {
                 RunParameters.numTrials = Integer.parseInt(args[4]);
             }
             if(args.length > 5) {
-                specialistPopulations = Boolean.parseBoolean(args[5]);
-                Constants.numShips /= 2; // make each population half the size it would be normally, because we have two populations
+                RunParameters.problem = RunParameters.Problems.valueOf(args[5]);
+                twoPopulations = RunParameters.problem.isTwoPop();
+                if(twoPopulations) {
+                    // ensure the total amount of ships stays the same
+                    Constants.numShips /= 2;
+                }
             }
             if(args.length > 6) {
                 RunParameters.experimentName = args[6];
@@ -58,7 +62,7 @@ public class AutomatedRunner {
 
                 for(int k=0; k<numTrials; k++) {
                     System.out.println("---- Trial " + (k+1) + "/" + numTrials);
-                    Runner r = startNewRun(getNextRunIndex(currentController), currentController, currentVariable, j);
+                    Runner r = startNewRun(getNextRunIndex(currentController, k), k, currentController, currentVariable, j);
                     while(r.isRunning()) {
                         Thread.sleep(100);
                     }
@@ -87,7 +91,7 @@ public class AutomatedRunner {
         System.out.println("Everything complete, hopefully. Total time elapsed (ms): " + (System.currentTimeMillis() - startingTime));
     }
 
-    public static Runner startNewRun(int runIndex, RunParameters.ShipController shipController, RunParameters.RunParameterEnums runParameter, int runParameterIndex) throws IOException {
+    public static Runner startNewRun(int runIndex, int trialIndex, RunParameters.ShipController shipController, RunParameters.RunParameterEnums runParameter, int runParameterIndex) throws IOException {
         // set up values
         RunParameters.setParameter(runParameter, runParameterIndex);
 
@@ -98,12 +102,15 @@ public class AutomatedRunner {
             return new NullRunner();
         } else {
             // log a file to indicate the run data being tested
-            String directoryName = "data/" + shipController.toString().toLowerCase() + "/run-" + runIndex;
+            String directoryName = getLoggingDirectory(shipController, trialIndex) + "/run-" + runIndex;
             boolean madeDirectory = new File(directoryName).mkdirs();
             if(madeDirectory) {
                 PrintWriter pw = new PrintWriter(new FileWriter(directoryName + "/param.txt"));
 
                 pw.println("Run " + runIndex + " stats:\n----------\n");
+                if(RunParameters.numTrials > 1) {
+                    pw.println("Trial " + trialIndex + " of " + RunParameters.numTrials + "\n----------\n");
+                }
                 pw.println("Controller: " + shipController);
                 pw.println("Parameter adjusted: " + runParameter);
                 pw.println("Variables being used:\n\n" + RunParameters.outputValues());
@@ -115,10 +122,11 @@ public class AutomatedRunner {
 
                 // go!
                 Runner r;
-                if(specialistPopulations) {
-                    r = new TwoPopProblemRunner(runIndex, "data/" + shipController.toString().toLowerCase());
+                String dataLogDirectory = getLoggingDirectory(shipController, trialIndex);
+                if( twoPopulations ) {
+                    r = new TwoPopProblemRunner(runIndex, dataLogDirectory);
                 } else {
-                    r = new ProblemRunner(runIndex, "data/" + shipController.toString().toLowerCase());
+                    r = new ProblemRunner(runIndex, dataLogDirectory);
                 }
 
 
@@ -132,14 +140,9 @@ public class AutomatedRunner {
         }
     }
 
-    public static int getNextRunIndex(RunParameters.ShipController shipController) {
+    public static int getNextRunIndex(RunParameters.ShipController shipController, int trial) {
 
-        String filePath;
-        if(!RunParameters.experimentName.isEmpty()) {
-            filePath = "data/" + RunParameters.experimentName + "/" + shipController.toString().toLowerCase() + "/";
-        } else {
-            filePath = "data/" + shipController.toString().toLowerCase() + "/";
-        }
+        String filePath = getLoggingDirectory(shipController, trial);
         File dataDirectory = new File(filePath);
         File directories[] = dataDirectory.listFiles();
         int highestRunNum = 0;
@@ -164,6 +167,18 @@ public class AutomatedRunner {
             }
         }
         return highestRunNum + 1;
+    }
+
+    public static String getLoggingDirectory(RunParameters.ShipController shipController, int trial) {
+        String dataLogDirectory = "data/";
+        if(!RunParameters.experimentName.isEmpty()) {
+            dataLogDirectory += RunParameters.experimentName + "/";
+        }
+        dataLogDirectory += shipController.toString().toLowerCase();
+        if(RunParameters.numTrials > 1) {
+            dataLogDirectory += "/set-" + trial;
+        }
+        return dataLogDirectory;
     }
 
 }

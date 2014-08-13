@@ -6,6 +6,10 @@ import controller.mcts.ShipBiasedMCTSController;
 import controller.statebased.basic.GreedyController;
 import controller.statebased.basic.MCController;
 import controller.statebased.basic.NullController;
+import problem.IProblem;
+import problem.PredatorPreyCoevolutionProblem;
+import problem.PredatorPreyProblem;
+import problem.PredatorPreySpecialistCoevolutionProblem;
 import spaceship.Spaceship;
 
 public class RunParameters {
@@ -47,11 +51,11 @@ public class RunParameters {
         MCTS
     }
 
-    public static ShipController runShipController = ShipController.CONDITION_ACTION;
+    public static ShipController runShipController = ShipController.MCTS;
 
     // to a) avoid reflection and b) writing repeat copies of this code chunk every single place it's wanted
     public static Controller getAppropriateController(ShipController specifiedController, Spaceship ship, Spaceship antagonist, boolean isPredator) {
-        Controller cont;
+        Controller cont = null;
         switch (specifiedController) {
             case GREEDY_SEARCH:
                 cont = new GreedyController(ship, antagonist, isPredator);
@@ -66,9 +70,48 @@ public class RunParameters {
                 cont = new ShipBiasedMCTSController(ship, antagonist, isPredator);
                 break;
             default:
-                cont = new NullController(ship, antagonist, isPredator);
+                System.err.println("!! INVALID CONTROLLER SPECIFIED !!");
+                System.err.println("Aborting experiment now!");
+                System.exit(-1);
         }
         return cont;
+    }
+
+    // as above but for problems
+    public static enum Problems {
+
+        PREDATOR_PREY_FIXED_OPPONENT,
+        PREDATOR_PREY_COEVOLUTION,
+        PREDATOR_PREY_SPECIALISTS(true);
+
+        private final boolean isTwoPop;
+
+        Problems() { this.isTwoPop = false; }
+        Problems(boolean isTwoPop) { this.isTwoPop = isTwoPop; }
+
+        public boolean isTwoPop() { return isTwoPop; }
+    }
+
+    public static Problems problem = Problems.PREDATOR_PREY_FIXED_OPPONENT;
+
+    public static IProblem getAppropriateProblem(Problems specifiedProblem) {
+        IProblem problem = null;
+        switch(specifiedProblem) {
+            case PREDATOR_PREY_FIXED_OPPONENT:
+                problem = new PredatorPreyProblem();
+                break;
+            case PREDATOR_PREY_COEVOLUTION:
+                problem = new PredatorPreyCoevolutionProblem();
+                break;
+            case PREDATOR_PREY_SPECIALISTS:
+                problem = new PredatorPreySpecialistCoevolutionProblem();
+                break;
+            default:
+                System.err.println("!! INVALID PROBLEM SPECIFIED !!");
+                System.err.println("Aborting experiment now!");
+                System.exit(-1);
+        }
+        return problem;
     }
 
     // WorldType is defined in Constants

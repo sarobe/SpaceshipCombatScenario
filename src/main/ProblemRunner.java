@@ -1,5 +1,6 @@
 package main;
 
+import common.RunParameters;
 import strategy.*;
 import common.Constants;
 import common.utilities.JEasyFrame;
@@ -36,9 +37,7 @@ public class ProblemRunner extends Runner {
         super();
         this.runIndex = runIndex;
 
-        //problem = new SpaceshipCombatProblem();
-        //problem = new PredatorPreyProblem();
-        problem = new PredatorPreyCoevolutionProblem();
+        problem = RunParameters.getAppropriateProblem(RunParameters.problem);
         handler = new CMAHandler(problem, runIndex, logDirectory);
 
 

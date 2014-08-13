@@ -1,6 +1,7 @@
 package main;
 
 import common.Constants;
+import common.RunParameters;
 import common.utilities.JEasyFrame;
 import problem.IProblem;
 import problem.ITwoPopProblem;
@@ -40,12 +41,7 @@ public class TwoPopProblemRunner extends Runner {
         super();
         this.runIndex = runIndex;
 
-        //problem = new SpaceshipCombatProblem();
-        //problem = new PredatorPreyProblem();
-        //problem = new PredatorPreyCoevolutionProblem();
-        //handler = new CMAHandler(problem, runIndex, logDirectory);
-
-        problem = new PredatorPreySpecialistCoevolutionProblem();
+        problem = (ITwoPopProblem)RunParameters.getAppropriateProblem(RunParameters.problem);
         popAHandler = new CMAHandler(problem, runIndex, logDirectory);
         popBHandler = new CMAHandler(problem, runIndex+1, logDirectory);
 
