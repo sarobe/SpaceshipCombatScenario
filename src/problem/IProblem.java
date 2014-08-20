@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface IProblem {
 
-    public void demonstrationInit(double[][] populationData);
+    public void demonstrationInit(double[][] populationData, boolean useSpecialist);
     public void demonstrationInit();
     public void demonstrate();
 

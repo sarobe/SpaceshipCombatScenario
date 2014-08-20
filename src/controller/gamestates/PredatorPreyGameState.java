@@ -10,6 +10,8 @@ import problem.entities.Asteroid;
 import problem.managers.AsteroidManager;
 import problem.managers.AsteroidsState;
 import problem.managers.ProjectileManager;
+import spaceship.DummyObject;
+import spaceship.SimObject;
 import spaceship.Spaceship;
 
 public class PredatorPreyGameState implements IGameState {
@@ -77,7 +79,6 @@ public class PredatorPreyGameState implements IGameState {
 
         Vector2d ourVel = shipState.vel();
         Vector2d otherPos = otherState.pos.copy();
-        Vector2d otherVel = other.vel.copy();
 
         if (isPredator && Constants.usePredictedPreyPos && ourVel.mag() > 1) { // if our speed is too slow there's not much point aiming to intercept
 
@@ -94,17 +95,15 @@ public class PredatorPreyGameState implements IGameState {
 
             // given prey maintains velocity, determine where it will end up (remember to factor in collision with walls)
             // use this as the other ship's position
+            DummyObject dummy = new DummyObject(other);
             if (numSteps > 0) {
-                ShipState otherStateTemp = new ShipState(other);
                 for (int i = 0; i < numSteps; i++) {
-                    other.update(); // handles wall collision
+                    dummy.update(); // handles wall collision
                 }
-                shipState.setPredictedPoint(other.pos.copy());
-                otherPos.set(other.pos.copy());
-                other.setState(otherStateTemp);
+                otherPos.set(dummy.pos);
+                shipState.setPredictedPoint(dummy.pos.copy());
             }
         }
-
 
         if (hitAsteroid) {
             score = 0;
@@ -126,9 +125,7 @@ public class PredatorPreyGameState implements IGameState {
                 }
             } else {
                 if (isPredator) {
-                    double timeBonus = (Constants.timesteps - timestepsElapsed)/(Constants.timesteps + 0.0);
-                    assert(timeBonus >= 0);
-                    assert(timeBonus <= 1);
+                    double timeBonus = (Math.max(0, Constants.timesteps - timestepsElapsed))/(Constants.timesteps + 0.0);
                     score = 1 + timeBonus;//10000;   // make the max score 1 + 1 where the first 1 is "caught the enemy" and the second 1 is "in X timesteps"
                     score *= 0.5; // take from range 0-2 to range 0-1
                 }

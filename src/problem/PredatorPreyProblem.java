@@ -2,6 +2,7 @@ package problem;
 
 import common.Constants;
 import common.RunParameters;
+import common.math.Vector2d;
 import common.utilities.Pair;
 import controller.Controller;
 import controller.neuralnet.BasicPerceptronController;
@@ -49,7 +50,7 @@ public class PredatorPreyProblem implements IProblem {
 
 
     @Override
-    public void demonstrationInit(double[][] populationData) {
+    public void demonstrationInit(double[][] populationData, boolean useSpecialists) {
         ProjectileManager.reset();
         AsteroidManager.reset();
         timestepsElapsed = 0;
@@ -59,10 +60,16 @@ public class PredatorPreyProblem implements IProblem {
 
         AsteroidManager.placeAsteroids(Constants.asteroidPlacementSeed);
 
-        // get the best ship to be predator AND prey
+
         if(populationData.length > 1) {
-            predator = new ComplexSpaceship(bestChromosome);
-            prey = new ComplexSpaceship(bestChromosome);
+            if(useSpecialists) {
+                predator = new ComplexSpaceship(populationData[0]);
+                prey = new ComplexSpaceship(populationData[1]);
+            } else {
+                // get the best ship to be predator AND prey
+                predator = new ComplexSpaceship(bestChromosome);
+                prey = new ComplexSpaceship(bestChromosome);
+            }
         } else {
             predator = new ComplexSpaceship(populationData[0]);
             prey = new ComplexSpaceship(populationData[0]);
@@ -150,6 +157,7 @@ public class PredatorPreyProblem implements IProblem {
 
             for (Controller c : demoConts) {
                 //c.think(demoShips);
+                Vector2d shipPosBefore = c.getShip().pos.copy();
                 c.think();
             }
 
@@ -167,9 +175,9 @@ public class PredatorPreyProblem implements IProblem {
 
 
             // update influence map periodically
-            if (timestepsElapsed % 10 == 0) {
-                InfluenceMap.createInfluenceMap(predator, prey);
-            }
+//            if (timestepsElapsed % 10 == 0) {
+//                InfluenceMap.createInfluenceMap(predator, prey);
+//            }
             timestepsElapsed++;
         }
     }

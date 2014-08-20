@@ -76,7 +76,7 @@ public class ProblemRunner extends Runner {
         JEasyFrame frame = new JEasyFrame(sv, "Demonstration at Iteration " + handler.getIterations());
         frame.addKeyListener(new KeyHandler(this));
 
-        problem.demonstrationInit(pop);
+        problem.demonstrationInit(pop, false);
 
         runDemo = true;
         // MAIN DEMONSTRATION LOOP

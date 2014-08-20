@@ -168,7 +168,7 @@ public class SpaceshipIndividualCombatProblem implements IProblem {
         return new ComplexSpaceship(x);
     }
 
-    public void demonstrationInit(double[][] shipData) {
+    public void demonstrationInit(double[][] shipData, boolean useSpecialists) {
 
         ProjectileManager.reset();
         PickupManager.placePickups(Constants.pickupPlacementSeed);

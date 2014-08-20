@@ -47,6 +47,18 @@ public abstract class SimObject {
         this.rotvel = rotvel;
     }
 
+    public SimObject(SimObject other) {
+        this.pos = other.pos.copy();
+        this.rot = other.rot;
+        this.vel = other.vel.copy();
+        this.rotvel = other.rotvel;
+        this.radius = other.radius;
+        this.alive = other.alive;
+        this.hull = other.hull;
+        this.team = other.team;
+        this.bounced = other.bounced;
+    }
+
     public boolean isColliding(SimObject other) {
         boolean collide = false;
         //if(team != other.team) {

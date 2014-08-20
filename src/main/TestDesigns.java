@@ -1,6 +1,7 @@
 package main;
 
 import common.Constants;
+import common.RunParameters;
 import common.utilities.JEasyFrame;
 import common.utilities.StatSummary;
 import controller.Controller;
@@ -55,18 +56,38 @@ public class TestDesigns {
 //                        1, 200.0,  0.0, 10*(Math.PI),
 //                        1, 0.0, 200.0, 10*(3*Math.PI/2)};
 
-        //double[] shipDesign = {3.263939176417054, 113.76240113189843, 90.96882679909291, 300.5846671397011, 178.08307317290297, 98.20079331456265, 23.322362548966176, 210.23179317395724, 91.78079462880241, -142.74688107197582, -358.6996049652049, 92.6891610203842, -325.19123255938825, 119.06357918242452, -151.1120208723279, 3.851509248819468, -107.05434969689688, 105.56647240810307, 38.83635803462741, -92.54233013893139, -165.2773561219675, 220.43265836108307, -11.386420097186825, -5.369597723795419, -200.72004636736384, 209.32105065807917, -248.19245134948875, 164.03052461845596, -33.597519837222904};
-//
-        double[] shipDesign = {100.69170138109786, 117.49873212306264, 10.699674688266988, -89.78597847790404, -142.986039038389, -386.3155878244564, 254.0540932235018, -69.49958793584844, 3.5218583370773615, 0.7382200844573905, -339.74684549036914, -55.281412453519515, -16.360656423333026, -37.350454550271124, 63.74910145125422, -278.2618695985707, -27.783334589683587, 121.26807356116595, -59.60986685622615, -260.1126317366384, 24.82487417058417, 148.81245356007344, -285.4457130841955, 116.70945870017252, 279.8207198835681, 356.4820980738823, -394.7094829362532, 135.79360771596765, 76.66259329486898};
-        double[][] pop = new double[duplicates][];
 
-        for(int i=0; i<duplicates; i++) {
-            pop[i] = Arrays.copyOf(shipDesign, problem.nDim());
-            // scatter ships
-            pop[i][0] += (i - duplicates/2) * 50;
-            pop[i][1] += (i - duplicates/2) * 50;
+//
+
+        // using specialised ships?
+        boolean useSpecialist = true;
+
+        // decide which controller to test
+        RunParameters.runShipController = RunParameters.ShipController.MCTS;
+
+        // Interesting co-evolved ship using MCTS, small and agile
+        double[] shipDesign = {-102.73895913061146, 80.4536813822079, -190.07631854955284, 231.57978872973436, 116.16377119592839, 103.60301850054971, -47.789662132528015, 371.93723206898363, 91.64608832372998, -192.0701546302887, -94.52368101354523, -111.57414108483144, -192.9436604478859, 95.13536432843065, 160.19910123273706, 82.18220358588046, -113.59052059010384, -93.76034965421113, -47.5125979450776, 153.79769135748361, -96.1662443577818, 109.49010072382015, 61.34042244527505, 267.0740614751983, -14.162956707088668, -62.719014029134215, -64.72226275659085, 143.1808982044669, 73.14550087853179};
+
+        // Example specialised preys and predators.
+        double[] predatorDesign = {-298.3873627270567, -121.12687137187248, -405.26672818649956, 481.790272312112, 21.892102223759508, 594.1387737249404, -746.2835468960384, -158.39809583233364, 1318.6495601739439, 687.5856545899873, 32.47663255662939, 407.5332535924364, 265.4623814809795, 467.96939373042784, 496.84048114485375, -400.87189542636753, 163.67471383016968, -437.8231794773078, 83.69501668708816, -253.55603134801885, 77.35794390489728, 500.7446236853408, 535.2642032564287, 680.8400288682325, -69.69588566179789, -485.1831572938073, 55.885171236826196, 7.725989789181466, -127.88887926034826};
+        double[] preyDesign = {336.4878035612419, 257.77801551986875, 654.3046230669203, -636.4596719766332, -406.0499705130945, 71.91027901141888, -656.2999925056665, 368.6743608076719, 77.22501317932222, 530.9702338726001, 182.46619417942338, 207.4334899424334, 26.794549889830556, -169.396319649047, 328.10772517065817, 321.31495161256544, 500.9889207026351, -494.9031602751556, -540.6748764337702, 676.2263037087341, -545.3803307090546, -536.5639893167271, -108.12098692683142, 103.52866339811771, -539.3799439133302, 190.03234292872014, 1005.1694274016462, 163.992025260633, -272.9954590110507};
+
+        int popSize = useSpecialist ? 2 : 1;
+        double[][] pop = new double[popSize][];
+
+        if(useSpecialist) {
+            pop[0] = Arrays.copyOf(predatorDesign, problem.nDim());
+            pop[1] = Arrays.copyOf(preyDesign, problem.nDim());
+        } else {
+            pop[0] = Arrays.copyOf(shipDesign, problem.nDim());
         }
 
+//        for(int i=0; i<duplicates; i++) {
+//            pop[i] = Arrays.copyOf(shipDesign, problem.nDim());
+//            // scatter ships
+////            pop[i][0] += (i - duplicates/2) * 50;
+////            pop[i][1] += (i - duplicates/2) * 50;
+//        }
 
 
         SpaceshipVisualiser sv = new SpaceshipVisualiser(problem);
@@ -93,7 +114,7 @@ public class TestDesigns {
 //        System.out.println("Best Fitness: " + bestFitness);
 
 
-        problem.demonstrationInit(pop);
+        problem.demonstrationInit(pop, useSpecialist);
         // parameterless version just creates a basic lunar lander style ship
 //        problem.demonstrationInit();
 
@@ -138,7 +159,7 @@ public class TestDesigns {
                     predStats.add(predatorCont.getScore());
                     preyStats.add(preyCont.getScore());
                     // reset problem
-                    problem.demonstrationInit(pop);
+                    problem.demonstrationInit(pop, useSpecialist);
 //                    problem.demonstrationInit();
                     // get references to new controller instance
                     predatorCont = problem.getControllers().get(0);
