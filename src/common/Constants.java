@@ -58,7 +58,7 @@ public class Constants {
     public static int combatRepeats = 1;
 
     public static double thrusterRadiusLimit = 0;
-    public static int timesteps = 500;//1000;
+    public static int timesteps = 1000;
 //    public static int timesteps = 500;
 
     //public static Rectangle leftTeamStartRect = new Rectangle(0, 0, 450, 768);
@@ -96,7 +96,7 @@ public class Constants {
     public static int nIts = 200;//1000;
 //    public static int nIts = 200;
     public static int rolloutDepth = 100;
-    public static int asteroidPlacementSeed = 106839;
+    public static int asteroidPlacementSeed = 1068239;
 
 
 
@@ -114,6 +114,10 @@ public class Constants {
     public static double maxAsteroidRadius = 15;
     public static double maxVelocityRange = 20;
 
+    public static boolean drawShipBars = false;
+    public static boolean drawBoundingCircles = true;
+    public static boolean drawTrails = true;
+    public static boolean drawControllerDetails = false;
     public static boolean drawVelocities = false;
     public static boolean drawPredictedPoint = true;
 

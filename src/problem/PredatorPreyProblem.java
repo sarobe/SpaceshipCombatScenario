@@ -28,6 +28,7 @@ public class PredatorPreyProblem implements IProblem {
     public List<Spaceship> demoShips;
     public List<Controller> demoConts;
     public boolean terminal;
+    public boolean testingAsPredator = true;
 
     // used for demonstration purposes and caching to avoid constantly resimulating in demo init
     public double[] bestChromosome;
@@ -203,7 +204,10 @@ public class PredatorPreyProblem implements IProblem {
     @Override
     public double fitness(double[] x) {
         // Use a basic ship as the antagonist ship.
-        Spaceship antagonistShip = new BasicSpaceship();
+//        Spaceship antagonistShip = new BasicSpaceship();
+
+        double[] testDesign = {-102.73895913061146, 80.4536813822079, -190.07631854955284, 231.57978872973436, 116.16377119592839, 103.60301850054971, -47.789662132528015, 371.93723206898363, 91.64608832372998, -192.0701546302887, -94.52368101354523, -111.57414108483144, -192.9436604478859, 95.13536432843065, 160.19910123273706, 82.18220358588046, -113.59052059010384, -93.76034965421113, -47.5125979450776, 153.79769135748361, -96.1662443577818, 109.49010072382015, 61.34042244527505, 267.0740614751983, -14.162956707088668, -62.719014029134215, -64.72226275659085, 143.1808982044669, 73.14550087853179};
+        Spaceship antagonistShip = new ComplexSpaceship(testDesign);
 
         // Create ship from chromosome.
         Spaceship ship = new ComplexSpaceship(x);
@@ -211,18 +215,17 @@ public class PredatorPreyProblem implements IProblem {
         // Run once with ship as predator.
         Controller shipController = RunParameters.getAppropriateController(RunParameters.runShipController, ship, antagonistShip, true);
         Controller antagonistController = RunParameters.getAppropriateController(RunParameters.runShipController, ship, antagonistShip, false);
-        // Simulate.
-        double predScore = runSimulation(ship, antagonistShip, shipController, antagonistController).first();
 
-        // Flip the controllers.
-        shipController.isPredator = false;
-        antagonistController.isPredator = true;
+        double score;
+        if(testingAsPredator)  {
+            score = runSimulation(ship, antagonistShip, shipController, antagonistController).first();
+        } else {
+            // Flip the controllers.
+            shipController.isPredator = false;
+            antagonistController.isPredator = true;
 
-        // Simulate.
-        double preyScore = runSimulation(antagonistShip, ship, antagonistController, shipController).second();
-
-        // Take the average of both scores.
-        double score = (predScore + preyScore) / 2;
+            score = runSimulation(antagonistShip, ship, antagonistController, shipController).second();
+        }
 
         if(score >= bestChromosomeScore) {
             // use >= so that if score is inexplicably identical, we at least prefer novelty

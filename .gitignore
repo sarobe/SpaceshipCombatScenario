@@ -1,0 +1,5 @@
+data
+automatedrun/
+out/
+gnuplot/
+*.dat

@@ -1,5 +1,6 @@
 package controller;
 
+import common.Constants;
 import common.math.Vector2d;
 import spaceship.Spaceship;
 import spaceship.SimObject;
@@ -42,27 +43,31 @@ public abstract class Controller {
     }
 
     public void draw(Graphics2D g) {
-        AffineTransform at = g.getTransform();
 
-        g.translate(ship.pos.x, ship.pos.y);
-        g.setColor(Color.YELLOW);
-        g.drawOval((int)(-ship.radius), (int)(-ship.radius), (int)(ship.radius*2), (int)(ship.radius*2));
+        if(Constants.drawBoundingCircles) {
+            AffineTransform at = g.getTransform();
 
-        Vector2d shipForward = ship.getForward();
-        g.drawLine(0, 0, (int)(shipForward.x * 20), (int)(shipForward.y * 20));
+            g.translate(ship.pos.x, ship.pos.y);
+            g.setColor(Color.YELLOW);
+            g.drawOval((int)(-ship.radius), (int)(-ship.radius), (int)(ship.radius*2), (int)(ship.radius*2));
 
-        g.setTransform(at);
+            Vector2d shipForward = ship.getForward();
+            g.drawLine(0, 0, (int)(shipForward.x * 20), (int)(shipForward.y * 20));
 
-        // draw ship trail
-        if(trace.size() > 0) {
-            g.setColor(traceColor);
-            Vector2d lastP = trace.get(0);
-            for(Vector2d p : trace) {
-                g.drawLine((int)p.x, (int)p.y, (int)lastP.x, (int)lastP.y);
-                lastP = p;
-            }
+            g.setTransform(at);
         }
 
+        if(Constants.drawTrails) {
+            // draw ship trail
+            if(trace.size() > 0) {
+                g.setColor(traceColor);
+                Vector2d lastP = trace.get(0);
+                for(Vector2d p : trace) {
+                    g.drawLine((int)p.x, (int)p.y, (int)lastP.x, (int)lastP.y);
+                    lastP = p;
+                }
+            }
+        }
     }
 
     abstract public void think(List<SimObject> ships);

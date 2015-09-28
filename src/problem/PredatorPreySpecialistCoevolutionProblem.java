@@ -22,8 +22,12 @@ public class PredatorPreySpecialistCoevolutionProblem extends PredatorPreyProble
         fitnessScores = new HashMap<double[], Pair<Integer, Double>>();
     }
 
-    // much like preFitnessSim in the other class, except takes two populations
     public void competePopulations(double[][] predatorData, double[][] preyData) {
+        competePopulations(predatorData, preyData, RunParameters.runShipController, RunParameters.runShipController);
+    }
+
+    // much like preFitnessSim in the other class, except takes two populations
+    public void competePopulations(double[][] predatorData, double[][] preyData, RunParameters.ShipController predatorController, RunParameters.ShipController preyController) {
         fitnessScores.clear();
         List<ComplexSpaceship> predatorShips = new ArrayList<ComplexSpaceship>();
         List<ComplexSpaceship> preyShips = new ArrayList<ComplexSpaceship>();
@@ -60,8 +64,8 @@ public class PredatorPreySpecialistCoevolutionProblem extends PredatorPreyProble
 
                 ComplexSpaceship predatorShip = winnerPredators.get(i);
                 ComplexSpaceship preyShip = winnerPreys.get(i);
-                Controller predatorCont = RunParameters.getAppropriateController(RunParameters.runShipController, predatorShip, preyShip, true);
-                Controller preyCont = RunParameters.getAppropriateController(RunParameters.runShipController, preyShip, predatorShip, false);
+                Controller predatorCont = RunParameters.getAppropriateController(predatorController, predatorShip, preyShip, true);
+                Controller preyCont = RunParameters.getAppropriateController(preyController, preyShip, predatorShip, false);
 
                 // get scores
                 Pair<Double, Double> contest = runSimulation(predatorShip, preyShip, predatorCont, preyCont);
@@ -93,6 +97,21 @@ public class PredatorPreySpecialistCoevolutionProblem extends PredatorPreyProble
             winnerPreys = remainingPreys;
         }
     }
+
+
+
+    public void competePopulations(double[] predatorSingleData, double[] preySingleData) {
+        competePopulations(predatorSingleData, preySingleData, RunParameters.runShipController, RunParameters.runShipController);
+    }
+
+    public void competePopulations(double[] predatorSingleData, double[] preySingleData, RunParameters.ShipController predatorController, RunParameters.ShipController preyController) {
+        double[][] predatorData = new double[1][];
+        predatorData[0] = predatorSingleData;
+        double[][] preyData = new double[1][];
+        preyData[0] = preySingleData;
+        competePopulations(predatorData, preyData, predatorController, preyController);
+    }
+
 
     public double fitness(double[] x) {
         Pair<Integer, Double> scoreData = fitnessScores.get(x);

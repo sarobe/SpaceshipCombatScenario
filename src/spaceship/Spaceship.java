@@ -88,7 +88,8 @@ public abstract class Spaceship extends SimObject {
 
         g.setColor(shipColor);
         g.fillPolygon(hullShape);
-        g.setColor(Color.GRAY);
+//        g.setColor(Color.GRAY);
+        g.setColor(Color.BLACK);
         g.drawPolygon(hullShape);
 
         drawExtras(g);
@@ -99,26 +100,29 @@ public abstract class Spaceship extends SimObject {
             justHit = false;
         }
 
-        // draw HEALTH
-        g.rotate(-rot);
-        g.setColor(shipHighlightColor);
-        // first off, the tank outline
-        g.drawRect((int)(-radius), (int)(-radius*1.5), (int)(radius*2), 6);
-        // then, the tank contents
-        int hullIntegrity = (int)((radius*2) * (hull/maxHull));
-        g.fillRect((int)(-radius), (int)(-radius*1.5), hullIntegrity, 6);
+        if(Constants.drawShipBars) {
+            // draw HEALTH
+            g.rotate(-rot);
+            g.setColor(shipHighlightColor);
+            // first off, the tank outline
+            g.drawRect((int)(-radius), (int)(-radius*1.5), (int)(radius*2), 6);
+            // then, the tank contents
+            int hullIntegrity = (int)((radius*2) * (hull/maxHull));
+            g.fillRect((int)(-radius), (int)(-radius*1.5), hullIntegrity, 6);
 
-        // draw FUEL
-        g.setColor(Color.GRAY);
-        g.drawRect((int)(-radius), (int)(-radius*1.5 + 12), (int)(radius*2), 3);
-        int fuelContained = (int)((radius*2) * (fuel/Constants.maximumFuel));
-        g.fillRect((int)(-radius), (int)(-radius*1.5 + 12), fuelContained, 3);
+            // draw FUEL
+            g.setColor(Color.GRAY);
+            g.drawRect((int)(-radius), (int)(-radius*1.5 + 12), (int)(radius*2), 3);
+            int fuelContained = (int)((radius*2) * (fuel/Constants.maximumFuel));
+            g.fillRect((int)(-radius), (int)(-radius*1.5 + 12), fuelContained, 3);
 
-        // draw BULLETS
-        g.setColor(Color.WHITE);
-        g.drawRect((int)(-radius), (int)(-radius*1.5 + 17), (int)(radius*2), 2);
-        int bulletsHeld = (int)((radius*2) * (bullets/(float)Constants.maximumBullets));
-        g.fillRect((int)(-radius), (int)(-radius*1.5 + 17), bulletsHeld, 2);
+            // draw BULLETS
+            g.setColor(Color.WHITE);
+            g.drawRect((int)(-radius), (int)(-radius*1.5 + 17), (int)(radius*2), 2);
+            int bulletsHeld = (int)((radius*2) * (bullets/(float)Constants.maximumBullets));
+            g.fillRect((int)(-radius), (int)(-radius*1.5 + 17), bulletsHeld, 2);
+        }
+
 
 
         g.setTransform(at);

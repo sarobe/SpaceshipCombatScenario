@@ -81,6 +81,7 @@ public class RunParameters {
     public static enum Problems {
 
         PREDATOR_PREY_FIXED_OPPONENT,
+        PREDATOR_PREY_FIXED_OPPONENT_PREY,
         PREDATOR_PREY_COEVOLUTION,
         PREDATOR_PREY_SPECIALISTS(true);
 

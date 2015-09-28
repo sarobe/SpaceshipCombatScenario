@@ -68,11 +68,14 @@ public class Thruster extends SpaceshipComponent {
         g.rotate(attachRot);
         g.setColor(Color.GRAY);
         g.fillPolygon(thrusterX, thrusterY, 3);
-        g.setColor(Color.WHITE);
+//        g.setColor(Color.WHITE);
+        g.setColor(Color.BLACK);
         g.drawPolygon(thrusterX, thrusterY, 3);
         if(active) {
             g.setColor(parentShip.shipHighlightColor);
             g.fillPolygon(flameX, flameY, 3);
+            g.setColor(Color.BLACK);
+            g.drawPolygon(flameX, flameY, 3);
         }
         g.setTransform(at);
     }

@@ -82,7 +82,7 @@ public class ShipBiasedMCTSController extends StateController {
         super.draw(g);
 
         // draw rollouts
-        if(lastSearch != null) {
+        if(Constants.drawControllerDetails && lastSearch != null) {
             drawAllRollouts(g, lastSearch, lastSearch.initialState.copy());
         }
     }

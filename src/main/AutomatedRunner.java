@@ -11,6 +11,7 @@ public class AutomatedRunner {
     static Set<Runner> activeRuns;
     static boolean twoPopulations = false; // false, do all ships in one population, true, do two-pop problem instead
     static boolean testedDefault = false;
+    static boolean defaultsOnly = false;
 
     public static void main(String[] args) throws Exception {
         RunParameters.ShipController currentController = RunParameters.ShipController.GREEDY_SEARCH;
@@ -39,14 +40,17 @@ public class AutomatedRunner {
             if(args.length > 6) {
                 RunParameters.experimentName = args[6];
             }
+            if(args.length > 7) {
+                AutomatedRunner.defaultsOnly = Boolean.parseBoolean(args[7]);
+            }
         }
 
         activeRuns = new HashSet<Runner>();
         System.out.println("Using " + currentController + " controller with " + Constants.numEvals + " function evals, " + Constants.timesteps + " timesteps, and " + Constants.nIts + " MC iterations.");
-        doRuns(RunParameters.numTrials, currentController);
+        doRuns(RunParameters.numTrials, currentController, defaultsOnly);
     }
 
-    public static void doRuns(int numTrials, RunParameters.ShipController currentController) throws Exception {
+    public static void doRuns(int numTrials, RunParameters.ShipController currentController, boolean defaultsOnly) throws Exception {
         RunParameters.RunParameterEnums[] runParameterArray = RunParameters.RunParameterEnums.values();
         int totalParameters = runParameterArray.length;
         RunParameters.RunParameterEnums currentVariable;
@@ -99,17 +103,23 @@ public class AutomatedRunner {
 
         // do not run if default parameters
         // check to see these are a unique set of parameters
-        if(RunParameters.usingDefaultParameters && testedDefault) {
-            System.out.println("Skipping default parameter run.");
-            return new NullRunner();
+        if(defaultsOnly) {
+            if(!RunParameters.usingDefaultParameters) {
+                return new NullRunner();
+            }
         } else {
+            if(RunParameters.usingDefaultParameters && testedDefault) {
+                System.out.println("Skipping default parameter run.");
+                return new NullRunner();
+            }
+        }
             // log a file to indicate the run data being tested
             String directoryName = getLoggingDirectory(shipController) + "/run-" + runIndex;
             boolean madeDirectory = new File(directoryName).mkdirs();
             if(madeDirectory) {
                 PrintWriter pw = new PrintWriter(new FileWriter(directoryName + "/param.txt"));
 
-                if(RunParameters.usingDefaultParameters) {
+                if(RunParameters.usingDefaultParameters && !defaultsOnly) {
                     pw.println("!!! THIS RUN IS TESTING THE DEFAULT PARAMETERS. USE FOR COMPARISON. !!!");
                     testedDefault = true;
                 }
@@ -143,7 +153,6 @@ public class AutomatedRunner {
                 System.out.println("Couldn't make directory.");
                 return new NullRunner();
             }
-        }
     }
 
     public static int getNextRunIndex(RunParameters.ShipController shipController, int trial) {

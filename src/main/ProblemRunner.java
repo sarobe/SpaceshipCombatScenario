@@ -41,7 +41,7 @@ public class ProblemRunner extends Runner {
         handler = new CMAHandler(problem, runIndex, logDirectory);
 
 
-        showDemos = false;
+        showDemos = true;
         isStarted = false;
     }
 
@@ -53,9 +53,9 @@ public class ProblemRunner extends Runner {
         while(!handler.hasCompleted()) {
             problem.preFitnessSim(handler.getPopulation());
             handler.run();
-//            if((handler.getIterations()% demonstrationInterval == 2) && showDemos) {  //% demonstrationInterval
-//                demonstrate();
-//            }
+            if((handler.getIterations()% demonstrationInterval == 2) && showDemos) {  //% demonstrationInterval
+                demonstrate();
+            }
         }
         handler.finish();
         System.out.println("Function evaluations: Predator - " + handler.getFuncEvals());

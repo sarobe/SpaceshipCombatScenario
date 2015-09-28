@@ -27,7 +27,7 @@ public class SpaceshipVisualiser extends JComponent {
     }
 
     public void paintComponent(Graphics g) {
-        Graphics2D g2d = (Graphics2D)g;
+        Graphics2D g2d = (Graphics2D) g;
         g2d.setColor(bgColor);
         g2d.fillRect(0, 0, Constants.screenWidth, Constants.screenHeight);
 
@@ -44,15 +44,15 @@ public class SpaceshipVisualiser extends JComponent {
             }
         }*/
 
-        if(Constants.worldType == Constants.WorldType.CIRCULAR) {
+        if ( Constants.worldType == Constants.WorldType.CIRCULAR ) {
             g.setColor(Color.WHITE);
-            int radius = Math.min(Constants.screenWidth, Constants.screenHeight)/2;
-            g.drawOval(Constants.screenWidth/2 - radius, Constants.screenHeight/2 - radius, radius*2, radius*2);
+            int radius = Math.min(Constants.screenWidth, Constants.screenHeight) / 2;
+            g.drawOval(Constants.screenWidth / 2 - radius, Constants.screenHeight / 2 - radius, radius * 2, radius * 2);
         }
 
-        synchronized(ProblemRunner.class) {
+        synchronized (ProblemRunner.class) {
 
-            for(Projectile p : ProjectileManager.getLivingProjectiles()) {
+            for (Projectile p : ProjectileManager.getLivingProjectiles()) {
                 p.draw(g2d);
             }
 
@@ -60,24 +60,24 @@ public class SpaceshipVisualiser extends JComponent {
 //                p.draw(g2d);
 //            }
 
-            for(Asteroid a : AsteroidManager.getAsteroids()) {
+            for (Asteroid a : AsteroidManager.getAsteroids()) {
                 a.draw(g2d);
             }
 
-            for(Spaceship ship : problem.getShips()) {
-                if(ship.alive) ship.draw(g2d);
+            for (Spaceship ship : problem.getShips()) {
+                if ( ship.alive ) ship.draw(g2d);
             }
 
-            for(Controller cont : problem.getControllers()) {
-                if(cont.ship.alive) cont.draw(g2d);
+            for (Controller cont : problem.getControllers()) {
+                if ( cont.ship.alive ) cont.draw(g2d);
             }
-
 
 
             //g.setFont(statFont);
             //g.setColor(Color.WHITE);
         }
     }
+
     public Dimension getPreferredSize() {
         return new Dimension(Constants.screenWidth, Constants.screenHeight);
     }
