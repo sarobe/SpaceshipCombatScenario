@@ -92,9 +92,9 @@ public class MCController extends StateController {
         super.draw(g);
 
         // draw rollouts
-        if(lastRollouts != null) {
-            drawRollouts(g, initialState);
-        }
+//        if(lastRollouts != null) {
+//            drawRollouts(g, initialState);
+//        }
     }
 
 

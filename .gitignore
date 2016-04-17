@@ -4,3 +4,4 @@ out/
 gnuplot/
 *.dat
 src/ProceduralShipDesign.iml
+.idea/

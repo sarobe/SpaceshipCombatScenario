@@ -1,5 +1,6 @@
 package problem;
 
+import spaceship.ComplexSpaceship;
 import spaceship.Projectile;
 import spaceship.Spaceship;
 
@@ -16,7 +17,7 @@ public class ProjectileManager {
         projectileList = new ArrayList<Projectile>();
     }
 
-    public static Projectile getNewProjectile(Spaceship owner) {
+    public static Projectile getNewProjectile(ComplexSpaceship owner) {
         // get first available dead projectile if one exists
         Projectile created = null;
         if(!suppressNew) {
